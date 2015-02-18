@@ -3,6 +3,15 @@
   (and (pair? x)
        (eq? (car x) tag)))
 
+;;; Structures For computation, not display
+(define (make-vec dx dy)
+  (list 'vec dx dy))
+(define (vec-x d)
+  (cadr d))
+(define (vec-y d)
+  (caddr d))
+(define vec? (tag-predicate 'vec))
+
 ;;; Figure Primitives
 (define (point x y)
   (list 'point x y))
@@ -11,6 +20,28 @@
 (define (point-y p)
   (caddr p))
 (define point? (tag-predicate 'point))
+
+(define (rotate-vec-90 d)
+  (let ((dx (vec-x d))
+        (dy (vec-y d)))
+    (make-vec (- dy) dx)))
+
+;;; Vec from p1 to p2
+(define (sub-points p2 p1)
+  (let ((x1 (point-x p1))
+        (y1 (point-y p1))
+        (x2 (point-x p2))
+        (y2 (point-y p2)))
+    (make-vec (- x2 x1)
+              (- y2 y1))))
+
+(define (add-to-point p vec)
+  (let ((x (point-x p))
+        (y (point-y p))
+        (dx (vec-x vec))
+        (dy (vec-y vec)))
+    (point (+ x dx)
+           (+ y dy))))
 
 (define (segment p1 p2)
   (list 'segment p1 p2))
@@ -46,9 +77,9 @@
 ;;; Constructions
 (define (midpoint p1 p2)
   (point (avg (point-x p1)
-              (point-x p2))
-         (avg (point-y p1)
-              (point-y p2))))
+                   (point-x p2))
+              (avg (point-y p1)
+                   (point-y p2))))
 
 (define (intersect-lines line1 line2)
   (let ((p1 (line-p1 line1))
@@ -115,12 +146,22 @@
                 (point (- x1 dx)
                        (- y1 dy)))))))
 
-
-
-
 (define (circle-from-points center radius-point)
   (circle center
           (distance center radius-point)))
+
+(define (segment->line segment)
+  (line (segment-p1 segment)
+        (segment-p2 segment)))
+
+(define (perpendicular l point)
+  (let* ((p1 (line-p1 l))
+         (p2 (line-p2 l))
+         (v (sub-points p2 p1))
+         (rotated-v (rotate-vec-90 v))
+         (new-p (add-to-point point rotated-v)))
+    (line point new-p)))
+
 
 ;;; Measurements
 

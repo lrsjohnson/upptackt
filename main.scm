@@ -8,11 +8,12 @@
          (d (midpoint a b))
          (e (midpoint a c))
          (f (midpoint b c))
-         (l1 (line d c))
-         (l2 (line e b))
-         (l3 (line f a))
-         (g (intersect-lines l1 l2)))
-    (figure a b c d e f l1 l2 l3 g
+         (l1 (perpendicular (line a b) d))
+         (l2 (perpendicular (line a c) e))
+         (l3 (perpendicular (line b c) f))
+         (i (intersect-lines l1 l2))
+         (cir (circle-from-points i a)))
+    (figure a b c l1 l2 l3 i cir
             (segment a b)
             (segment a c)
             (segment b c)
@@ -30,7 +31,7 @@
          (cd (intersect-circles c1 c2))
          (c (car cd))
          (d (cadr cd)))
-    (figure a b c1 c2 c d
+    (figure a b #|c1 c2|# c d
             (segment a c)
             (segment a d)
             (segment b c)
@@ -48,10 +49,4 @@
 
 (define c (canvas))
 
-(draw-figure circle-test c)
-
-;;;
-
-'(triangle a b c)
-'(midpoint (a b) c)
-'(perp-bisector (a b) c)
+(draw-figure demo-figure c)
