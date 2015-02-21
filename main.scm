@@ -1,5 +1,3 @@
-(load "figure.scm")
-(load "graphics.scm")
 
 (define (demo-figure)
   (let* ((a (random-point))
@@ -16,8 +14,7 @@
     (figure a b c l1 l2 l3 i cir
             (segment a b)
             (segment a c)
-            (segment b c)
-            )))
+            (segment b c))))
 
 (define (circle-test)
   (let* ((a (random-point))
@@ -44,9 +41,55 @@
          (d (random-point))
          (l1 (line a b))
          (l2 (line c d))
-         (e (intersect-lines l1 l2)))
-    (figure a b c d l1 l2 e)))
+         (e (intersect-lines l1 l2))
+         (f (point-on-line l1))
+         (cir (circle-from-points e f)))
+    (figure a b c d l1 l2 e f cir)))
 
-(define c (canvas))
+(define (angle-test)
+  (let* ((a (random-point))
+         (b (random-point))
+         (c (random-point))
+         (a-1 (smallest-angle (angle a b c)))
+         (a-2 (smallest-angle (angle b c a)))
+         (a-3 (smallest-angle (angle c a b)))
+         (l1 (angle-bisector a-1))
+         (l2 (angle-bisector a-2))
+         (l3 (angle-bisector a-3))
+         (center-point
+          (intersect-lines (ray->line l1)
+                           (ray->line l2)))
+         (radius-line
+          (perpendicular (line b c)
+                         center-point))
+         (radius-point
+          (intersect-lines radius-line
+                           (line b c)))
+         (cir (circle-from-points
+               center-point
+               radius-point))
+         (pb1 (perpendicular-bisector
+               (segment a b)))
+         (pb2 (perpendicular-bisector
+               (segment b c)))
+         (pb-center (intersect-lines pb1 pb2))
+         (circum-cir (circle-from-points
+                      pb-center
+                      a)))
+    (figure a b c cir
+            pb-center
+            circum-cir
+            center-point
+            (segment a b)
+            (segment a c)
+            (segment b c))))
 
-(draw-figure demo-figure c)
+
+(define c '())
+
+(define (r)
+  (if (null? c)
+      (set! c (canvas)))
+  (draw-figure angle-test c))
+
+(r)

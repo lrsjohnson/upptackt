@@ -13,8 +13,12 @@
          (draw-segment canvas element))
         ((circle? element)
          (draw-circle canvas element))
+        ((angle? element)
+         (draw-angle canvas element))
         ((line? element)
-         (draw-line canvas element))))
+         (draw-line canvas element))
+        ((ray? element)
+         (draw-ray canvas element))))
 
 (define *point-radius* 0.02)
 (define (draw-point canvas point)
@@ -37,34 +41,6 @@
 (define *g-min-y* -1)
 (define *g-max-y*  1)
 
-(define (extend-to-max-segment p1 p2)
-  (let ((x1 (point-x p1))
-        (y1 (point-y p1))
-        (x2 (point-x p2))
-        (y2 (point-y p2)))
-    (let ((dx (- x2 x1))
-          (dy (- y2 y1)))
-      (cond
-       ((= 0 dx) (segment
-                  (point x1 *g-min-y*)
-                  (point x1 *g-max-y*)))
-       ((= 0 dy) (segment
-                  (point *g-min-x* y1)
-                  (point *g-min-y* y1)))
-       (else
-        (let ((t-xmin (/ (- *g-min-x* x1) dx))
-              (t-xmax (/ (- *g-max-x* x1) dx))
-              (t-ymin (/ (- *g-min-y* y1) dy))
-              (t-ymax (/ (- *g-max-y* y1) dy)))
-          (let* ((sorted (sort (list t-xmin t-xmax t-ymin t-ymax) <))
-                 (min-t (cadr sorted))
-                 (max-t (caddr sorted))
-                 (min-x (+ x1 (* min-t dx)))
-                 (min-y (+ y1 (* min-t dy)))
-                 (max-x (+ x1 (* max-t dx)))
-                 (max-y (+ y1 (* max-t dy))))
-            (segment (point min-x min-y)
-                     (point max-x max-y)))))))))
 
 (define (min-positive . args)
   (min (filter (lambda (x) (>= x 0)) args)))
@@ -77,6 +53,11 @@
         (p2 (line-p2 line)))
     (draw-segment canvas (extend-to-max-segment p1 p2))))
 
+(define (draw-ray canvas ray)
+  (let ((p1 (ray-p1 ray))
+        (p2 (ray-p2 ray)))
+    (draw-segment canvas (ray-extend-to-max-segment p1 p2))))
+
 (define (draw-circle canvas c)
   (let ((center (circle-center c))
         (radius (circle-radius c)))
@@ -84,6 +65,22 @@
                         (point-x center)
                         (point-y center)
                         radius)))
+
+(define *angle-mark-radius* 0.1)
+(define (draw-angle canvas a)
+  (let* ((p1 (angle-p1 a))
+         (vertex (angle-vertex a))
+         (p2 (angle-p2 a))
+         (leg1 (sub-points p1 vertex))
+         (leg2 (sub-points p2 vertex))
+         (angle-start (vec-to-angle leg1))
+         (angle-end (vec-to-angle leg2)))
+    (canvas-draw-arc canvas
+                     (point-x vertex)
+                     (point-y vertex)
+                     *angle-mark-radius*
+                     angle-start
+                     angle-end)))
 
 ;;; Canvas for x-graphics
 
@@ -105,6 +102,18 @@
   (graphics-operation (canvas-g canvas)
                       'draw-circle
                       x y radius))
+
+(define (canvas-draw-arc canvas x y radius
+                         angle-start angle-end)
+  (let ((angle-sweep
+         (fix-angle-0-2pi (- angle-end
+                             angle-start))))
+    (graphics-operation (canvas-g canvas)
+                        'draw-arc
+                        x y radius radius
+                        (rad->deg angle-start)
+                        (rad->deg angle-sweep)
+                        #f)))
 
 (define (canvas-fill-circle canvas x y radius)
   (graphics-operation (canvas-g canvas)

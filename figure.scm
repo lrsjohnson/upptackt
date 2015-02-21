@@ -1,3 +1,24 @@
+;;; Figure abstractions
+
+#|
+Todo:
+
+Figures:
+ - Duplicate Angles
+ - Angle Bisector
+ - Arcs
+
+ - Horizontal / vertical lines
+
+ - Arranging things nicely on page
+ - Handling errors / special cases of circles
+ - Discovering interesting properties
+ - Better triangle creator
+ - Color?
+ - Naming / printing
+ - Keeping track of known properties (e.g. from midpoint)
+|#
+
 ;;; Tag Helper
 (define ((tag-predicate tag) x)
   (and (pair? x)
@@ -12,6 +33,52 @@
   (caddr d))
 (define vec? (tag-predicate 'vec))
 
+(define (rotate-vec-90 v)
+  (let ((dx (vec-x v))
+        (dy (vec-y v)))
+    (make-vec (- dy) dx)))
+
+;; Rotate vector counter-clockwise
+(define (rotate-vec v radians)
+  (let ((dx (vec-x v))
+        (dy (vec-y v))
+        (c (cos radians))
+        (s (sin radians)))
+    (make-vec (+ (* c dx) (- (* s dy)))
+              (+ (* s dx) (* c dy)))))
+
+(define (scale-vec v c)
+  (let ((dx (vec-x v))
+        (dy (vec-y v)))
+    (make-vec (* c dx) (* c dy))))
+
+(define (vec-magnitude v)
+  (let ((dx (vec-x v))
+        (dy (vec-y v)))
+    (sqrt (+ (square dx) (square dy)))))
+
+(define (unit-vec v)
+  (scale-vec v (/ (vec-magnitude v))))
+
+(define (scale-vec-to-dist v dist)
+  (scale-vec (unit-vec v) dist))
+
+(define (vec-to-angle v)
+  (let ((dx (vec-x v))
+        (dy (vec-y v)))
+    (atan dy dx)))
+
+(define (float-mod num mod)
+  (- num
+     (* (floor (/ num mod))
+        mod)))
+
+(define (fix-angle-0-2pi a)
+  (float-mod a (* 2 pi)))
+
+(define (rad->deg rad)
+  (* (/ rad (* 2 pi)) 360))
+
 ;;; Figure Primitives
 (define (point x y)
   (list 'point x y))
@@ -21,17 +88,12 @@
   (caddr p))
 (define point? (tag-predicate 'point))
 
-(define (rotate-vec-90 d)
-  (let ((dx (vec-x d))
-        (dy (vec-y d)))
-    (make-vec (- dy) dx)))
-
 ;;; Vec from p1 to p2
 (define (sub-points p2 p1)
   (let ((x1 (point-x p1))
-        (y1 (point-y p1))
         (x2 (point-x p2))
-        (y2 (point-y p2)))
+        (y2 (point-y p2))
+        (y1 (point-y p1)))
     (make-vec (- x2 x1)
               (- y2 y1))))
 
@@ -61,6 +123,10 @@
 
 (define (ray p1 p2)
   (list 'ray p1 p2))
+(define (ray-p1 ray)
+  (cadr ray))
+(define (ray-p2 ray)
+  (caddr ray))
 (define ray? (tag-predicate 'ray))
 
 (define (circle center radius)
@@ -74,12 +140,55 @@
 (define (avg a b)
   (/ (+ a b) 2))
 
+;;; Angles
+
+(define (angle p1 vertex p2)
+  (list 'angle p1 vertex p2))
+(define (angle-p1 a)
+  (cadr a))
+(define (angle-vertex a)
+  (caddr a))
+(define (angle-p2 a)
+  (cadddr a))
+(define angle? (tag-predicate 'angle))
+
+(define (reverse-angle a)
+  (let ((p1 (angle-p1 a))
+        (v (angle-vertex a))
+        (p2 (angle-p2 a)))
+    (angle p2 v p1)))
+
+(define (smallest-angle a)
+  (if (> (angle-measure a) pi)
+      (reverse-angle a)
+      a))
+
+;;; Conversions, extending shorter segments
+
+;;; Ray shares point p1
+(define (segment->ray segment)
+  (ray (segment-p1 segment)
+       (segment-p2 segment)))
+
+(define (segment->line segment)
+  (line (segment-p1 segment)
+        (segment-p2 segment)))
+
+(define (ray->line ray)
+  (line (ray-p1 ray)
+        (ray-p2 ray)))
+
 ;;; Constructions
 (define (midpoint p1 p2)
   (point (avg (point-x p1)
                    (point-x p2))
               (avg (point-y p1)
                    (point-y p2))))
+
+(define (segment-midpoint s)
+  (let ((p1 (segment-p1 s))
+        (p2 (segment-p2 s)))
+    (midpoint p1 p2)))
 
 (define (intersect-lines line1 line2)
   (let ((p1 (line-p1 line1))
@@ -150,10 +259,6 @@
   (circle center
           (distance center radius-point)))
 
-(define (segment->line segment)
-  (line (segment-p1 segment)
-        (segment-p2 segment)))
-
 (define (perpendicular l point)
   (let* ((p1 (line-p1 l))
          (p2 (line-p2 l))
@@ -162,6 +267,44 @@
          (new-p (add-to-point point rotated-v)))
     (line point new-p)))
 
+(define (perpendicular-bisector segment)
+  (let ((midpt (segment-midpoint segment)))
+    (perpendicular (segment->line segment)
+                   midpt)))
+
+;; Angle -> Ray
+(define (angle-bisector a)
+  (let* ((p1 (angle-p1 a))
+         (p2 (angle-p2 a))
+         (vertex (angle-vertex a))
+         (radians (angle-measure a))
+         (half-angle (/ radians 2))
+         (new-angle (measured-angle-ccw
+                     p2
+                     vertex
+                     half-angle)))
+    (ray vertex (angle-p2 new-angle))))
+
+;;; Measurement-directed constructions
+;;; TODO: Wrap in "compass/straightedge" ones, or replace with compass versions
+
+(define (measured-point-on-ray r dist)
+  (let* ((p1 (ray-p1 r))
+         (p2 (ray-p2 r))
+         (v (sub-points p1 p2))
+         (scaled-v (scale-vec-to-dist v dist)))
+    (add-to-point p1 scaled-v)))
+
+(define (measured-angle-ccw p1 vertex radians)
+  (let* ((v (sub-points p1 vertex))
+         (v-rotated (rotate-vec v (- radians)))
+         (p2 (add-to-point vertex v-rotated)))
+    (angle p1 vertex p2)))
+
+(define measured-angle measured-angle-ccw)
+
+(define (measured-angle-cw p1 vertex radians)
+  (reverse-angle (measured-angle-ccw p1 vertex (- radians))))
 
 ;;; Measurements
 
@@ -170,6 +313,17 @@
                       (point-x p2)))
            (square (- (point-y p1)
                       (point-y p2))))))
+
+(define (angle-measure a)
+  (let* ((p1 (angle-p1 a))
+         (vertex (angle-vertex a))
+         (p2 (angle-p2 a))
+         (leg1 (sub-points p1 vertex))
+         (leg2 (sub-points p2 vertex))
+         (angle-start (vec-to-angle leg1))
+         (angle-end (vec-to-angle leg2)))
+    (fix-angle-0-2pi (- angle-end
+                        angle-start))))
 
 (define max-dist 2)
 
@@ -196,6 +350,33 @@
   (point (rand-range -0.8 0.8)
          (rand-range -0.8 0.8)))
 
+(define (point-on-segment seg)
+  (let* ((p1 (segment-p1 seg))
+         (p2 (segment-p2 seg))
+         (t (rand-range 0.0 1.0))
+         (v (sub-points p2 p1)))
+    (add-to-point p1 (scale-vec v t))))
+
+(define (point-on-line l)
+  (let* ((p1 (line-p1 l))
+         (p2 (line-p2 l))
+         (seg (extend-to-max-segment p1 p2))
+         (sp1 (segment-p1 seg))
+         (sp2 (segment-p2 seg))
+         (t (rand-range 0.0 1.0))
+         (v (sub-points sp2 sp1)))
+    (add-to-point sp1 (scale-vec v t))))
+
+(define (point-on-ray r)
+  (let* ((p1 (ray-p1 r))
+         (p2 (ray-p2 r))
+         (seg (ray-extend-to-max-segment p1 p2))
+         (sp1 (segment-p1 seg))
+         (sp2 (segment-p2 seg))
+         (t (rand-range 0.0 1.0))
+         (v (sub-points sp2 sp1)))
+    (add-to-point sp1 (scale-vec v t))))
+
 (define (point-on-circle c)
   (let ((center (circle-center c))
         (radius (circle-radius c))
@@ -204,3 +385,61 @@
               (* radius (cos angle)))
            (+ (point-y center)
               (* radius (sin angle))))))
+
+(define (extend-to-max-segment p1 p2)
+  (let ((x1 (point-x p1))
+        (y1 (point-y p1))
+        (x2 (point-x p2))
+        (y2 (point-y p2)))
+    (let ((dx (- x2 x1))
+          (dy (- y2 y1)))
+      (cond
+       ((= 0 dx) (segment
+                  (point x1 *g-min-y*)
+                  (point x1 *g-max-y*)))
+       ((= 0 dy) (segment
+                  (point *g-min-x* y1)
+                  (point *g-min-y* y1)))
+       (else
+        (let ((t-xmin (/ (- *g-min-x* x1) dx))
+              (t-xmax (/ (- *g-max-x* x1) dx))
+              (t-ymin (/ (- *g-min-y* y1) dy))
+              (t-ymax (/ (- *g-max-y* y1) dy)))
+          (let* ((sorted (sort (list t-xmin t-xmax t-ymin t-ymax) <))
+                 (min-t (cadr sorted))
+                 (max-t (caddr sorted))
+                 (min-x (+ x1 (* min-t dx)))
+                 (min-y (+ y1 (* min-t dy)))
+                 (max-x (+ x1 (* max-t dx)))
+                 (max-y (+ y1 (* max-t dy))))
+            (segment (point min-x min-y)
+                     (point max-x max-y)))))))))
+
+(define (ray-extend-to-max-segment p1 p2)
+  (let ((x1 (point-x p1))
+        (y1 (point-y p1))
+        (x2 (point-x p2))
+        (y2 (point-y p2)))
+    (let ((dx (- x2 x1))
+          (dy (- y2 y1)))
+      (cond
+       ((= 0 dx) (segment
+                  (point x1 *g-min-y*)
+                  (point x1 *g-max-y*)))
+       ((= 0 dy) (segment
+                  (point *g-min-x* y1)
+                  (point *g-min-y* y1)))
+       (else
+        (let ((t-xmin (/ (- *g-min-x* x1) dx))
+              (t-xmax (/ (- *g-max-x* x1) dx))
+              (t-ymin (/ (- *g-min-y* y1) dy))
+              (t-ymax (/ (- *g-max-y* y1) dy)))
+          (let* ((sorted (sort (list t-xmin t-xmax t-ymin t-ymax) <))
+                 (min-t (cadr sorted))
+                 (max-t (caddr sorted))
+                 (min-x (+ x1 (* min-t dx)))
+                 (min-y (+ y1 (* min-t dy)))
+                 (max-x (+ x1 (* max-t dx)))
+                 (max-y (+ y1 (* max-t dy))))
+            (segment p1
+                     (point max-x max-y)))))))))
