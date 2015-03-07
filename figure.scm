@@ -1,23 +1,5 @@
 ;;; Figure abstractions
 
-#|
-Todo:
-
-Figures:
- - Duplicate Angles
- - Arcs
-
- - Horizontal / vertical lines
-
- - Arranging things nicely on page
- - Handling errors / special cases of circles
- - Discovering interesting properties
- - Better triangle creator
- - Color?
- - Naming / printing
- - Keeping track of known properties (e.g. from midpoint)
-|#
-
 ;;; Tag Helper
 (define ((tag-predicate tag) x)
   (and (pair? x)

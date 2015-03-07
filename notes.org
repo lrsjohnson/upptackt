@@ -1,0 +1,48 @@
+* General TODD:
+  - [ ] Make first random choices nicely, WLOG.
+  - [ ] Name before vs. name after vs. use symbolic names everywhere...
+  - [ ] Display nicely
+  - [ ] Duplicate Angles
+  - [ ] Horizontal/Vertical Lines
+  - [ ] Arranging Things Nicely on page
+  - [ ] Handling errors / special cases of circles
+  - [ ] Better Triangle Creator
+  - [ ] Color?
+  - [ ] Names?
+  - [ ] Keeping Track of known properties
+  - [ ] Representing / Measuring Arcs
+  - [ ] line-through
+  - [ ] ray-through
+  - [ ] angle-from,
+  - [ ] smallest-angle-from
+  - [ ] Random line
+  - [ ] Angle-from between lines
+  - [ ] Rotate line1, a, b about point c by some arbitrary angle
+  - [ ] line-through
+  - [ ] Line by point and direction
+  - [ ] Translate line l1 to get l2, construct parallel
+  - [ ] Translate randomly
+  - [ ] angle-from lines
+  - [ ] Flip lines
+  - [ ] Multiple return values
+  - [ ] line-through random point vs. random line
+  - [ ] Make line from arm of vector
+  - [ ] Translate randomly along line
+  - [ ] perpendicular-bisector?
+  - [ ] Analyze equal segments not actually there...
+  - [ ] Randobly rotate about point
+  - [ ] aux-segment
+  - [ ] Tricky, figure out how to minimize value, specify "minimize" property?
+  - [ ] perpendicular-to => Segment
+  - [ ] Angles from Triangle
+  - [ ] Concurrency of lines
+  - [ ] Draw markings for angle bisector
+  - [ ] Sides from triangle
+  - [ ] Redundant with original sides in (a, b, c)
+  - [ ] Concurrent, but not at vertex points...
+  - [ ] Altitudes: Segment a, b, c
+  - [ ] Resist redundant concurrencies
+  - [ ] See if it can provide/learn a name for this point?
+  - [ ] Circumcenter macro
+  - [ ] Handle >2 equal segment sizes...
+  - [ ] Provide some property to consider truth
