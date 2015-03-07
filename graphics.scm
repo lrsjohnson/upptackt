@@ -1,24 +1,20 @@
-(load "figure.scm")
-
 (define (draw-figure figure-proc canvas)
   (clear-canvas canvas)
   (for-each
-   (draw-element canvas)
+   (lambda (element)
+     ((draw-element element) canvas))
    (figure-elements (figure-proc))))
 
-(define ((draw-element canvas) element)
-  (cond ((point? element)
-         (draw-point canvas element))
-        ((segment? element)
-         (draw-segment canvas element))
-        ((circle? element)
-         (draw-circle canvas element))
-        ((angle? element)
-         (draw-angle canvas element))
-        ((line? element)
-         (draw-line canvas element))
-        ((ray? element)
-         (draw-ray canvas element))))
+(define draw-element
+  (make-generic-operation 1 'draw-element))
+
+
+(define (add-to-draw-element! predicate handler)
+  (defhandler draw-element
+    (lambda (element)
+      (lambda (canvas)
+        (handler canvas element)))
+    predicate))
 
 (define *point-radius* 0.02)
 (define (draw-point canvas point)
@@ -81,6 +77,15 @@
                      *angle-mark-radius*
                      angle-start
                      angle-end)))
+
+;;; Add to generic operations
+
+(add-to-draw-element! point? draw-point)
+(add-to-draw-element! segment? draw-segment)
+(add-to-draw-element! circle? draw-circle)
+(add-to-draw-element! angle? draw-angle)
+(add-to-draw-element! line? draw-line)
+(add-to-draw-element! ray? draw-ray)
 
 ;;; Canvas for x-graphics
 

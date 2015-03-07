@@ -5,7 +5,6 @@ Todo:
 
 Figures:
  - Duplicate Angles
- - Angle Bisector
  - Arcs
 
  - Horizontal / vertical lines
@@ -23,6 +22,13 @@ Figures:
 (define ((tag-predicate tag) x)
   (and (pair? x)
        (eq? (car x) tag)))
+
+;;; Assign name
+(define (set-element-name! element name)
+  (eq-put! element 'name name))
+
+(define (element-name element)
+  (eq-get element 'name))
 
 ;;; Structures For computation, not display
 (define (make-vec dx dy)
@@ -87,6 +93,15 @@ Figures:
 (define (point-y p)
   (caddr p))
 (define point? (tag-predicate 'point))
+
+(define (close-enuf? a b)
+  (< (abs (- a b)) 0.000001))
+
+(define (point-equal? p1 p2)
+  (and (close-enuf? (point-x p1)
+                    (point-x p2))
+       (close-enuf? (point-y p1)
+                    (point-y p2))))
 
 ;;; Vec from p1 to p2
 (define (sub-points p2 p1)
@@ -334,6 +349,9 @@ Figures:
 (define (figure-elements figure)
   (cdr figure))
 (define figure? (tag-predicate 'figure))
+
+(define (figure-filter predicate figure)
+  (filter predicate (figure-elements figure)))
 
 ;;; Utilities
 

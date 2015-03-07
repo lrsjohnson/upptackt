@@ -1,20 +1,22 @@
-
 (define (demo-figure)
-  (let* ((a (random-point))
-         (b (random-point))
-         (c (random-point))
-         (d (midpoint a b))
-         (e (midpoint a c))
-         (f (midpoint b c))
-         (l1 (perpendicular (line a b) d))
-         (l2 (perpendicular (line a c) e))
-         (l3 (perpendicular (line b c) f))
-         (i (intersect-lines l1 l2))
-         (cir (circle-from-points i a)))
-    (figure a b c l1 l2 l3 i cir
+  (let-geo* ((a (random-point))
+            (b (random-point))
+            (c (random-point))
+            (d (midpoint a b))
+            (e (midpoint a c))
+            (f (midpoint b c))
+            (l1 (perpendicular (line a b) d))
+            (l2 (perpendicular (line a c) e))
+            (l3 (perpendicular (line b c) f))
+            (i1 (intersect-lines l1 l2))
+            (i2 (intersect-lines l1 l3))
+            (cir (circle-from-points i1 a)))
+           (figure
             (segment a b)
+            (segment b c)
             (segment a c)
-            (segment b c))))
+            a b c l1 l2 l3 cir
+            i1 i2)))
 
 (define (circle-test)
   (let* ((a (random-point))
@@ -76,7 +78,7 @@
          (circum-cir (circle-from-points
                       pb-center
                       a)))
-    (figure a b c cir
+    (figure a b c cir a-1 a-2 a-3
             pb-center
             circum-cir
             center-point
@@ -84,12 +86,11 @@
             (segment a c)
             (segment b c))))
 
-
 (define c '())
 
 (define (r)
   (if (null? c)
       (set! c (canvas)))
-  (draw-figure angle-test c))
+  (draw-figure demo-figure c))
 
 (r)
