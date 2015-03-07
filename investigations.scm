@@ -236,3 +236,32 @@
 ;;; [72] Tessellating Triangles Conjecture
 ;;; [73] Tesselating Quadrilateral Conjecture
 ;;; [74] Rectangle Area Conjecture
+;;; [75] Parallelogram Area Conjecture
+;;; [76] Triangle Area Conjecture
+;;; [77] Trapezoid Area Conjecture
+;;; [78] Kite Area Conjecture
+;;; [79] Regular Polygon Area Conjecture
+;;; [80] Circle Area Conjecture
+;;; [81] Pythagorean Theorem
+;;; [82] Converse of Pythagorean Theorem
+;;; [83] Isoceles Right Triangle Conjecture
+;;; [84] 30-60-90 Triangle Conjecture
+;;; [85] Distance Formula
+;;; [86] Prism-Cylinder Volume Conjecture
+;;; [87] Pyramid-Cone Volume Conjecture
+;;; [Exp.8] Platonic Solids
+;;; [88] Sphere Volume Conjecture
+;;; [89] Sphere Surface Area Conjecture
+;;; [91] AA Similarity Conjecture
+;;; [92] SSS Similarity Conjecture
+;;; [93] SAS Similarity Conjecture
+;;; [94] Proportional Parts Conjecture
+;;; [95] Angle Bisector / Opposite Side Conjecture
+;;; [96] Proportional Area Conjecture
+;;; [97] Proportional Volumes Conjecture
+;;; [98] Parallel/Porportionality Conjecture
+;;; [99] Extended Parallel/Proportionality Conjecture
+;;; [100] SAS Triangle Area Conjecture
+;;; [101] Las of Sines
+;;; [102] Law of Cosines
+;;; [Exp.9] Special Constructions

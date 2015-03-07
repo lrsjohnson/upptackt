@@ -46,3 +46,10 @@
   - [ ] Circumcenter macro
   - [ ] Handle >2 equal segment sizes...
   - [ ] Provide some property to consider truth
+
+* Far-out Ideas:
+  - Hyperbolic Geometry
+  - 3D, volumes
+  - Construction Problems
+  - Proofs
+  - Chasing Angles, solving exercises
