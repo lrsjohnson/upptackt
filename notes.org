@@ -48,12 +48,15 @@
     - [ ] Name before vs. name after vs. use symbolic names everywhere...
     - [ ] Multiple element return
 ** Analysis
-*** TODO Simple Analysis [0/5]
-    - [ ] Angle Equality
+*** TODO Simple Analysis [1/5]
+    - [X] Angle Equality
     - [ ] Angles which sum to same value
     - [ ] Segment Length Equality
     - [ ] Segments not actually present?
     - [ ] Concurrency of lines
+*** TODO Repeated Analysis [0/2]
+    - [ ] Perform constructions multiple times
+    - [ ] Maintain information
 *** TODO Dependencies [0/2]
     - [ ] Keeping Track of known properties
     - [ ] Exclude known vertex points from "concurrent"
@@ -74,8 +77,9 @@
     - [ ] Displaying on page nicely
     - [ ] Organizing
 ** Simulation
-*** TODO Explore Kinematics-related simulations [0/1]
+*** TODO Explore Kinematics-related simulations [0/2]
     - [ ] Model + simulate as joins + telescoping, etc.
+    - [ ] Wiggle Existing choices vs. making new choices
 ** Investigations
 *** TODO Triangle Magic [0/2]
     - [ ] Add in examples from Triangle Magic

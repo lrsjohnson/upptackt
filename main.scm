@@ -99,4 +99,9 @@
       (set! c (canvas)))
   (draw-figure vertical-angles c))
 
+(define (a)
+  (analyze-figure vertical-angles))
+
 (r)
+
+(a)

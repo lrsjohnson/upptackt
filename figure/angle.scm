@@ -51,3 +51,8 @@
 
 (define (smallest-angle-from a b)
   (smallest-angle (angle-from a b)))
+
+
+(define (angle-measure-equal? a1 a2)
+  (close-enuf? (angle-measure a1)
+               (angle-measure a2)))

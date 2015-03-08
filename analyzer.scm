@@ -3,19 +3,21 @@
 (define (analyze-figure figure-proc)
   (analyze (figure-proc)))
 
+
+(define (results-with-names result-type elements)
+  (map (lambda (p-pair)
+         (cons result-type (map element-name p-pair)))
+       elements))
+
 ;;; Given a figure, report what's interesting
 (define (analyze figure)
-  (let* ((points (figure-filter point? figure)))
-    (let ((concurrent-points (report-concurrent-points points)))
-      (map (lambda (p-pair)
-                  (let ((p1 (car p-pair))
-                        (p2 (cadr p-pair)))
-                    (let ((name-1 (element-name p1))
-                          (name-2 (element-name p2)))
-                      `(concurrent ,name-1 ,name-2))))
-                concurrent-points))))
-
-
+  (let* ((points (figure-filter point? figure))
+         (angles (figure-filter angle? figure)))
+    (let ((concurrent-points (report-concurrent-points points))
+          (equal-angles (report-equal-angles angles)))
+      (append
+       (results-with-names 'concurrent concurrent-points)
+       (results-with-names 'angle-equal equal-angles)))))
 
 ;;; General proceudres for generating pairs
 (define (all-pairs elements)
@@ -41,5 +43,10 @@
   (let ((elt-pairs (all-pairs elements)))
     (filter (pair-predicate predicate) elt-pairs)))
 
+;;; Check for concurrent points
 (define (report-concurrent-points points)
   ((report-pairwise point-equal?) points))
+
+;;; Check for equal angles
+(define (report-equal-angles angles)
+  ((report-pairwise angle-measure-equal?) angles))
