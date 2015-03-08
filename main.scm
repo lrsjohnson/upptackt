@@ -92,16 +92,20 @@
             (segment a c)
             (segment b c))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Run commands
+
+(define current-figure corresponding-angles)
+
 (define c '())
 
 (define (r)
   (if (null? c)
       (set! c (canvas)))
-  (draw-figure vertical-angles c))
-
-(define (a)
-  (analyze-figure vertical-angles))
+  (draw-figure current-figure c)
+  (pp (analyze-figure current-figure))
+  (sleep-current-thread 500)
+  (r)
+  )
 
 (r)
-
-(a)

@@ -22,19 +22,21 @@
              (a-2 (smallest-angle-from (flip l1) (flip l2))))
             (figure l1 c l2 a-1 a-2)))
 
-#|
+
 ;;; [3a] Corresponding Angles Conjecture
 ;;; Givens: - Lines l1 and l2 are parallel
 ;;;         - Line l3 is a transversal
 ;;;         - a-1 and a-2 are resulting corresponding angles
 ;;; Goal: m(a-1) = m(a-2)
 (define (corresponding-angles)
-  (let-geo* ((a (random-point))
-             (l1 (line-through-point a))
-             ((b l2) (translate-randomly a l1))
+  (let-geo* ((l1 (random-line))
+             (l2 (translate-randomly l1))
+             (a (point-on-line l1))
+             (b (point-on-line l2))
              (l3 (line a b))
-             (a-1 (angle-from l3 l2))
-             (a-2 (angle-from (flip l3) (flip l1))))))
+             (a-1 (smallest-angle-from l3 l2))
+             (a-2 (smallest-angle-from l3 l1)))
+            (figure l1 l2 a b l3 a-1 a-2)))
 ;;; TODO: line-through
 ;;; TODO: Line by point and direction
 ;;; TODO: Translate line l1 to get l2, construct parallel
@@ -44,6 +46,7 @@
 ;;; TODO: Multiple return values
 ;;; TODO: line-through random point vs. random line
 
+#|
 ;;; [3b, 3c] Interior / alternate interior: ordering of angles and
 
 ;;; [4] Converse of Parallel lines

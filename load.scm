@@ -9,6 +9,7 @@
             "analyzer"
             "figure/utils"
             "figure/line"
+            "figure/vec"
             "figure/measurements"
             "figure/angle"
             "figure/bounds"
@@ -20,7 +21,6 @@
             "figure/metadata"
             "figure/randomness"
             "figure/transforms"
-            "figure/vec"
             "graphics"
             "investigations"
             "main"))

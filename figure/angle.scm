@@ -39,9 +39,9 @@
 
 (define (angle-from-line-ray l r)
   (let ((vertex (ray-p1 r)))
-    ;(assert (on-line? vertex l) "Angle-from-line-ray: Vertex of ray not on line")
+    (assert (on-line? vertex l) "Angle-from-line-ray: Vertex of ray not on line")
     (let ((v1 (line->vec l))
-          (v2 (line->vec r)))
+          (v2 (ray->vec r)))
       (make-angle v1 vertex v2))))
 (defhandler angle-from angle-from-line-ray line? ray?)
 
@@ -52,7 +52,17 @@
 (define (smallest-angle-from a b)
   (smallest-angle (angle-from a b)))
 
-
+;;; Predicates on Angles
 (define (angle-measure-equal? a1 a2)
   (close-enuf? (angle-measure a1)
                (angle-measure a2)))
+
+(define (supplementary-angles? a1 a2)
+  (close-enuf? (+ (angle-measure a1)
+                  (angle-measure a2))
+               pi))
+
+(define (complementary-angles? a1 a2)
+  (close-enuf? (+ (angle-measure a1)
+                  (angle-measure a2))
+               (/ pi 2.0)))

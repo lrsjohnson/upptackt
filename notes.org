@@ -32,25 +32,28 @@
     - [ ] Perpendicular-to (point-to-line)
     - [ ] "Construct Altitudes"
     - [ ] "Construct Parallelogram ABCD"
-*** TODO Transformations [2/6]
+*** TODO Transformations [4/7]
     - [ ] Duplicate angles
-    - [ ] Translate Elements
+    - [X] Translate Elements
+    - [X] Translate Randomly
     - [X] Rotation about point
     - [ ] Multiple rotation about point
     - [ ] Translate Randomly along Line
     - [X] Rotate Randomly about Point
-*** TODO Randomness [2/4]
+*** TODO Randomness [2/5]
     - [X] Random direction
     - [X] Random Line
     - [ ] Make first random choices nicely WLOG
     - [ ] Handling errors / special cases of circles
+    - [ ] Backtracking -> "Animation"?
 *** TODO Construction Language [0/2]
     - [ ] Name before vs. name after vs. use symbolic names everywhere...
     - [ ] Multiple element return
 ** Analysis
-*** TODO Simple Analysis [1/5]
+*** TODO Simple Analysis [2/6]
     - [X] Angle Equality
-    - [ ] Angles which sum to same value
+    - [X] Complementary / Supplementary Angles
+    - [ ] General Angles which sum to same value
     - [ ] Segment Length Equality
     - [ ] Segments not actually present?
     - [ ] Concurrency of lines
@@ -76,6 +79,8 @@
 *** TODO Diagram-level Graphics [0/3]
     - [ ] Displaying on page nicely
     - [ ] Organizing
+*** TODO Animation [0/1]
+    - [ ] Display several displays with timing between
 ** Simulation
 *** TODO Explore Kinematics-related simulations [0/2]
     - [ ] Model + simulate as joins + telescoping, etc.

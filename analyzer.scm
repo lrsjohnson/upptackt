@@ -13,11 +13,10 @@
 (define (analyze figure)
   (let* ((points (figure-filter point? figure))
          (angles (figure-filter angle? figure)))
-    (let ((concurrent-points (report-concurrent-points points))
-          (equal-angles (report-equal-angles angles)))
-      (append
-       (results-with-names 'concurrent concurrent-points)
-       (results-with-names 'angle-equal equal-angles)))))
+    (append (results-with-names 'concurrent (report-concurrent-points points))
+            (results-with-names 'angle-equal (report-equal-angles angles))
+            (results-with-names 'supplementary (report-supplementary-angles angles))
+            (results-with-names 'complementary (report-complementary-angles angles)))))
 
 ;;; General proceudres for generating pairs
 (define (all-pairs elements)
@@ -50,3 +49,11 @@
 ;;; Check for equal angles
 (define (report-equal-angles angles)
   ((report-pairwise angle-measure-equal?) angles))
+
+;;; Check for supplementary angles
+(define (report-supplementary-angles angles)
+  ((report-pairwise supplementary-angles?) angles))
+
+;;; Check for complementary angles
+(define (report-complementary-angles angles)
+  ((report-pairwise complementary-angles?) angles))
