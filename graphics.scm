@@ -64,13 +64,11 @@
 
 (define *angle-mark-radius* 0.1)
 (define (draw-angle canvas a)
-  (let* ((p1 (angle-p1 a))
-         (vertex (angle-vertex a))
-         (p2 (angle-p2 a))
-         (leg1 (sub-points p1 vertex))
-         (leg2 (sub-points p2 vertex))
-         (angle-start (vec-to-angle leg1))
-         (angle-end (vec-to-angle leg2)))
+  (let* ((vertex (angle-vertex a))
+         (arm1 (angle-arm-1 a))
+         (arm2 (angle-arm-2 a))
+         (angle-start (vec-to-angle arm1))
+         (angle-end (vec-to-angle arm2)))
     (canvas-draw-arc canvas
                      (point-x vertex)
                      (point-y vertex)

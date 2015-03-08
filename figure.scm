@@ -1,4 +1,4 @@
-;;; Figure abstractions
+;; Figure abstractions
 
 ;;; Tag Helper
 (define ((tag-predicate tag) x)
@@ -40,6 +40,9 @@
         (dy (vec-y v)))
     (make-vec (* c dx) (* c dy))))
 
+(define (unit-vec-from-angle theta)
+  (make-vec (cos theta) (sin theta)))
+
 (define (vec-magnitude v)
   (let ((dx (vec-x v))
         (dy (vec-y v)))
@@ -75,9 +78,6 @@
 (define (point-y p)
   (caddr p))
 (define point? (tag-predicate 'point))
-
-(define (close-enuf? a b)
-  (< (abs (- a b)) 0.000001))
 
 (define (point-equal? p1 p2)
   (and (close-enuf? (point-x p1)
@@ -139,28 +139,97 @@
 
 ;;; Angles
 
-(define (angle p1 vertex p2)
-  (list 'angle p1 vertex p2))
-(define (angle-p1 a)
+;;; v1 and v2 are vectors in the directions of the angle arms
+(define (make-angle v1 vertex v2)
+  (list 'angle v1 vertex v2))
+
+(define (angle-from-points p1 vertex p2)
+  (let ((v1 (sub-points p1 vertex))
+        (v2 (sub-points p2 vertex)))
+    (make-angle v1 vertex v2)))
+
+(define (angle-arm-1 a)
   (cadr a))
 (define (angle-vertex a)
   (caddr a))
-(define (angle-p2 a)
+(define (angle-arm-2 a)
   (cadddr a))
 (define angle? (tag-predicate 'angle))
 
 (define (reverse-angle a)
-  (let ((p1 (angle-p1 a))
+  (let ((a1 (angle-arm-1 a))
         (v (angle-vertex a))
-        (p2 (angle-p2 a)))
-    (angle p2 v p1)))
+        (a2 (angle-arm-2 a)))
+    (make-angle a2 v a1)))
+
+;;; Alternate, helper constructors
+(define (line-from-point-vec p vec)
+  (let ((p2 (add-to-point p vec)))
+    (line p p2)))
+
+(define (line-through-point p)
+  (let ((v (random-direction)))
+    (line-from-point-vec p v)))
+
+(define (ray-from-point-vec p vec)
+  (let ((p2 (add-to-point p vec)))
+    (ray p p2)))
+
+(define (ray-from-point p)
+  (let ((v (random-direction)))
+    (ray-from-point-vec p v)))
+
+(define angle-from (make-generic-operation 2 'angle-from))
+
+(define (angle-from-lines l1 l2)
+  (let ((v1 (line->vec l1))
+        (v2 (line->vec l2))
+        (p (intersect-lines l1 l2)))
+    (make-angle v1 p v2)))
+(defhandler angle-from angle-from-lines line? line?)
+
+(define (angle-from-line-ray l r)
+  (let ((vertex (ray-p1 r)))
+    ;(assert (on-line? vertex l) "Angle-from-line-ray: Vertex of ray not on line")
+    (let ((v1 (line->vec l))
+          (v2 (line->vec r)))
+      (make-angle v1 vertex v2))))
+(defhandler angle-from angle-from-line-ray line? ray?)
+
+(define (angle-from-ray-line r l)
+  (reverse-angle (angle-from-line-ray l r)))
+(defhandler angle-from angle-from-ray-line ray? line?)
+
+(define (smallest-angle-from a b)
+  (smallest-angle (angle-from a b)))
+
+;;: Construct Rays
+
+(define (ray-from-point-vector p v)
+  (let ((p2 (add-to-point p v)))
+    (ray p p2)))
+
+(define (ray-from-angle-arm-1 a)
+  (ray-from-point-vector (angle-vertex a)
+                         (angle-arm-1 a)))
+(define (ray-from-angle-arm-2 a)
+  (ray-from-point-vector (angle-vertex a)
+                         (angle-arm-2 a)))
+
+;;; Transformations
+
+(define flip (make-generic-operation 1 'flip))
+
+(define (flip-line l)
+  (line (line-p2 l) (line-p1 l)))
+(defhandler flip flip-line line?)
+
+;;; Conversions, extending shorter segments
 
 (define (smallest-angle a)
   (if (> (angle-measure a) pi)
       (reverse-angle a)
       a))
-
-;;; Conversions, extending shorter segments
 
 ;;; Ray shares point p1
 (define (segment->ray segment)
@@ -175,6 +244,18 @@
   (line (ray-p1 ray)
         (ray-p2 ray)))
 
+(define (line->vec l)
+  (sub-points (line-p2 l)
+              (line-p1 l)))
+
+(define (ray->vec r)
+  (sub-points (ray-p2 r)
+              (ray-p1 r)))
+
+(define (segment->vec s)
+  (sub-points (ray-p2 r)
+              (ray-p1 r)))
+
 ;;; Constructions
 (define (midpoint p1 p2)
   (point (avg (point-x p1)
@@ -186,6 +267,14 @@
   (let ((p1 (segment-p1 s))
         (p2 (segment-p2 s)))
     (midpoint p1 p2)))
+
+(define (on-line? p l)
+  (let ((p1 (line-p1 l))
+        (p2 (line-p2 l)))
+    (let ((d1 (distance p p1))
+          (d2 (distance p p2))
+          (d3 (distance p1 p2)))
+      (close-enuf? (+ d1 d2) d3))))
 
 (define (intersect-lines line1 line2)
   (let ((p1 (line-p1 line1))
@@ -271,13 +360,13 @@
 
 ;; Angle -> Ray
 (define (angle-bisector a)
-  (let* ((p1 (angle-p1 a))
-         (p2 (angle-p2 a))
+  (let* ((a1 (angle-arm-1 a))
+         (a2 (angle-arm-2 a))
          (vertex (angle-vertex a))
          (radians (angle-measure a))
          (half-angle (/ radians 2))
          (new-angle (measured-angle-ccw
-                     p2
+                     (add-to-point vertex a2)
                      vertex
                      half-angle)))
     (ray vertex (angle-p2 new-angle))))
@@ -293,10 +382,9 @@
     (add-to-point p1 scaled-v)))
 
 (define (measured-angle-ccw p1 vertex radians)
-  (let* ((v (sub-points p1 vertex))
-         (v-rotated (rotate-vec v (- radians)))
-         (p2 (add-to-point vertex v-rotated)))
-    (angle p1 vertex p2)))
+  (let* ((v1 (sub-points p1 vertex))
+         (v-rotated (rotate-vec v (- radians))))
+    (angle v1 vertex v-rotated)))
 
 (define measured-angle measured-angle-ccw)
 
@@ -312,13 +400,11 @@
                       (point-y p2))))))
 
 (define (angle-measure a)
-  (let* ((p1 (angle-p1 a))
-         (vertex (angle-vertex a))
-         (p2 (angle-p2 a))
-         (leg1 (sub-points p1 vertex))
-         (leg2 (sub-points p2 vertex))
-         (angle-start (vec-to-angle leg1))
-         (angle-end (vec-to-angle leg2)))
+  (let* ((vertex (angle-vertex a))
+         (arm1 (angle-arm-1 a))
+         (arm2 (angle-arm-2 a))
+         (angle-start (vec-to-angle arm1))
+         (angle-end (vec-to-angle arm2)))
     (fix-angle-0-2pi (- angle-end
                         angle-start))))
 
@@ -349,6 +435,11 @@
 (define (random-point)
   (point (rand-range -0.8 0.8)
          (rand-range -0.8 0.8)))
+
+;;; "Unit Vector"
+(define (random-direction)
+  (let ((theta (rand-range 0 (* 2 pi))))
+    (unit-vec-from-angle theta)))
 
 (define (point-on-segment seg)
   (let* ((p1 (segment-p1 seg))

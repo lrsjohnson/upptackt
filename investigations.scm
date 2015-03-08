@@ -9,11 +9,9 @@
              (a-1 (smallest-angle-from l1 r))
              (a-2 (smallest-angle-from r (flip l1))))
             (figure a l1 r a-1 a-2)))
-;;; TODO: line-through
-;;; TODO: ray-through
-;;; TODO: angle-from,
-;;; TODO: smallest-angle-from
+;;; TODO: Angles which sum to same value (complementary, supplementary, etc.
 
+#|
 ;;; [2] Vertical Angles Conjecture
 ;;; Givens: Angles a-1 and a-2 are vertical angles
 ;;; Goal: m(a-1) = m(a-2)
@@ -265,3 +263,4 @@
 ;;; [101] Las of Sines
 ;;; [102] Law of Cosines
 ;;; [Exp.9] Special Constructions
+|#
