@@ -32,18 +32,6 @@
                       (point-x p2)
                       (point-y p2))))
 
-(define *g-min-x* -1)
-(define *g-max-x*  1)
-(define *g-min-y* -1)
-(define *g-max-y*  1)
-
-
-(define (min-positive . args)
-  (min (filter (lambda (x) (>= x 0)) args)))
-
-(define (max-negative . args)
-  (min (filter (lambda (x) (<= x 0)) args)))
-
 (define (draw-line canvas line)
   (let ((p1 (line-p1 line))
         (p2 (line-p2 line)))

@@ -11,21 +11,18 @@
             (figure a l1 r a-1 a-2)))
 ;;; TODO: Angles which sum to same value (complementary, supplementary, etc.
 
-#|
 ;;; [2] Vertical Angles Conjecture
 ;;; Givens: Angles a-1 and a-2 are vertical angles
 ;;; Goal: m(a-1) = m(a-2)
 (define (vertical-angles)
   (let-geo* ((l1 (random-line))
              (c (point-on-line l1))
-             (l2 (randomly-rotate-about c l1))
-             (a-1 (angle-from l1 l2))
-             (a-2 (angle-from (flip l1) (flip l2))))
+             (l2 (rotate-randomly-about c l1))
+             (a-1 (smallest-angle-from l1 l2))
+             (a-2 (smallest-angle-from (flip l1) (flip l2))))
             (figure l1 c l2 a-1 a-2)))
-;;; TODO: Random line
-;;; TODO: Angle-from between lines
-;;; TODO: Rotate line1, a, b about point c by some arbitrary angle
 
+#|
 ;;; [3a] Corresponding Angles Conjecture
 ;;; Givens: - Lines l1 and l2 are parallel
 ;;;         - Line l3 is a transversal

@@ -97,6 +97,6 @@
 (define (r)
   (if (null? c)
       (set! c (canvas)))
-  (draw-figure debug-figure c))
+  (draw-figure vertical-angles c))
 
 (r)

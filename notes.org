@@ -1,25 +1,30 @@
-* List
+* Task List
 ** Core
-*** TODO Numeric Stuff [1/2]
+*** TODO Numeric Stuff [1/3]
     - [X] Improved close-enuf?
     - [ ] Move away from origin (0, 0)
+    - [ ] Remap coordinates for drawing
 ** Constructions
-*** TODO Basic Constructions [6/9]
+*** DONE Basic Constructions [9/9]
+    CLOSED: [2015-03-08 Sun 01:37]
     - [X] Line by point and direction
     - [X] line-through
     - [X] Ray by point and direction
     - [X] ray-through
     - [X] angle-from, lines, rays,
     - [X] smallest-angle-from
-    - [ ] Horizontal, Vertical Lines
-    - [ ] Flip Lines direction
-    - [ ] Line from Arm of Angle
+    - [X] Horizontal, Vertical Lines
+    - [X] Flip lines direction
+    - [X] Line from Arm of Angle
 *** TODO Circle-related constructions
     - [ ] Representing / Measuring Arcs
-*** TODO Element Representations [0/3]
+    - [ ] Circles, Radii, Diameter
+    - [ ] Tangents, etc.
+*** TODO Element Representations [3/4]
     - [ ] Consider point+direction for line vs. two points
-    - [ ] Angles as vertex point + two vecs
-    - [ ] Change to using Record structures
+    - [X] Angles as vertex point + two vecs
+    - [X] Change to using Record structures
+    - [X] Refactor files
 *** TODO Compound Constructions [0/6]
     - [ ] Better Triangle Creator
     - [ ] Triangle Segments
@@ -27,16 +32,16 @@
     - [ ] Perpendicular-to (point-to-line)
     - [ ] "Construct Altitudes"
     - [ ] "Construct Parallelogram ABCD"
-*** TODO Transformations [0/6]
+*** TODO Transformations [2/6]
     - [ ] Duplicate angles
     - [ ] Translate Elements
-    - [ ] Rotation about point
+    - [X] Rotation about point
     - [ ] Multiple rotation about point
     - [ ] Translate Randomly along Line
-    - [ ] Rotate Randomly about Point
-*** TODO Randomness [0/4]
-    - [ ] Random direction
-    - [ ] Random Line
+    - [X] Rotate Randomly about Point
+*** TODO Randomness [2/4]
+    - [X] Random direction
+    - [X] Random Line
     - [ ] Make first random choices nicely WLOG
     - [ ] Handling errors / special cases of circles
 *** TODO Construction Language [0/2]
