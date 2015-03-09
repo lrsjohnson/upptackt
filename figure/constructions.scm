@@ -10,13 +10,20 @@
         (p2 (segment-p2 s)))
     (midpoint p1 p2)))
 
-(define (on-line? p l)
-  (let ((p1 (line-p1 l))
-        (p2 (line-p2 l)))
+(define (on-segment? p seg)
+  (let ((p1 (segment-p1 seg))
+        (p2 (segment-p2 seg)))
     (let ((d1 (distance p p1))
           (d2 (distance p p2))
           (d3 (distance p1 p2)))
       (close-enuf? (+ d1 d2) d3))))
+
+;;; TODO: Fix for lines / segments
+(define (on-line? p l)
+  (on-segment?
+   p
+   (segment (line-p1 l)
+            (line-p2 l))))
 
 (define (intersect-lines line1 line2)
   (let ((p1 (line-p1 line1))

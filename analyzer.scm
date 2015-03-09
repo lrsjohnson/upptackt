@@ -57,3 +57,19 @@
 ;;; Check for complementary angles
 (define (report-complementary-angles angles)
   ((report-pairwise complementary-angles?) angles))
+
+;;; Results:
+
+(define (make-analysis-collector)
+  (make-equal-hash-table))
+
+
+(define (save-results results data-table)
+  (hash-table/put! data-table results
+                   (+ 1 (hash-table/get data-table results 0))))
+
+(define (print-analysis-results data-table)
+  (hash-table/for-each
+   data-table
+   (lambda (k v)
+     (pp (list v k)))))

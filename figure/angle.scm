@@ -49,6 +49,29 @@
   (reverse-angle (angle-from-line-ray l r)))
 (defhandler angle-from angle-from-ray-line ray? line?)
 
+(define (angle-from-segment-segment s1 s2)
+  (define (angle-from-segment-internal s1 s2)
+    (let ((vertex (segment-p1 s1)))
+      (let ((v1 (segment->vec s1))
+            (v2 (segment->vec s2)))
+        (make-angle v1 vertex v2))))
+  (cond ((point-equal? (segment-p1 s1)
+                       (segment-p1 s2))
+         (angle-from-segment-internal s1 s2))
+        ((point-equal? (segment-p2 s1)
+                       (segment-p1 s2))
+         (angle-from-segment-internal (flip s1) s2))
+        ((point-equal? (segment-p1 s1)
+                       (segment-p2 s2))
+         (angle-from-segment-internal s1 (flip s2)))
+        ((point-equal? (segment-p2 s1)
+                       (segment-p2 s2))
+         (angle-from-segment-internal  (flip s1) (flip s2)))
+        (else (error "Angle-from-segment-segment must share vertex"))))
+(defhandler angle-from angle-from-segment-segment segment? segment?)
+
+
+
 (define (smallest-angle-from a b)
   (smallest-angle (angle-from a b)))
 

@@ -40,12 +40,14 @@
     - [ ] Multiple rotation about point
     - [ ] Translate Randomly along Line
     - [X] Rotate Randomly about Point
-*** TODO Randomness [2/5]
+*** TODO Randomness [2/7]
     - [X] Random direction
     - [X] Random Line
     - [ ] Make first random choices nicely WLOG
     - [ ] Handling errors / special cases of circles
     - [ ] Backtracking -> "Animation"?
+    - [ ] Basic "wiggling" animation
+    - [ ] Improve wiggling
 *** TODO Construction Language [0/2]
     - [ ] Name before vs. name after vs. use symbolic names everywhere...
     - [ ] Multiple element return
@@ -79,8 +81,8 @@
 *** TODO Diagram-level Graphics [0/3]
     - [ ] Displaying on page nicely
     - [ ] Organizing
-*** TODO Animation [0/1]
-    - [ ] Display several displays with timing between
+*** TODO Animation [1/1]
+    - [X] Display several displays with timing between
 ** Simulation
 *** TODO Explore Kinematics-related simulations [0/2]
     - [ ] Model + simulate as joins + telescoping, etc.

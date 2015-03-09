@@ -95,17 +95,43 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Run commands
 
-(define current-figure corresponding-angles)
+(define current-figure demo-figure)
 
-(define c '())
+(define c (canvas))
+
+(define *num-inner-loop* 100)
+(define *num-outer-loop* 5)
+
+
+(define (run-figure current-figure)
+  (display "\n")
+  (let outer-lp ((outer-num-remaining *num-outer-loop*))
+    (let ((analysis-data (make-analysis-collector)))
+      (reset-randomness)
+      (let inner-lp ((num-remaining *num-inner-loop*))
+        (draw-figure current-figure c)
+        (let ((analysis-results (analyze-figure current-figure)))
+          (save-results analysis-results analysis-data))
+        (sleep-current-thread 30)
+        (next-instance)
+        (if (> num-remaining 1)
+            (inner-lp (- num-remaining 1))))
+      (display "--- Results ---\n")
+      (print-analysis-results analysis-data)
+      (if (> outer-num-remaining 1)
+          (outer-lp (- outer-num-remaining 1))))))
+
+(define interesting-figures
+  (list demo-figure
+        linear-pair
+        vertical-angles
+        corresponding-angles
+        cyclic-quadrilateral))
 
 (define (r)
-  (if (null? c)
-      (set! c (canvas)))
-  (draw-figure current-figure c)
-  (pp (analyze-figure current-figure))
-  (sleep-current-thread 500)
-  (r)
-  )
+  (for-each (lambda (figure)
+             (run-figure figure))
+            interesting-figures)
+  'done)
 
 (r)

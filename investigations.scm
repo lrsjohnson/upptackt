@@ -37,14 +37,8 @@
              (a-1 (smallest-angle-from l3 l2))
              (a-2 (smallest-angle-from l3 l1)))
             (figure l1 l2 a b l3 a-1 a-2)))
-;;; TODO: line-through
-;;; TODO: Line by point and direction
-;;; TODO: Translate line l1 to get l2, construct parallel
-;;; TODO: Translate randomly
-;;; TODO: angle-from lines
-;;; TODO: Flip lines
+;;; TODO: Translate randomly *multiple*
 ;;; TODO: Multiple return values
-;;; TODO: line-through random point vs. random line
 
 #|
 ;;; [3b, 3c] Interior / alternate interior: ordering of angles and
@@ -218,6 +212,24 @@
 ;;; [61] Inscribed Angles Intercepting Arcs Conjecture
 ;;; [62] Angles Inscribed in a Semicircle Conjecture
 ;;; [63] Cyclic Quadrilateral Conjecture
+|#
+(define (cyclic-quadrilateral)
+  (let-geo*
+   ((cir (random-circle))
+    (a (point-on-circle cir))
+    (b (point-on-circle cir))
+    (c (point-on-circle cir))
+    (d (point-on-circle cir))
+    (s1 (segment a b))
+    (s2 (segment b c))
+    (s3 (segment c d))
+    (s4 (segment d a))
+    (a-1 (smallest-angle-from s1 s2))
+    (a-2 (smallest-angle-from s2 s3))
+    (a-3 (smallest-angle-from s3 s4))
+    (a-4 (smallest-angle-from s4 s1)))
+   (figure cir a b c d s1 s2 s3 s4 a-1 a-2 a-3 a-4)))
+#|
 ;;; [64] Parallel Lines Intercepted Arcs Conjecture
 ;;; [65] Circumference Conjecture
 ;;; [66] Arc Length Conjecture

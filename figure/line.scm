@@ -50,6 +50,11 @@
   (line (line-p2 l) (line-p1 l)))
 (defhandler flip flip-line line?)
 
+(define (flip-segment s)
+  (segment (segment-p2 s) (segment-p1 s)))
+(defhandler flip flip-segment segment?)
+
+
 ;;; Conversions
 ;;; Ray shares point p1
 (define (segment->ray segment)
@@ -73,5 +78,5 @@
               (ray-p1 r)))
 
 (define (segment->vec s)
-  (sub-points (ray-p2 r)
-              (ray-p1 r)))
+  (sub-points (segment-p2 s)
+              (segment-p1 s)))
