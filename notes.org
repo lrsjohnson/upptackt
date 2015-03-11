@@ -64,7 +64,7 @@
     - [ ] Maintain information
 *** TODO Dependencies [0/2]
     - [ ] Keeping Track of known properties
-    - [ ] Exclude known vertex points from "concurrent"
+    - [ ] Exclude known vertex points from "concurrent", for instance
 *** TODO Fancier Analysis [0/2]
     - [ ] Provide property to minimize
     - [ ] Provide some property to consider truth

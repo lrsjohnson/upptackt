@@ -19,7 +19,7 @@
 
 (define (close-enuf? h1 h2 #!optional tolerance scale)
   (if (default-object? tolerance)
-      (set! tolerance *machine-epsilon*))
+      (set! tolerance (* 10 *machine-epsilon*)))
   (if (default-object? scale)
       (set! scale 1.0))
   (<= (magnitude (- h1 h2))
