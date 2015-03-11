@@ -1,9 +1,11 @@
-(define (draw-figure figure-proc canvas)
+(define (draw-figure figure canvas)
   (clear-canvas canvas)
   (for-each
    (lambda (element)
      ((draw-element element) canvas))
-   (figure-elements (figure-proc))))
+   (figure-elements figure))
+  (set! *max-random-call-count* *random-call-count*)
+  )
 
 (define draw-element
   (make-generic-operation 1 'draw-element))

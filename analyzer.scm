@@ -1,7 +1,7 @@
 ;;; Analysis tools
 
-(define (analyze-figure figure-proc)
-  (analyze (figure-proc)))
+(define (analyze-figure figure)
+  (analyze figure))
 
 
 (define (results-with-names result-type elements)

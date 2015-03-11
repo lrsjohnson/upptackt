@@ -8,12 +8,25 @@
 ;;; Global for if its the first construction of the
 (define *first-construction* #t)
 (define *random-call-count* 0)
+(define *max-random-call-count* 0)
+(define *wiggle-random-call-count* 0)
 (define *random-values-table* (make-key-weak-eq-hash-table))
 
 (define (reset-randomness)
   (set! *first-construction* #t)
   (set! *random-call-count* 0)
+  (set! *max-random-call-count* 0)
+  (set! *wiggle-random-call-count* 0)
   (set! *random-values-table* (make-key-weak-eq-hash-table)))
+
+(define (next-wiggle-instance)
+  (let ((result
+         (if (< *wiggle-random-call-count* (- *max-random-call-count* 1))
+             (begin (set! *wiggle-random-call-count* (+ 1 *wiggle-random-call-count*))
+                    #t)
+             #f)))
+    (next-instance)
+    result))
 
 (define (next-instance)
   (set! *first-construction* #f)
@@ -27,17 +40,26 @@
 (define (get-random-value)
   (hash-table/get *random-values-table* *random-call-count* #f))
 
-(define (rand-range min max)
-  (if *first-construction*
-      (let ((v (internal-rand-range min max)))
-        (save-random-value v)
-        v)
-      (let ((prev-v (get-random-value)))
-        (let ((new-v (wiggle-value prev-v min max)))
-          (save-random-value new-v)
-          new-v))))
+(define (should-wiggle)
+  (and (not *first-construction*) (= *random-call-count* *wiggle-random-call-count*)))
 
-(define *wiggle-ratio* 0.01)
+(define (rand-range min max)
+  (cond
+   (*first-construction*
+    (let ((v (internal-rand-range min max)))
+      (save-random-value v)
+      v))
+   ((should-wiggle)
+    (let ((prev-v (get-random-value)))
+      (let ((new-v (wiggle-value prev-v min max)))
+        (save-random-value new-v)
+        new-v)))
+   (else
+    (let ((prev-v (get-random-value)))
+      (save-random-value prev-v)
+      prev-v))))
+
+(define *wiggle-ratio* 0.05)
 
 (define (wiggle-value v old-min old-max)
   (let* ((wiggle-room (* (- old-max old-min) *wiggle-ratio*)))
