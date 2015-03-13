@@ -59,6 +59,12 @@
   (segment (segment-p2 s) (segment-p1 s)))
 (defhandler flip flip-segment segment?)
 
+;;; Operations
+
+(define (segment-length seg)
+  (distance (segment-p1 seg)
+            (segment-p2 seg)))
+
 ;;; Predicates
 
 (define (parallel? a b)
@@ -68,6 +74,10 @@
 (define (perpendicular? a b)
   (vec-perpendicular? (->vec a)
                       (->vec b)))
+
+(define (equal-length? seg-1 seg-2)
+  (close-enuf? (segment-length seg-1)
+               (segment-length seg-2)))
 
 ;;; Conversions
 ;;; Ray shares point p1

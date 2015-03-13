@@ -13,13 +13,15 @@
 (define (analyze figure)
   (let* ((points (figure-filter point? figure))
          (angles (figure-filter angle? figure))
-         (linear-elements (figure-filter linear-element? figure)))
+         (linear-elements (figure-filter linear-element? figure))
+         (implied-segments (point-pairs->segments (all-pairs points))))
     (append (results-with-names 'concurrent (report-concurrent-points points))
             (results-with-names 'angle-equal (report-equal-angles angles))
             (results-with-names 'supplementary (report-supplementary-angles angles))
             (results-with-names 'complementary (report-complementary-angles angles))
             (results-with-names 'parallel (report-parallel-elements linear-elements))
-            (results-with-names 'perpendicular (report-perpendicular-elements linear-elements)))))
+            (results-with-names 'perpendicular (report-perpendicular-elements linear-elements))
+            (results-with-names 'equal-length (report-equal-segments implied-segments)))))
 
 ;;; General proceudres for generating pairs
 (define (all-pairs elements)
@@ -36,6 +38,18 @@
                           (cons (list el-1 el-2)
                                 (lp-2 rest-2)))))
                   (lp-1 rest-1))))))
+
+;;; Obtaining segments
+
+(define (point-pairs->segments ppairs)
+  (filter (lambda (segment) segment)
+          (map (lambda (point-pair)
+                 (let ((p1 (car point-pair))
+                       (p2 (cadr point-pair)))
+                   (and (not (point-equal? p1 p2))
+                        (segment (car point-pair)
+                                 (cadr point-pair))))) ; TODO: Name segment
+               ppairs)))
 
 ;;; Check for pairwise equality
 (define ((pair-predicate predicate) pair)
@@ -68,6 +82,10 @@
 ;;; Check for parallel lines and segments
 (define (report-perpendicular-elements linear-elements)
   ((report-pairwise perpendicular?) linear-elements))
+
+;;; Check for parallel lines and segments
+(define (report-equal-segments implied-segments)
+  ((report-pairwise equal-length?) implied-segments))
 
 ;;; Results:
 

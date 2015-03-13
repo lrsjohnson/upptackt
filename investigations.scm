@@ -52,10 +52,7 @@
              (l1 (line-from-arm-2 a-1))
              (l2 (line-from-arm-2 a-2)))
             (figure a-1 a-2 l1 l2 l3)))
-;;; TODO: Make line from arm of vector
-;;; TODO: Translate randomly along line
 
-#|
 ;;; [5] Perpendicular bisector conjecture
 ;;; Givens: - p is a point on perpendicular bisector of segment (a, b)
 ;;; Goal: p is equidistant from a and b
@@ -66,7 +63,6 @@
              (l1 (perpendicular-bisector s))
              (p (point-on-line l1)))
             (figure a b s l1 p)))
-;;; TODO: perpendicular-bisector?
 ;;; TODO: Analyze equal segments not actually there...
 
 ;;; [6] Converse of perpendicular bisector conjecture
@@ -75,13 +71,14 @@
 (define (perpendicular-bisector-converse)
   (let-geo* ((p (random-point))
              (a (random-point))
-             (b (randomly-rotate-about p a))
+             (b (rotate-randomly-about p a))
              (s (segment a b))
              (pb (perpendicular-bisector s)))
-            (figure p a b s pb (aux-segment p a) (aux-segment p b))))
+            (figure p a b s pb)))
 ;;; TODO: Randobly rotate about point
 ;;; TODO: aux-segment
 
+#|
 ;;; [7] Shortest distance conjecture
 ;;; Givens: arbitrary point p, point a on line l
 ;;; Goal: Discover that shortest distance to line is along perpendicular

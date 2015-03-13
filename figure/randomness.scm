@@ -90,6 +90,11 @@
   (let ((p (random-point)))
     (line-through-point p)))
 
+(define (random-segment)
+  (let ((p1 (random-point))
+        (p2 (random-point)))
+    (segment p1 p2)))
+
 (define (random-circle)
   (let ((pr1 (random-point))
         (pr2 (random-point)))
