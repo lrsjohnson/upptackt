@@ -10,7 +10,6 @@
 (define draw-element
   (make-generic-operation 1 'draw-element))
 
-
 (define (add-to-draw-element! predicate handler)
   (defhandler draw-element
     (lambda (element)
@@ -20,10 +19,12 @@
 
 (define *point-radius* 0.02)
 (define (draw-point canvas point)
+  (canvas-set-color canvas "blue")
   (canvas-fill-circle canvas
                (point-x point)
                (point-y point)
-               *point-radius*))
+               *point-radius*)
+  (canvas-set-color canvas "black"))
 
 (define (draw-segment canvas segment)
   (let ((p1 (segment-p1 segment))
@@ -81,6 +82,7 @@
 
 (define (canvas)
   (let ((g (x-graphics)))
+    ;(graphics-enable-buffering g)
     (list 'canvas g)))
 
 (define (canvas-g canvas)
@@ -117,3 +119,7 @@
   (graphics-draw-line (canvas-g canvas)
                       x1 y1
                       x2 y2))
+
+(define (canvas-set-color canvas color)
+  (graphics-operation (canvas-g canvas) 'set-foreground-color color)
+  )

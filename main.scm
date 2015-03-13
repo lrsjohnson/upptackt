@@ -116,7 +116,7 @@
           (draw-figure current-figure c)
           (let ((analysis-results (analyze-figure current-figure)))
             (save-results analysis-results analysis-data))
-          (sleep-current-thread 15)
+          (sleep-current-thread 30)
           (next-instance)
           (cond  ((> num-remaining 1)
                   (inner-lp (- num-remaining 1)))
