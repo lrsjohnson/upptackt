@@ -3,4 +3,5 @@
   (eq-put! element 'name name))
 
 (define (element-name element)
-  (eq-get element 'name))
+  (or (eq-get element 'name)
+      '*unnamed*))

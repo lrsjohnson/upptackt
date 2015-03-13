@@ -9,7 +9,6 @@
              (a-1 (smallest-angle-from l1 r))
              (a-2 (smallest-angle-from r (flip l1))))
             (figure a l1 r a-1 a-2)))
-;;; TODO: Angles which sum to same value (complementary, supplementary, etc.
 
 ;;; [2] Vertical Angles Conjecture
 ;;; Givens: Angles a-1 and a-2 are vertical angles
@@ -40,7 +39,6 @@
 ;;; TODO: Translate randomly *multiple*
 ;;; TODO: Multiple return values
 
-#|
 ;;; [3b, 3c] Interior / alternate interior: ordering of angles and
 
 ;;; [4] Converse of Parallel lines
@@ -48,7 +46,7 @@
 ;;;         - a-1, a-2, are either CA, AIA, AEA, etc. of Lines l1, l2
 ;;; Goal: lines l1 and l2 are parallel
 (define (parallel-lines-converse)
-  (let-geo* ((a-1 (random-angle))
+  (let-geo* ((a-1 (random-small-angle))
              (l3 (line-from-arm-1 a-1))
              (a-2 (translate-randomly-along-line l3 a-1))
              (l1 (line-from-arm-2 a-1))
@@ -57,6 +55,7 @@
 ;;; TODO: Make line from arm of vector
 ;;; TODO: Translate randomly along line
 
+#|
 ;;; [5] Perpendicular bisector conjecture
 ;;; Givens: - p is a point on perpendicular bisector of segment (a, b)
 ;;; Goal: p is equidistant from a and b

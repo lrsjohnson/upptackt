@@ -17,6 +17,11 @@
   (p1 ray-p1)
   (p2 ray-p2))
 
+(define (linear-element? x)
+  (or (line? x)
+      (segment? x)
+      (ray? x)))
+
 ;;; Alternate, helper constructors
 (define (line-from-point-vec p vec)
   (let ((p2 (add-to-point p vec)))
@@ -54,6 +59,15 @@
   (segment (segment-p2 s) (segment-p1 s)))
 (defhandler flip flip-segment segment?)
 
+;;; Predicates
+
+(define (parallel? a b)
+  (vec-direction-equal? (->vec a)
+                        (->vec b)))
+
+(define (perpendicular? a b)
+  (vec-perpendicular? (->vec a)
+                      (->vec b)))
 
 ;;; Conversions
 ;;; Ray shares point p1
@@ -80,3 +94,8 @@
 (define (segment->vec s)
   (sub-points (segment-p2 s)
               (segment-p1 s)))
+
+(define ->vec (make-generic-operation 1 '->vec))
+(defhandler ->vec line->vec line?)
+(defhandler ->vec ray->vec ray?)
+(defhandler ->vec segment->vec segment?)

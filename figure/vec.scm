@@ -18,7 +18,7 @@
         (dy (vec-y v)))
     (atan dy dx)))
 
-;; Rotate vector counter-clockwise
+;;; Rotate vector counter-clockwise
 (define (rotate-vec v radians)
   (let ((dx (vec-x v))
         (dy (vec-y v))
@@ -37,6 +37,10 @@
 (define (unit-vec-from-angle theta)
   (make-vec (cos theta) (sin theta)))
 
+(define (reverse-vec v)
+  (make-vec (- (vec-x v))
+            (- (vec-y v))))
+
 (define (rotate-vec-90 v)
   (let ((dx (vec-x v))
         (dy (vec-y v)))
@@ -47,3 +51,18 @@
 
 (define (scale-vec-to-dist v dist)
   (scale-vec (unit-vec v) dist))
+
+;;; Compare Equality
+(define (vec-equal? v1 v2)
+  (and (close-enuf? (vec-x v1)  (vec-x v2))
+       (close-enuf? (vec-y v1)  (vec-y v2))))
+
+(define (vec-direction-equal? v1 v2)
+  (close-enuf?
+   (vec-to-angle v1)
+   (vec-to-angle v2)))
+
+(define (vec-perpendicular? v1 v2)
+  (close-enuf?
+   (* (vec-x v1) (vec-x v2))
+   (* (vec-y v1) (vec-y (reverse-vec v2)))))

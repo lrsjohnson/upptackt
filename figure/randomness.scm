@@ -21,8 +21,10 @@
 
 (define (next-wiggle-instance)
   (let ((result
-         (if (< *wiggle-random-call-count* (- *max-random-call-count* 1))
-             (begin (set! *wiggle-random-call-count* (+ 1 *wiggle-random-call-count*))
+         (if (< *wiggle-random-call-count*
+                (- *max-random-call-count* 1))
+             (begin (set! *wiggle-random-call-count*
+                          (+ 1 *wiggle-random-call-count*))
                     #t)
              #f)))
     (next-instance)
@@ -110,6 +112,15 @@
   (let ((p (random-point))
         (v (make-vec 0 1)))
     (line-from-point-vec p v)))
+
+(define (random-angle)
+  (let ((v (random-point))
+        (a1 (random-direction))
+        (a2 (random-direction)))
+    (make-angle a1 v a2)))
+
+(define (random-small-angle)
+  (smallest-angle (random-angle)))
 
 ;;;  Points on Random Elements
 (define (point-on-segment seg)

@@ -12,11 +12,14 @@
 ;;; Given a figure, report what's interesting
 (define (analyze figure)
   (let* ((points (figure-filter point? figure))
-         (angles (figure-filter angle? figure)))
+         (angles (figure-filter angle? figure))
+         (linear-elements (figure-filter linear-element? figure)))
     (append (results-with-names 'concurrent (report-concurrent-points points))
             (results-with-names 'angle-equal (report-equal-angles angles))
             (results-with-names 'supplementary (report-supplementary-angles angles))
-            (results-with-names 'complementary (report-complementary-angles angles)))))
+            (results-with-names 'complementary (report-complementary-angles angles))
+            (results-with-names 'parallel (report-parallel-elements linear-elements))
+            (results-with-names 'perpendicular (report-perpendicular-elements linear-elements)))))
 
 ;;; General proceudres for generating pairs
 (define (all-pairs elements)
@@ -58,6 +61,14 @@
 (define (report-complementary-angles angles)
   ((report-pairwise complementary-angles?) angles))
 
+;;; Check for parallel lines and segments
+(define (report-parallel-elements linear-elements)
+  ((report-pairwise parallel?) linear-elements))
+
+;;; Check for parallel lines and segments
+(define (report-perpendicular-elements linear-elements)
+  ((report-pairwise perpendicular?) linear-elements))
+
 ;;; Results:
 
 (define (make-analysis-collector)
@@ -72,4 +83,4 @@
   (hash-table/for-each
    data-table
    (lambda (k v)
-     (pp (list v k)))))
+     (pp (list v (cons 'discovered k))))))

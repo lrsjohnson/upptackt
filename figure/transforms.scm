@@ -52,11 +52,23 @@
   (line (translate-point (line-p1 l))
         (translate-point (line-p2 l))))
 
+(define (translate-angle-by vec a)
+  (define (translate-point p) (translate-point-by vec p))
+  (make-angle (angle-arm-1 a)
+              (translate-point (angle-vertex a))
+              (angle-arm-2 a)))
+
 (define translate-by (make-generic-operation 2 'rotate-about))
 (defhandler translate-by translate-point-by vec? point?)
 (defhandler translate-by translate-ray-by vec? ray?)
 (defhandler translate-by translate-segment-by vec? segment?)
 (defhandler translate-by translate-line-by vec? line?)
+(defhandler translate-by translate-angle-by vec? angle?)
+
+(define (translate-randomly-along-line l elt)
+  (let* ((vec (unit-vec (line->vec l)))
+         (scaled-vec (scale-vec vec (rand-range 0.5 1.5))))
+    (translate-by vec elt)))
 
 (define (translate-randomly elt)
   (let ((vec (rand-translation-vec-for elt)))
