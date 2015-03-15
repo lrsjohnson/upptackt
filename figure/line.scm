@@ -1,9 +1,14 @@
 ;;; Segment, Line, Ray Types
 (define-record-type <segment>
-  (segment p1 p2)
+  (%segment p1 p2)
   segment?
   (p1 segment-p1)
   (p2 segment-p2))
+
+(define (segment p1 p2)
+  (let ((seg (%segment p1 p2)))
+    (set-element-name! seg (symbol '*seg*: (element-name p1) '- (element-name p2)))
+    seg))
 
 (define-record-type <line>
   (line p1 p2)
