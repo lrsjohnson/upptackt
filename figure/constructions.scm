@@ -1,9 +1,13 @@
 ;;; Constructions
 (define (midpoint p1 p2)
-  (point (avg (point-x p1)
-              (point-x p2))
-         (avg (point-y p1)
-              (point-y p2))))
+  (let ((newpoint
+         (point (avg (point-x p1)
+                     (point-x p2))
+                (avg (point-y p1)
+                     (point-y p2)))))
+    (mark-known-equal (segment p1 newpoint)
+                      (segment newpoint p2))
+    newpoint))
 
 (define (segment-midpoint s)
   (let ((p1 (segment-p1 s))

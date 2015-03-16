@@ -16,6 +16,8 @@
     - [X] Horizontal, Vertical Lines
     - [X] Flip lines direction
     - [X] Line from Arm of Angle
+*** TODO More Constructions
+    - [ ] Dealing with ordering of segments (a->b vs. b->a)?
 *** TODO Circle-related constructions
     - [ ] Representing / Measuring Arcs
     - [ ] Circles, Radii, Diameter
@@ -53,12 +55,14 @@
     - [ ] Name before vs. name after vs. use symbolic names everywhere...
     - [ ] Multiple element return
 ** Analysis
-*** TODO Simple Analysis [3/7]
+*** TODO Simple Analysis [4/9]
     - [X] Angle Equality
     - [X] Complementary / Supplementary Angles
     - [X] Parallel / Perpendicular
     - [ ] General Angles which sum to same value
-    - [ ] Segment Length Equality
+    - [X] Basic Segment Length Equality
+    - [ ] Gather all segments  with equal lengths
+    - [ ] Go beyond pairs
     - [ ] Segments not actually present?
     - [ ] Concurrency of lines
 *** TODO Repeated Analysis [0/2]
@@ -95,7 +99,7 @@
 *** TODO 99 Points of Intersection [0/1]
     - [ ] Add in examples from 99 points of intersection
 *** TODO Adv. Euclidean - GeoGebra [0/1]
-    - [ ] Add in examples from 99 points of intersection
+    - [ ] Add in examples from GeoGebra Euclidean Examples
 * Far-out Ideas:
   - Hyperbolic Geometry
   - 3D, volumes
