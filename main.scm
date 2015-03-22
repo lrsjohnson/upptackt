@@ -1,6 +1,18 @@
 (define (debug-figure)
-  (let-geo* ((a (random-point)))
-            (figure a)))
+  (let-geo* ((a (random-point))
+             (b (random-point))
+             (s (segment a b))
+             (m (segment-midpoint s)))
+            (figure a b s m)))
+
+(define (debug-figure-2)
+  (let-geo* ((s (random-segment))
+             (a (segment-endpoint-1 s))
+             (b (segment-endpoint-2 s))
+             (m (segment-midpoint s)))
+            (figure a b s m)))
+
+
 
 (define (demo-figure)
   (let-geo* ((a (random-point))

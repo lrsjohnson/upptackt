@@ -27,8 +27,8 @@
   (canvas-set-color canvas "black"))
 
 (define (draw-segment canvas segment)
-  (let ((p1 (segment-p1 segment))
-        (p2 (segment-p2 segment)))
+  (let ((p1 (segment-endpoint-1 segment))
+        (p2 (segment-endpoint-2 segment)))
     (canvas-draw-line canvas
                       (point-x p1)
                       (point-y p1)

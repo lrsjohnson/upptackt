@@ -8,8 +8,8 @@
 
 (define (rotate-segment-about rot-origin radians seg)
   (define (rotate-point p) (rotate-point-about rot-origin radians p))
-  (segment (rotate-point (segment-p1 seg))
-           (rotate-point (segment-p2 seg))))
+  (segment (rotate-point (segment-endpoint-1 seg))
+           (rotate-point (segment-endpoint-2 seg))))
 
 (define (rotate-ray-about rot-origin radians r)
   (define (rotate-point p) (rotate-point-about rot-origin radians p))
@@ -39,8 +39,8 @@
 
 (define (translate-segment-by vec segment)
   (define (translate-point p) (translate-point-by vec p))
-  (segment (translate-point (segment-p1 seg))
-           (translate-point (segment-p2 seg))))
+  (segment (translate-point (segment-endpoint-1 seg))
+           (translate-point (segment-endpoint-2 seg))))
 
 (define (translate-ray-by vec r)
   (define (translate-point p) (translate-point-by vec p))
@@ -78,7 +78,7 @@
   (let ((p2 (random-point)))
     (sub-points p2 p1)))
 (define (rand-translation-vec-for-segment seg)
-  (rand-translation-vec-for-point (segment-p1 seg)))
+  (rand-translation-vec-for-point (segment-endpoint-1 seg)))
 
 (define (rand-translation-vec-for-ray r )
   (rand-translation-vec-for-point (ray-p1 r)))

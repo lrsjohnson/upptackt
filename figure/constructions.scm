@@ -10,13 +10,13 @@
     newpoint))
 
 (define (segment-midpoint s)
-  (let ((p1 (segment-p1 s))
-        (p2 (segment-p2 s)))
+  (let ((p1 (segment-endpoint-1 s))
+        (p2 (segment-endpoint-2 s)))
     (midpoint p1 p2)))
 
 (define (on-segment? p seg)
-  (let ((p1 (segment-p1 seg))
-        (p2 (segment-p2 seg)))
+  (let ((p1 (segment-endpoint-1 seg))
+        (p2 (segment-endpoint-2 seg)))
     (let ((d1 (distance p p1))
           (d2 (distance p p2))
           (d3 (distance p1 p2)))

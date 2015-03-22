@@ -2,8 +2,8 @@
 (define-record-type <segment>
   (%segment p1 p2)
   segment?
-  (p1 segment-p1)
-  (p2 segment-p2))
+  (p1 segment-endpoint-1)
+  (p2 segment-endpoint-2))
 
 (define (segment p1 p2)
   (let ((seg (%segment p1 p2)))
@@ -61,14 +61,14 @@
 (defhandler flip flip-line line?)
 
 (define (flip-segment s)
-  (segment (segment-p2 s) (segment-p1 s)))
+  (segment (segment-endpoint-2 s) (segment-endpoint-1 s)))
 (defhandler flip flip-segment segment?)
 
 ;;; Operations
 
 (define (segment-length seg)
-  (distance (segment-p1 seg)
-            (segment-p2 seg)))
+  (distance (segment-endpoint-1 seg)
+            (segment-endpoint-2 seg)))
 
 ;;; Predicates
 
@@ -87,12 +87,12 @@
 ;;; Conversions
 ;;; Ray shares point p1
 (define (segment->ray segment)
-  (ray (segment-p1 segment)
-       (segment-p2 segment)))
+  (ray (segment-endpoint-1 segment)
+       (segment-endpoint-2 segment)))
 
 (define (segment->line segment)
-  (line (segment-p1 segment)
-        (segment-p2 segment)))
+  (line (segment-endpoint-1 segment)
+        (segment-endpoint-2 segment)))
 
 (define (ray->line ray)
   (line (ray-p1 ray)
@@ -107,8 +107,8 @@
               (ray-p1 r)))
 
 (define (segment->vec s)
-  (sub-points (segment-p2 s)
-              (segment-p1 s)))
+  (sub-points (segment-endpoint-2 s)
+              (segment-endpoint-1 s)))
 
 (define ->vec (make-generic-operation 1 '->vec))
 (defhandler ->vec line->vec line?)

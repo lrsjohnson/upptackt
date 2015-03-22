@@ -58,8 +58,8 @@
 ;;; Goal: p is equidistant from a and b
 (define (perpendicular-bisector-equidistant)
   (let-geo* ((s (random-segment))
-             (a (segment-p1 s))
-             (b (segment-p2 s))
+             (a (segment-endpoint-1 s))
+             (b (segment-endpoint-2 s))
              (l1 (perpendicular-bisector s))
              (p (point-on-line l1)))
             (figure a b s l1 p)))
