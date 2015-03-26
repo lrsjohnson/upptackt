@@ -8,8 +8,6 @@
 
 (define (angle-measure a)
   (let* ((vertex (angle-vertex a))
-         (arm1 (angle-arm-1 a))
-         (arm2 (angle-arm-2 a))
          (angle-start (vec-to-angle arm1))
          (angle-end (vec-to-angle arm2)))
     (fix-angle-0-2pi (- angle-end

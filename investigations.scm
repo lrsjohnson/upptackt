@@ -75,7 +75,6 @@
              (s (segment a b))
              (pb (perpendicular-bisector s)))
             (figure p a b s pb)))
-;;; TODO: Randobly rotate about point
 ;;; TODO: aux-segment
 
 #|
@@ -88,14 +87,15 @@
              (a (point-on-line l)))
             (figure p l a (aux-segment p a))))
 ;;; TODO: Tricky, figure out how to minimize value, specify "minimize" property?
+|#
 
 ;;; [8] Angle bisector conjecture
 ;;; Given: angle a-1 of rays r-1, r-2, point a on angle-bisector l1
 ;;; Goal: Distnace from a to r-1 = distance a to r-2
 (define (angle-bisector-distance)
   (let-geo* ((a-1 (random-angle))
-             (r-1 (extend-to-ray (leg-1 a-1)))
-             (r-2 (extend-to-ray (leg-2 a-1)))
+             (r-1 (extend-to-ray (angle-arm-1 a-1)))
+             (r-2 (extend-to-ray (angle-arm-2 a-1)))
              (l-1 (angle-bisector a-1))
              (p (point-on-line l-1))
              (s-1 (perpendicular-to p r-1))
@@ -103,6 +103,8 @@
             (figure a-1 r-1 r-2 l-1 p s-1 s-2)))
 ;;; Interesting, dependent on "shortest distance" from prior conjecture
 ;;; TODO: perpendicular-to => Segment
+
+#|
 
 ;;; [9] Angle bisector concurrency
 ;;; Given: Triangle abc with angle-bisectors l1, l2, l3

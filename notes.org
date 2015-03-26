@@ -16,6 +16,14 @@
     - [X] Horizontal, Vertical Lines
     - [X] Flip lines direction
     - [X] Line from Arm of Angle
+*** TODO Representations
+    - [ ] Change angles to use vertex + two rays <--
+    - [ ] Change rays to be just point and direction
+*** TODO Clean up Changes
+    - [ ] line-p1, ray-p1, etc
+    - [ ] ->vec
+    - [ ] Angle arms
+    - [ ] Angle Measure
 *** TODO More Constructions
     - [ ] Dealing with ordering of segments (a->b vs. b->a)?
 *** TODO Circle-related constructions

@@ -79,7 +79,7 @@
 ;;; Random unit vector
 (define (random-direction)
   (let ((theta (rand-angle-measure)))
-    (unit-vec-from-angle theta)))
+    (make-direction theta)))
 
 ;;; Random Elements
 (define (random-point)
@@ -102,11 +102,11 @@
 
 (define (line-through-point p)
   (let ((v (random-direction)))
-    (line-from-point-vec p v)))
+    (line-from-point-direction p v)))
 
 (define (ray-from-point p)
   (let ((v (random-direction)))
-    (ray-from-point-vec p v)))
+    (ray-from-point-direction p v)))
 
 (define (horizontal-line)
   (let ((p (random-point))
@@ -120,9 +120,9 @@
 
 (define (random-angle)
   (let ((v (random-point))
-        (a1 (random-direction))
-        (a2 (random-direction)))
-    (make-angle a1 v a2)))
+        (d1 (random-direction))
+        (d2 (random-direction)))
+    (make-angle d1 v d2)))
 
 (define (random-small-angle)
   (smallest-angle (random-angle)))

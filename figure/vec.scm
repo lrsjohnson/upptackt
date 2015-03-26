@@ -1,4 +1,4 @@
-;;; Structures For computation, not display
+;;; Vector structure for computation, cartesian
 (define-record-type <vec>
   (make-vec dx dy)
   vec?
@@ -13,10 +13,10 @@
         (dy (vec-y v)))
     (sqrt (+ (square dx) (square dy)))))
 
-(define (vec-to-angle v)
+(define (vec->direction v)
   (let ((dx (vec-x v))
         (dy (vec-y v)))
-    (atan dy dx)))
+    (make-direction (atan dy dx))))
 
 ;;; Rotate vector counter-clockwise
 (define (rotate-vec v radians)
@@ -34,8 +34,9 @@
 
 ;;; Helpful creators for vector manipulation
 
-(define (unit-vec-from-angle theta)
-  (make-vec (cos theta) (sin theta)))
+(define (unit-vec-from-direction direction)
+  (let ((theta (direction-theta direction)))
+   (make-vec (cos theta) (sin theta))))
 
 (define (reverse-vec v)
   (make-vec (- (vec-x v))
@@ -58,9 +59,9 @@
        (close-enuf? (vec-y v1)  (vec-y v2))))
 
 (define (vec-direction-equal? v1 v2)
-  (close-enuf?
-   (vec-to-angle v1)
-   (vec-to-angle v2)))
+  (direction-equal?
+   (vec->direction v1)
+   (vec->direction v2)))
 
 (define (vec-perpendicular? v1 v2)
   (close-enuf?

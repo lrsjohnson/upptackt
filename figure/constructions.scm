@@ -94,10 +94,6 @@
                 (point (- x1 dx)
                        (- y1 dy)))))))
 
-(define (circle-from-points center radius-point)
-  (circle center
-          (distance center radius-point)))
-
 (define (perpendicular l point)
   (let* ((p1 (line-p1 l))
          (p2 (line-p2 l))

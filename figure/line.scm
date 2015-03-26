@@ -5,22 +5,21 @@
   (p1 segment-endpoint-1)
   (p2 segment-endpoint-2))
 
-(define (segment p1 p2)
+(define (segment-from-points p1 p2)
   (let ((seg (%segment p1 p2)))
     (set-element-name! seg (symbol '*seg*: (element-name p1) '- (element-name p2)))
     seg))
 
 (define-record-type <line>
-  (line p1 p2)
+  (%line dir offset)
   line?
-  (p1 line-p1)
-  (p2 line-p2))
+  (dir line-direction))
 
 (define-record-type <ray>
-  (ray p1 p2)
+  (ray initial-point direction)
   ray?
-  (p1 ray-p1)
-  (p2 ray-p2))
+  (initial-point ray-endpoint)
+  (direction ray-direction))
 
 (define (linear-element? x)
   (or (line? x)
@@ -28,13 +27,12 @@
       (ray? x)))
 
 ;;; Alternate, helper constructors
-(define (line-from-point-vec p vec)
+(define (line-from-point-direction p dir)
   (let ((p2 (add-to-point p vec)))
     (line p p2)))
 
-(define (ray-from-point-vec p vec)
-  (let ((p2 (add-to-point p vec)))
-    (ray p p2)))
+(define (ray-from-point-direction p dir)
+  (ray p dir))
 
 ;;; Constructors from angles
 
@@ -80,7 +78,18 @@
   (vec-perpendicular? (->vec a)
                       (->vec b)))
 
-(define (equal-length? seg-1 seg-2)
+(define (segment-equal? s1 s2)
+  (and
+   (point-equal? (segment-endpoint-1 s1)
+                 (segment-endpoint-1 s2))
+   (point-equal? (segment-endpoint-2 s1)
+                 (segment-endpoint-2 s2))))
+
+(define (segment-equal-ignore-direction? s1 s2)
+  (or (segment-equal? s1 s2)
+      (segment-equal? s1 (flip-segment s2))))
+
+(define (segment-equal-length? seg-1 seg-2)
   (close-enuf? (segment-length seg-1)
                (segment-length seg-2)))
 
@@ -106,11 +115,11 @@
   (sub-points (ray-p2 r)
               (ray-p1 r)))
 
-(define (segment->vec s)
-  (sub-points (segment-endpoint-2 s)
-              (segment-endpoint-1 s)))
+(define (segment->direction s)
+  (vec->direction (sub-points (segment-endpoint-2 s)
+                              (segment-endpoint-1 s))))
 
-(define ->vec (make-generic-operation 1 '->vec))
-(defhandler ->vec line->vec line?)
-(defhandler ->vec ray->vec ray?)
-(defhandler ->vec segment->vec segment?)
+(define ->direction (make-generic-operation 1 '->direction))
+(defhandler ->direction line->direction line?)
+(defhandler ->direction ray->direction ray?)
+(defhandler ->direction segment->direction segment?)

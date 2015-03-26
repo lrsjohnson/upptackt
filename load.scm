@@ -11,6 +11,7 @@
             "analyzer"
             "figure/utils"
             "figure/line"
+            "figure/direction"
             "figure/vec"
             "figure/measurements"
             "figure/angle"

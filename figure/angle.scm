@@ -1,10 +1,10 @@
 ;;; v1 and v2 are vectors in the directions of the angle arms
 (define-record-type <angle>
-  (make-angle arm1 vertex arm2)
+  (make-angle dir1 vertex dir2)
   angle?
-  (arm1 angle-arm-1)
+  (dir1 angle-arm-1)
   (vertex angle-vertex)
-  (arm2 angle-arm-2))
+  (dir2 angle-arm-2))
 
 ;;; Transformations on Angles
 

@@ -1,0 +1,16 @@
+(define (midpoint-1)
+  (let-geo* ((a (random-point))
+             (b (random-point))
+             (s (segment a b))
+             (m (segment-midpoint s)))
+            (figure a b s m)))
+
+(define (midpoint-2)
+  (let-geo* ((s (random-segment))
+             (m (segment-midpoint s)))
+            (figure s m)))
+
+(define (circle-radius)
+  (let-geo* ((c (random-circle))
+             (r ))
+            (figure s m)))
