@@ -19,6 +19,7 @@
 *** TODO Representations
     - [ ] Change angles to use vertex + two rays <--
     - [ ] Change rays to be just point and direction
+    - [ ] "Direction" as x, y as well vs. just theta?
 *** TODO Clean up Changes
     - [ ] line-p1, ray-p1, etc
     - [ ] ->vec

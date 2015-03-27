@@ -47,8 +47,8 @@
                  (let ((p1 (car point-pair))
                        (p2 (cadr point-pair)))
                    (and (not (point-equal? p1 p2))
-                        (segment (car point-pair)
-                                 (cadr point-pair))))) ; TODO: Name segment
+                        (make-segment (car point-pair)
+                                      (cadr point-pair))))) ; TODO: Name segment
                ppairs)))
 
 ;;; Check for pairwise equality
@@ -85,7 +85,7 @@
 
 ;;; Check for parallel lines and segments
 (define (report-equal-segments implied-segments)
-  ((report-pairwise equal-length?) implied-segments))
+  ((report-pairwise segment-equal-length?) implied-segments))
 
 ;;; Results:
 

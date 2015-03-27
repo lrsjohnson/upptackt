@@ -1,4 +1,4 @@
-(define (midpoint-1)
+nosh and (define (midpoint-1)
   (let-geo* ((a (random-point))
              (b (random-point))
              (s (segment a b))
@@ -12,5 +12,6 @@
 
 (define (circle-radius)
   (let-geo* ((c (random-circle))
-             (r ))
-            (figure s m)))
+             (r1 (random-circle-radius c))
+             (r2 (random-circle-radius c)))
+            (figure c r1 r2)))

@@ -15,12 +15,12 @@
     (let ((dx (- x2 x1))
           (dy (- y2 y1)))
       (cond
-       ((= 0 dx) (segment
-                  (point x1 *g-min-y*)
-                  (point x1 *g-max-y*)))
-       ((= 0 dy) (segment
-                  (point *g-min-x* y1)
-                  (point *g-min-y* y1)))
+       ((= 0 dx) (make-segment
+                  (make-point x1 *g-min-y*)
+                  (make-point x1 *g-max-y*)))
+       ((= 0 dy) (make-segment
+                  (make-point *g-min-x* y1)
+                  (make-point *g-min-y* y1)))
        (else
         (let ((t-xmin (/ (- *g-min-x* x1) dx))
               (t-xmax (/ (- *g-max-x* x1) dx))
@@ -33,8 +33,8 @@
                  (min-y (+ y1 (* min-t dy)))
                  (max-x (+ x1 (* max-t dx)))
                  (max-y (+ y1 (* max-t dy))))
-            (segment (point min-x min-y)
-                     (point max-x max-y)))))))))
+            (make-segment (make-point min-x min-y)
+                          (make-point max-x max-y)))))))))
 
 (define (ray-extend-to-max-segment p1 p2)
   (let ((x1 (point-x p1))
@@ -44,12 +44,12 @@
     (let ((dx (- x2 x1))
           (dy (- y2 y1)))
       (cond
-       ((= 0 dx) (segment
-                  (point x1 *g-min-y*)
-                  (point x1 *g-max-y*)))
-       ((= 0 dy) (segment
-                  (point *g-min-x* y1)
-                  (point *g-min-y* y1)))
+       ((= 0 dx) (make-segment
+                  (make-point x1 *g-min-y*)
+                  (make-point x1 *g-max-y*)))
+       ((= 0 dy) (make-segment
+                  (make-point *g-min-x* y1)
+                  (make-point *g-min-y* y1)))
        (else
         (let ((t-xmin (/ (- *g-min-x* x1) dx))
               (t-xmax (/ (- *g-max-x* x1) dx))
@@ -62,5 +62,5 @@
                  (min-y (+ y1 (* min-t dy)))
                  (max-x (+ x1 (* max-t dx)))
                  (max-y (+ y1 (* max-t dy))))
-            (segment p1
-                     (point max-x max-y)))))))))
+            (make-segment p1
+                          (make-point max-x max-y)))))))))

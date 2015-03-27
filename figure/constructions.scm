@@ -1,12 +1,12 @@
 ;;; Constructions
 (define (midpoint p1 p2)
   (let ((newpoint
-         (point (avg (point-x p1)
-                     (point-x p2))
-                (avg (point-y p1)
-                     (point-y p2)))))
-    (mark-known-equal (segment p1 newpoint)
-                      (segment newpoint p2))
+         (make-point (avg (point-x p1)
+                          (point-x p2))
+                     (avg (point-y p1)
+                          (point-y p2)))))
+    (mark-known-equal (make-segment p1 newpoint)
+                      (make-segment newpoint p2))
     newpoint))
 
 (define (segment-midpoint s)
@@ -26,8 +26,8 @@
 (define (on-line? p l)
   (on-segment?
    p
-   (segment (line-p1 l)
-            (line-p2 l))))
+   (make-segment (line-p1 l)
+                 (line-p2 l))))
 
 (define (intersect-lines line1 line2)
   (let ((p1 (line-p1 line1))
@@ -62,7 +62,7 @@
             (let
                 ((px (/ num-x denom))
                  (py (/ num-y denom)))
-              (point px py)))))))
+              (make-point px py)))))))
 
 ;;; http://mathforum.org/library/drmath/view/51836.html
 (define (intersect-circles cir1 cir2)
@@ -89,18 +89,16 @@
                (y1 (+ b (/ (* f k) p)))
                (dx (/ (* f t) p))
                (dy (- (/ (* e t) p))))
-          (list (point (+ x1 dx)
-                       (+ y1 dy))
-                (point (- x1 dx)
-                       (- y1 dy)))))))
+          (list (make-point (+ x1 dx)
+                            (+ y1 dy))
+                (make-point (- x1 dx)
+                            (- y1 dy)))))))
 
 (define (perpendicular l point)
-  (let* ((p1 (line-p1 l))
-         (p2 (line-p2 l))
-         (v (sub-points p2 p1))
-         (rotated-v (rotate-vec-90 v))
-         (new-p (add-to-point point rotated-v)))
-    (line point new-p)))
+  (let* ((p1 (line-point l))
+         (direction (line-direction l))
+         (rotated-direction (rotate-direction-90 direction)))
+    (make-line p1 rotated-direction)))
 
 (define (perpendicular-bisector segment)
   (let ((midpt (segment-midpoint segment)))

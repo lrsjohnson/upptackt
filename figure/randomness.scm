@@ -83,8 +83,8 @@
 
 ;;; Random Elements
 (define (random-point)
-  (point (rand-range -0.8 0.8)
-         (rand-range -0.8 0.8)))
+  (make-point (rand-range -0.8 0.8)
+              (rand-range -0.8 0.8)))
 
 (define (random-line)
   (let ((p (random-point)))
@@ -159,7 +159,17 @@
   (let ((center (circle-center c))
         (radius (circle-radius c))
         (angle (rand-angle-measure)))
-    (point (+ (point-x center)
-              (* radius (cos angle)))
-           (+ (point-y center)
-              (* radius (sin angle))))))
+    (make-point (+ (point-x center)
+                   (* radius (cos angle)))
+                (+ (point-y center)
+                   (* radius (sin angle)))))) ;; TODO  Cleanup
+
+(define (random-circle-radius c)
+  (let ((center (circle-center c))
+        (radius (circle-radius c))
+        (angle (random-direction)))
+    (let ((radius-vec
+           (scale-vec (unit-vec-from-direction)
+                      radius)))
+      (let ((radius-point (add-to-point center radius-vec)))
+        (segment center radius-point)))))

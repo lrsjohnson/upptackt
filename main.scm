@@ -1,7 +1,7 @@
 (define (debug-figure)
   (let-geo* ((a (random-point))
              (b (random-point))
-             (s (segment a b))
+             (s (make-segment a b))
              (m (segment-midpoint s)))
             (figure a b s m)))
 
@@ -23,9 +23,9 @@
              (e (midpoint a c))
              (f (midpoint b c))
 
-             (l1 (perpendicular (line a b) d))
-             (l2 (perpendicular (line a c) e))
-             (l3 (perpendicular (line b c) f))
+             (l1 (perpendicular (line-from-points a b) d))
+             (l2 (perpendicular (line-from-points a c) e))
+             (l3 (perpendicular (line-from-points b c) f))
 
              (i1 (intersect-lines l1 l2))
              (i2 (intersect-lines l1 l3))
@@ -33,9 +33,9 @@
              (cir (circle-from-points i1 a)))
 
             (figure
-             (segment a b)
-             (segment b c)
-             (segment a c)
+             (make-segment a b)
+             (make-segment b c)
+             (make-segment a c)
              a b c l1 l2 l3 cir
              i1 i2)))
 
@@ -52,18 +52,18 @@
          (c (car cd))
          (d (cadr cd)))
     (figure a b #|c1 c2|# c d
-            (segment a c)
-            (segment a d)
-            (segment b c)
-            (segment b d))))
+            (make-segment a c)
+            (make-segment a d)
+            (make-segment b c)
+            (make-segment b d))))
 
 (define (line-test)
   (let* ((a (random-point))
          (b (random-point))
          (c (random-point))
          (d (random-point))
-         (l1 (line a b))
-         (l2 (line c d))
+         (l1 (line-from-points a b))
+         (l2 (line-from-points c d))
          (e (intersect-lines l1 l2))
          (f (point-on-line l1))
          (cir (circle-from-points e f)))
@@ -83,18 +83,18 @@
           (intersect-lines (ray->line l1)
                            (ray->line l2)))
          (radius-line
-          (perpendicular (line b c)
+          (perpendicular (line-from-points b c)
                          center-point))
          (radius-point
           (intersect-lines radius-line
-                           (line b c)))
+                           (line-from-points b c)))
          (cir (circle-from-points
                center-point
                radius-point))
          (pb1 (perpendicular-bisector
-               (segment a b)))
+               (make-segment a b)))
          (pb2 (perpendicular-bisector
-               (segment b c)))
+               (make-segment b c)))
          (pb-center (intersect-lines pb1 pb2))
          (circum-cir (circle-from-points
                       pb-center
@@ -103,9 +103,9 @@
             pb-center
             circum-cir
             center-point
-            (segment a b)
-            (segment a c)
-            (segment b c))))
+            (make-segment a b)
+            (make-segment a c)
+            (make-segment b c))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Run commands

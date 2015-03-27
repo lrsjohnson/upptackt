@@ -10,6 +10,27 @@
 (define (make-direction theta)
   (%direction (fix-angle-0-2pi theta)))
 
+;;; Vec from direction
+;;; TODO: Maybe allow directions to be represented as dx, dy
+(define (vec-from-direction direction)
+  (unit-vec-from-direction direction))
+
+;;; Arithmetic
+(define (add-to-direction dir radians)
+  (make-direction (+ (direction-theta dir)
+                     radians)))
+
+(define (rotate-direction-90 dir)
+  (add-to-direction dir (/ pi 1)))
+
+(define (reverse-direction dir)
+  (add-to-direction dir pi))
+
+;;; Predicates on Direction
 (define (direction-equal? d1 d2)
   (close-enuf? (direction-theta d1)
                (direction-theta d2)))
+
+(define (direction-opposite? d1 d2)
+  (close-enuf? (direction-theta d1)
+               (direction-theta (reverse-direction d2))))

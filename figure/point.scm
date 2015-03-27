@@ -2,7 +2,7 @@
 
 ;;; Figure Primitives
 (define-record-type <point>
-  (point x y)
+  (make-point x y)
   point?
   (x point-x)
   (y point-y))
@@ -22,10 +22,15 @@
     (make-vec (- x2 x1)
               (- y2 y1))))
 
+(define (direction-from-points p2 p1)
+  (vec->direction (sub-points p2 p1)))
+
 (define (add-to-point p vec)
   (let ((x (point-x p))
         (y (point-y p))
         (dx (vec-x vec))
         (dy (vec-y vec)))
-    (point (+ x dx)
-           (+ y dy))))
+    (make-point (+ x dx)
+                (+ y dy))))
+
+(define origin-point (make-point 0 0))
