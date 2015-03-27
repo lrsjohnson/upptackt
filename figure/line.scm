@@ -90,7 +90,10 @@
 
 (define (two-points-on-line line)
   (let ((point-1 (line-point line)))
-))
+   (let ((point-2 (add-to-point
+                   point-1
+                   (vec-from-direction (line-direction line)))))
+     (list point-1 point-2))))
 
 ;;; TODO: Replace
 (define (line-p1 line)
