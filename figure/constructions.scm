@@ -95,10 +95,9 @@
                             (- y1 dy)))))))
 
 (define (perpendicular l point)
-  (let* ((p1 (line-point l))
-         (direction (line-direction l))
+  (let* ((direction (line-direction l))
          (rotated-direction (rotate-direction-90 direction)))
-    (make-line p1 rotated-direction)))
+    (make-line point rotated-direction)))
 
 (define (perpendicular-bisector segment)
   (let ((midpt (segment-midpoint segment)))

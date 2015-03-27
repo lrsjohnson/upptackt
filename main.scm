@@ -2,8 +2,11 @@
   (let-geo* ((a (random-point))
              (b (random-point))
              (s (make-segment a b))
-             (m (segment-midpoint s)))
-            (figure a b s m)))
+             (m (segment-midpoint s))
+             (pl (perpendicular
+                  (line-from-points a b)
+                  m)))
+            (figure a b s m pl)))
 
 (define (debug-figure-2)
   (let-geo* ((s (random-segment))
@@ -112,9 +115,12 @@
 
 (define current-figure demo-figure)
 
-(define c (canvas))
+(define c
+  (if (environment-bound? (the-environment) 'c)
+      c
+      (canvas)))
 
-(define *num-inner-loop* 20)
+(define *num-inner-loop* 5)
 (define *num-outer-loop* 5)
 
 
@@ -128,7 +134,7 @@
           (draw-figure current-figure c)
           (let ((analysis-results (analyze-figure current-figure)))
             (save-results analysis-results analysis-data))
-          (sleep-current-thread 30)
+          (sleep-current-thread 1)
           (next-instance)
           (cond  ((> num-remaining 1)
                   (inner-lp (- num-remaining 1)))

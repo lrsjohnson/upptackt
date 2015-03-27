@@ -36,14 +36,18 @@
                       (point-y p2))))
 
 (define (draw-line canvas line)
-  (let ((p1 (line-p1 line))
-        (p2 (line-p2 line)))
-    (draw-segment canvas (extend-to-max-segment p1 p2))))
+  (let ((p1 (line-p1 line)))
+   (let ((p2 (add-to-point
+              p1
+              (vec-from-direction (line-direction line)))))
+     (draw-segment canvas (extend-to-max-segment p1 p2)))))
 
 (define (draw-ray canvas ray)
-  (let ((p1 (ray-p1 ray))
-        (p2 (ray-p2 ray)))
-    (draw-segment canvas (ray-extend-to-max-segment p1 p2))))
+  (let ((p1 (ray-endpoint ray)))
+    (let ((p2 (add-to-point
+               p1
+               (vec-from-direction (ray-direction ray)))))
+      (draw-segment canvas (ray-extend-to-max-segment p1 p2)))))
 
 (define (draw-circle canvas c)
   (let ((center (circle-center c))
@@ -56,10 +60,11 @@
 (define *angle-mark-radius* 0.1)
 (define (draw-angle canvas a)
   (let* ((vertex (angle-vertex a))
-         (arm1 (angle-arm-1 a))
-         (arm2 (angle-arm-2 a))
-         (angle-start (vec-to-angle arm1))
-         (angle-end (vec-to-angle arm2)))
+         (d1 (angle-arm-1 a))
+         (d2 (angle-arm-2 a))
+         (angle-start (direction-theta d2))
+         (angle-end (direction-theta d1)))
+    ;; Canvas arcs are drawn clockwise
     (canvas-draw-arc canvas
                      (point-x vertex)
                      (point-y vertex)

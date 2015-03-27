@@ -13,13 +13,12 @@
 
 (define (rotate-ray-about rot-origin radians r)
   (define (rotate-point p) (rotate-point-about rot-origin radians p))
-  (ray (rotate-point (ray-p1 r))
-       (rotate-point (ray-p2 r))))
+  (ray (rotate-point-about rot-origin radians (ray-endpoint r))
+       (add-to-direction (ray-direction r) radians)))
 
 (define (rotate-line-about rot-origin radians l)
-  (define (rotate-point p) (rotate-point-about rot-origin radians p))
-  (line (rotate-point (line-p1 l))
-        (rotate-point (line-p2 l))))
+  (make-line (rotate-point-about rot-origin radians (line-point l))
+             (add-to-direction (line-direction l) radians)))
 
 (define rotate-about (make-generic-operation 3 'rotate-about))
 (defhandler rotate-about rotate-point-about point? number? point?)
@@ -30,7 +29,6 @@
 (define (rotate-randomly-about p elt)
   (let ((radians (rand-angle-measure)))
     (rotate-about p radians elt)))
-
 
 ;;; Translations
 
@@ -43,14 +41,12 @@
            (translate-point (segment-endpoint-2 seg))))
 
 (define (translate-ray-by vec r)
-  (define (translate-point p) (translate-point-by vec p))
-  (ray (translate-point (ray-p1 r))
-       (translate-point (ray-p2 r))))
+  (make-ray (translate-point-by vec (ray-p1 r))
+            (ray-direction r)))
 
 (define (translate-line-by vec l)
-  (define (translate-point p) (translate-point-by vec p))
-  (line (translate-point (line-p1 l))
-        (translate-point (line-p2 l))))
+  (make-line (translate-point-by vec (line-point l))
+             (line-direction l)))
 
 (define (translate-angle-by vec a)
   (define (translate-point p) (translate-point-by vec p))
@@ -66,7 +62,7 @@
 (defhandler translate-by translate-angle-by vec? angle?)
 
 (define (translate-randomly-along-line l elt)
-  (let* ((vec (unit-vec (line->vec l)))
+  (let* ((vec (unit-vec-from-direction (line->direction l)))
          (scaled-vec (scale-vec vec (rand-range 0.5 1.5))))
     (translate-by vec elt)))
 
@@ -77,14 +73,15 @@
 (define (rand-translation-vec-for-point p1)
   (let ((p2 (random-point)))
     (sub-points p2 p1)))
+
 (define (rand-translation-vec-for-segment seg)
   (rand-translation-vec-for-point (segment-endpoint-1 seg)))
 
 (define (rand-translation-vec-for-ray r )
-  (rand-translation-vec-for-point (ray-p1 r)))
+  (rand-translation-vec-for-point (ray-endpoint r)))
 
 (define (rand-translation-vec-for-line l)
-  (rand-translation-vec-for-point (line-p1 l)))
+  (rand-translation-vec-for-point (line-point l)))
 
 (define rand-translation-vec-for (make-generic-operation 1 'rand-translation-vec-for))
 (defhandler rand-translation-vec-for rand-translation-vec-for-point point?)

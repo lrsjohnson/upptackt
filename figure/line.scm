@@ -90,10 +90,7 @@
 
 (define (two-points-on-line line)
   (let ((point-1 (line-point line)))
-   (let ((point-2 (add-to-point
-                   point-1
-                   (vec-from-direction (line-direction line)))))
-     (list point-1 point-2))))
+))
 
 ;;; TODO: Replace
 (define (line-p1 line)
@@ -105,12 +102,12 @@
 ;;; Predicates
 
 (define (parallel? a b)
-  (vec-direction-equal? (->vec a)
-                        (->vec b)))
+  (direction-parallel? (->direction a)
+                       (->direction b)))
 
 (define (perpendicular? a b)
-  (vec-perpendicular? (->vec a)
-                      (->vec b)))
+  (direction-perpendicular? (->direction a)
+                            (->direction b)))
 
 (define (segment-equal? s1 s2)
   (and

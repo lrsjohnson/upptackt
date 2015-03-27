@@ -7,11 +7,11 @@
                       (point-y p2))))))
 
 (define (angle-measure a)
-  (let* ((vertex (angle-vertex a))
-         (angle-start (vec-to-angle arm1))
-         (angle-end (vec-to-angle arm2)))
-    (fix-angle-0-2pi (- angle-end
-                        angle-start))))
+  (let* ((d1 (angle-arm-1 a))
+         (d2 (angle-arm-2 a)))
+    (subtract-directions d2 d1)))
+
+;;; Created elements
 
 (define (measured-point-on-ray r dist)
   (let* ((p1 (ray-p1 r))

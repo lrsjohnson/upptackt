@@ -9,10 +9,10 @@
 ;;; Transformations on Angles
 
 (define (reverse-angle a)
-  (let ((a1 (angle-arm-1 a))
+  (let ((d1 (angle-arm-1 a))
         (v (angle-vertex a))
-        (a2 (angle-arm-2 a)))
-    (make-angle a2 v a1)))
+        (d2 (angle-arm-2 a)))
+    (make-angle d2 v d1)))
 
 (define (smallest-angle a)
   (if (> (angle-measure a) pi)
@@ -31,14 +31,14 @@
 (define angle-from (make-generic-operation 2 'angle-from))
 
 (define (angle-from-lines l1 l2)
-  (let ((v1 (line->direction l1))
-        (v2 (line->direction l2))
+  (let ((d1 (line->direction l1))
+        (d2 (line->direction l2))
         (p (intersect-lines l1 l2)))
     (make-angle d1 p d2)))
 (defhandler angle-from angle-from-lines line? line?)
 
 (define (angle-from-line-ray l r)
-  (let ((vertex (ray-p1 r)))
+  (let ((vertex (ray-endpoint r)))
     (assert (on-line? vertex l) "Angle-from-line-ray: Vertex of ray not on line")
     (let ((d1 (line->direction l))
           (d2 (ray->direction r)))
