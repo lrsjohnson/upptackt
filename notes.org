@@ -17,8 +17,8 @@
     - [X] Flip lines direction
     - [X] Line from Arm of Angle
 *** TODO Representations
-    - [ ] Change angles to use vertex + two rays <--
-    - [ ] Change rays to be just point and direction
+    - [X] Change angles to use vertex + two rays <--
+    - [X] Change rays to be just point and direction
     - [ ] "Direction" as x, y as well vs. just theta?
 *** TODO Clean up Changes
     - [ ] line-p1, ray-p1, etc
@@ -96,8 +96,10 @@
 *** TODO Diagram-level Graphics [0/3]
     - [ ] Displaying on page nicely
     - [ ] Organizing
-*** TODO Animation [1/1]
+*** TODO Animation [3/3]
     - [X] Display several displays with timing between
+    - [X] Smoother Animations
+    - [X] Better Animation Interface
 ** Simulation
 *** TODO Explore Kinematics-related simulations [0/2]
     - [ ] Model + simulate as joins + telescoping, etc.

@@ -9,6 +9,7 @@
             "utils"
             "macros"
             "analyzer"
+            "animation"
             "figure/utils"
             "figure/line"
             "figure/direction"

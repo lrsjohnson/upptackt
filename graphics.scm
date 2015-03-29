@@ -4,7 +4,7 @@
    (lambda (element)
      ((draw-element element) canvas))
    (figure-elements figure))
-  (set! *max-random-call-count* *random-call-count*)
+  (graphics-flush (canvas-g canvas))
   )
 
 (define draw-element
@@ -87,7 +87,7 @@
 
 (define (canvas)
   (let ((g (x-graphics)))
-    ;(graphics-enable-buffering g)
+    (graphics-enable-buffering g)
     (list 'canvas g)))
 
 (define (canvas-g canvas)

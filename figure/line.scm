@@ -56,8 +56,8 @@
 ;;; Constructors from angles
 (define (ray-from-arm-1 a)
   (let ((v (angle-vertex a))
-        (vec (angle-arm-1 a)))
-    (ray-from-point-vec v vec)))
+        (dir (angle-arm-1 a)))
+    (make-ray v dir)))
 
 (define (ray-from-arm-2 a)
   (ray-from-arm-1 (reverse-angle a)))
@@ -130,10 +130,10 @@
 ;;; Conversions
 ;;; Ray shares point p1
 (define (segment->ray segment)
-  (ray (segment-endpoint-1 segment)
-       (direction-from-points
-        (segment-endpoint-2 segment)
-        (segment-endpoint-1 segment))))
+  (make-ray (segment-endpoint-1 segment)
+            (direction-from-points
+             (segment-endpoint-2 segment)
+             (segment-endpoint-1 segment))))
 
 (define (ray->line ray)
   (make-line (ray-endpoint ray)

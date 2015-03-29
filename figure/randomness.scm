@@ -3,7 +3,7 @@
 ;;;  Base: Random Scalars
 (define (internal-rand-range min-v max-v)
   (let ((interval-size (max *machine-epsilon* (- max-v min-v))))
-   (+ min-v (random (* 1.0 interval-size)))))
+    (+ min-v (random (* 1.0 interval-size)))))
 
 ;;; Global for if its the first construction of the
 (define *first-construction* #t)
@@ -45,31 +45,14 @@
 (define (should-wiggle)
   (and (not *first-construction*) (= *random-call-count* *wiggle-random-call-count*)))
 
+
+(define *wiggle-ratio* 0.15)
+
 (define (rand-range min max)
-  (cond
-   (*first-construction*
-    (let ((v (internal-rand-range min max)))
-      (save-random-value v)
-      v))
-   ((should-wiggle)
-    (let ((prev-v (get-random-value)))
-      (let ((new-v (wiggle-value prev-v min max)))
-        (save-random-value new-v)
-        new-v)))
-   (else
-    (let ((prev-v (get-random-value)))
-      (save-random-value prev-v)
-      prev-v))))
-
-(define *wiggle-ratio* 0.05)
-
-(define (wiggle-value v old-min old-max)
-  (let* ((wiggle-room (* (- old-max old-min) *wiggle-ratio*)))
-    (let ((new-min (max old-min (- v (* wiggle-room
-                                        (internal-rand-range 0.5 1.5)))))
-          (new-max (min old-max (+ v (* wiggle-room
-                                        (internal-rand-range 0.5 1.5))))))
-      (internal-rand-range new-min new-max))))
+  (let* ((range-size (- max min))
+         (wiggle-amount (* range-size *wiggle-ratio*))
+         (v (persist-value (internal-rand-range min (- max wiggle-amount)))))
+    (animate-range v (+ v wiggle-amount))))
 
 ;;; Random Values - distances, angles
 
@@ -93,7 +76,7 @@
 (define (random-segment)
   (let ((p1 (random-point))
         (p2 (random-point)))
-    (segment p1 p2)))
+    (make-segment p1 p2)))
 
 (define (random-circle)
   (let ((pr1 (random-point))

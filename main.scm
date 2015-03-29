@@ -125,32 +125,24 @@
 
 
 (define (run-figure current-figure-proc)
-  (display "\n")
-  (let outer-lp ((outer-num-remaining *num-outer-loop*))
-    (let ((analysis-data (make-analysis-collector)))
-      (reset-randomness)
-      (let inner-lp ((num-remaining *num-inner-loop*))
-        (let ((current-figure (current-figure-proc)))
-          (draw-figure current-figure c)
-          (let ((analysis-results (analyze-figure current-figure)))
-            (save-results analysis-results analysis-data))
-          (sleep-current-thread 1)
-          (next-instance)
-          (cond  ((> num-remaining 1)
-                  (inner-lp (- num-remaining 1)))
-                 ((next-wiggle-instance)
-                  (inner-lp *num-inner-loop*)))))
-      (display "--- Results ---\n")
-      (print-analysis-results analysis-data)
-      (if (> outer-num-remaining 1)
-          (outer-lp (- outer-num-remaining 1))))))
+  (let ((analysis-data (make-analysis-collector)))
+    (run-animation
+     (lambda ()
+       (let ((current-figure (current-figure-proc)))
+         (draw-figure current-figure c)
+         (let ((analysis-results (analyze-figure current-figure)))
+           (save-results analysis-results analysis-data)))))))
 
 (define interesting-figures
-  (list demo-figure
-        linear-pair
-        vertical-angles
-        corresponding-angles
-        cyclic-quadrilateral))
+  (list
+   parallel-lines-converse
+   perpendicular-bisector-equidistant
+   perpendicular-bisector-converse
+   demo-figure
+   linear-pair
+   vertical-angles
+   corresponding-angles
+   cyclic-quadrilateral))
 
 (define (r)
   (for-each (lambda (figure)

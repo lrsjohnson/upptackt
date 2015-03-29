@@ -21,7 +21,6 @@
              (a-2 (smallest-angle-from (flip l1) (flip l2))))
             (figure l1 c l2 a-1 a-2)))
 
-
 ;;; [3a] Corresponding Angles Conjecture
 ;;; Givens: - Lines l1 and l2 are parallel
 ;;;         - Line l3 is a transversal
