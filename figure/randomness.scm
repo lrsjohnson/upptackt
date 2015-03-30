@@ -105,10 +105,7 @@
   (let ((v (random-point))
         (d1 (random-direction))
         (d2 (random-direction)))
-    (make-angle d1 v d2)))
-
-(define (random-small-angle)
-  (smallest-angle (random-angle)))
+    (smallest-angle (make-angle d1 v d2))))
 
 ;;;  Points on Random Elements
 (define (point-on-segment seg)
@@ -118,6 +115,7 @@
          (v (sub-points p2 p1)))
     (add-to-point p1 (scale-vec v t))))
 
+;;; TODO: Fix this for new construction
 (define (point-on-line l)
   (let* ((p1 (line-p1 l))
          (p2 (line-p2 l))
@@ -129,8 +127,9 @@
     (add-to-point sp1 (scale-vec v t))))
 
 (define (point-on-ray r)
-  (let* ((p1 (ray-p1 r))
-         (p2 (ray-p2 r))
+  (let* ((p1 (ray-endpoint r))
+         (dir (ray-direction r))
+         (p2 (add-to-point p1 (vec-from-direction dir)))
          (seg (ray-extend-to-max-segment p1 p2))
          (sp1 (segment-endpoint-1 seg))
          (sp2 (segment-endpoint-2 seg))

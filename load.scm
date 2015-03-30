@@ -1,6 +1,4 @@
 ;;; Start from scratch
-(ge (make-top-level-environment))
-
 (set! *random-state* (fasload "a-random-state"))
 
 (for-each (lambda (f) (load f))

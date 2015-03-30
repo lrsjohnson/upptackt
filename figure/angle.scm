@@ -26,6 +26,9 @@
         (arm2 (direction-from-points p2 vertex)))
     (make-angle arm1 vertex arm2)))
 
+(define (smallest-angle-from-points p1 vertex p2)
+  (smallest-angle (angle-from-points p1 vertex p2)))
+
 ;;; Angle from pairs of lines / rays / segments
 
 (define angle-from (make-generic-operation 2 'angle-from))

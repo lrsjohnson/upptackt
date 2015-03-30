@@ -80,29 +80,31 @@
 ;;; [7] Shortest distance conjecture
 ;;; Givens: arbitrary point p, point a on line l
 ;;; Goal: Discover that shortest distance to line is along perpendicular
-(define (shortest-distance)
-  (let-geo* ((p (random-point))
-             (l (random-line))
-             (a (point-on-line l)))
-            (figure p l a (aux-segment p a))))
+ (define (shortest-distance)
+   (let-geo* ((p (random-point))
+              (l (random-line))
+              (a (point-on-line l)))
+             (figure p l a (aux-segment p a))))
 ;;; TODO: Tricky, figure out how to minimize value, specify "minimize" property?
 |#
 
+#|
 ;;; [8] Angle bisector conjecture
 ;;; Given: angle a-1 of rays r-1, r-2, point a on angle-bisector l1
 ;;; Goal: Distnace from a to r-1 = distance a to r-2
-(define (angle-bisector-distance)
-  (let-geo* ((a-1 (random-angle))
-             (r-1 (extend-to-ray (angle-arm-1 a-1)))
-             (r-2 (extend-to-ray (angle-arm-2 a-1)))
-             (l-1 (angle-bisector a-1))
-             (p (point-on-line l-1))
-             (s-1 (perpendicular-to p r-1))
-             (s-2 (perpendicular-to p r-2)))
-            (figure a-1 r-1 r-2 l-1 p s-1 s-2)))
+
+ (define (angle-bisector-distance)
+   (let-geo* ((a (random-angle))
+              (r-1 (make-ray (angle-vertex a) (angle-arm-1 a)))
+              (r-2 (make-ray (angle-vertex a) (angle-arm-2 a)))
+              (l-1 (angle-bisector a))
+              (p (point-on-ray l-1))
+              (s-1 (perpendicular-to r-1 p))
+              (s-2 (perpendicular-to r-2 p)))
+             (figure a r-1 r-2 l-1 p s-1 s-2)))
 ;;; Interesting, dependent on "shortest distance" from prior conjecture
 ;;; TODO: perpendicular-to => Segment
-
+|#
 #|
 
 ;;; [9] Angle bisector concurrency

@@ -1,4 +1,4 @@
-(define *animation-steps* 10)
+(define *animation-steps* 15)
 
 ;; 30 Frames per second:
 (define *animation-sleep* 30)
@@ -58,6 +58,9 @@
 
 ;;; 1   -1
 ;;; 0    1
+
+(define (remap-v v)
+  (* 2 (- 0.5 (abs (- v 0.5)))))
 
 (define (animate-range min max)
   (animate (lambda (v)

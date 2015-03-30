@@ -1,12 +1,15 @@
 (define (debug-figure)
-  (let-geo* ((a (random-point))
-             (b (random-point))
-             (s (make-segment a b))
-             (m (segment-midpoint s))
-             (pl (perpendicular
-                  (line-from-points a b)
-                  m)))
-            (figure a b s m pl)))
+  (let-geo* ((a (make-point 0 0.5))
+             (b (make-point 0 0))
+             (c (make-point 1 0))
+             (a-1 (angle-from-points a b c))
+             (ab (angle-bisector a-1))
+             )
+            (figure a b c
+                    (make-segment a b)
+                    (make-segment b c)
+                    a-1
+                    ab)))
 
 (define (debug-figure-2)
   (let-geo* ((s (random-segment))
@@ -135,6 +138,8 @@
 
 (define interesting-figures
   (list
+   debug-figure
+   angle-bisector-distance
    parallel-lines-converse
    perpendicular-bisector-equidistant
    perpendicular-bisector-converse

@@ -94,8 +94,8 @@
                 (make-point (- x1 dx)
                             (- y1 dy)))))))
 
-(define (perpendicular l point)
-  (let* ((direction (line-direction l))
+(define (perpendicular linear-element point)
+  (let* ((direction (->direction linear-element))
          (rotated-direction (rotate-direction-90 direction)))
     (make-line point rotated-direction)))
 
@@ -106,13 +106,10 @@
 
 ;; Angle -> Ray
 (define (angle-bisector a)
-  (let* ((a1 (angle-arm-1 a))
-         (a2 (angle-arm-2 a))
+  (let* ((d1 (angle-arm-1 a))
+         (d2 (angle-arm-2 a))
          (vertex (angle-vertex a))
          (radians (angle-measure a))
          (half-angle (/ radians 2))
-         (new-angle (measured-angle-ccw
-                     (add-to-point vertex a2)
-                     vertex
-                     half-angle)))
-    (ray vertex (angle-p2 new-angle))))
+         (new-direction (add-to-direction d2 half-angle)))
+    (make-ray vertex new-direction)))
