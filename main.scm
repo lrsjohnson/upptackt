@@ -139,7 +139,6 @@
 (define interesting-figures
   (list
    debug-figure
-   angle-bisector-distance
    parallel-lines-converse
    perpendicular-bisector-equidistant
    perpendicular-bisector-converse

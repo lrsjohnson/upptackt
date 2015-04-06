@@ -45,7 +45,7 @@
 ;;;         - a-1, a-2, are either CA, AIA, AEA, etc. of Lines l1, l2
 ;;; Goal: lines l1 and l2 are parallel
 (define (parallel-lines-converse)
-  (let-geo* ((a-1 (random-small-angle))
+  (let-geo* ((a-1 (random-angle))
              (l3 (line-from-arm-1 a-1))
              (a-2 (translate-randomly-along-line l3 a-1))
              (l1 (line-from-arm-2 a-1))

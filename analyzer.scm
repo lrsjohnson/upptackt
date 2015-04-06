@@ -11,7 +11,9 @@
 
 ;;; Given a figure, report what's interesting
 (define (analyze figure)
-  (let* ((points (figure-filter point? figure))
+  (let* ((points (append (figure-filter point? figure)
+                         (append-map (lambda (polygon) (polygon-points polygon))
+                                     (figure-filter polygon? figure))))
          (angles (figure-filter angle? figure))
          (linear-elements (figure-filter linear-element? figure))
          (implied-segments (point-pairs->segments (all-pairs points))))

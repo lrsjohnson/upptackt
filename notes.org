@@ -1,4 +1,17 @@
 * Task List
+** Priorities / Short-term goals
+*** Analyzer:
+    - [ ] Multi-element equalities built up from pairwise, "connected component"-esque
+    - [ ] Properly extract points, etc. from polygons (maybe polygon can be generalized to a "group"
+      of elements)?
+    - [ ] Detect properties of square, rectangle, parallelogram, etc.
+*** Random Generation
+    - [ ] Randomly Generate square, rectangle, parallelogram, etc
+*** Construction from Constraints
+    - [ ] Play with generating an isoceles triangle or Kite from its given properties...
+*** Learning!
+    - [ ] Experiment with finding minimal properties (Rhombus: only opposite angles equal
+      sufficient? or pairs of edges equal?)
 ** Core
 *** TODO Numeric Stuff [1/3]
     - [X] Improved close-enuf?

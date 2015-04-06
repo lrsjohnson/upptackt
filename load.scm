@@ -20,6 +20,7 @@
             "figure/figure"
             "figure/math-utils"
             "figure/point"
+            "figure/polygon"
             "figure/metadata"
             "figure/randomness"
             "figure/transforms"

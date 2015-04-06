@@ -72,6 +72,15 @@
                      angle-start
                      angle-end)))
 
+(define (draw-polygon canvas polygon)
+  (let ((points (polygon-points polygon)))
+    (for-each (lambda (p)
+                (draw-point canvas p))
+              points)
+    (for-each (lambda (s)
+                (draw-segment canvas s))
+              (polygon-segments p))))
+
 ;;; Add to generic operations
 
 (add-to-draw-element! point? draw-point)
@@ -80,6 +89,7 @@
 (add-to-draw-element! angle? draw-angle)
 (add-to-draw-element! line? draw-line)
 (add-to-draw-element! ray? draw-ray)
+(add-to-draw-element! polygon? draw-polygon)
 
 ;;; Canvas for x-graphics
 
