@@ -10,6 +10,8 @@
     - [ ] Figure out randomness / overrides for constructions with intermediary steps
 *** Random Generation
     - [ ] Randomly Generate square, rectangle, parallelogram, etc
+    - [ ] Distance to Line
+    - [ ] Random Point left of line
 *** Construction from Constraints
     - [ ] Play with generating an isoceles triangle or Kite from its given properties...
 *** Learning!
