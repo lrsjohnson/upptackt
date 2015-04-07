@@ -57,9 +57,44 @@
 (define ((pair-predicate predicate) pair)
   (predicate (car pair) (cadr pair)))
 
+(define (hash-table/append table key element)
+  (hash-table/put! table
+                   key
+                   (cons element
+                         (hash-table/get table key '()))))
+
+;;; Merges "connected-components" of pairs
+(define (merge-pair-groups elements pairs)
+  (let ((i 0)
+        (group-ids (make-key-weak-eq-hash-table))
+        (group-elements (make-key-weak-eq-hash-table))) ; Map from pair
+    (for-each (lambda (pair)
+                (let ((first (car pair))
+                      (second (cadr pair)))
+                  (let ((group-id-1 (hash-table/get group-ids first i))
+                        (group-id-2 (hash-table/get group-ids second i)))
+                    (cond ((and (= group-id-1 i)
+                                (= group-id-2 i))
+                           ;; Both new, new groups:
+                           (hash-table/put! group-ids first group-id-1)
+                           (hash-table/put! group-ids second group-id-1))
+                          ((= group-id-1 i)
+                           (hash-table/put! group-ids first group-id-2))
+                          ((= group-id-2 i)
+                           (hash-table/put! group-ids second group-id-1)))
+                    (set! i (+ i 1)))))
+              pairs)
+    (for-each (lambda (elt)
+                (hash-table/append group-elements
+                                   (hash-table/get group-ids elt 'invalid)
+                                   elt))
+              elements)
+    (hash-table/remove! group-elements 'invalid)
+    (hash-table/datum-list group-elements)))
+
 (define ((report-pairwise predicate) elements)
   (let ((elt-pairs (all-pairs elements)))
-    (filter (pair-predicate predicate) elt-pairs)))
+    (merge-pair-groups elements (filter (pair-predicate predicate) elt-pairs))))
 
 ;;; Check for concurrent points
 (define (report-concurrent-points points)

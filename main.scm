@@ -1,15 +1,10 @@
 (define (debug-figure)
-  (let-geo* ((a (make-point 0 0.5))
-             (b (make-point 0 0))
-             (c (make-point 1 0))
-             (a-1 (angle-from-points a b c))
-             (ab (angle-bisector a-1))
-             )
-            (figure a b c
-                    (make-segment a b)
-                    (make-segment b c)
-                    a-1
-                    ab)))
+  (let-geo* ((a (make-point 0 0))
+             (b (make-point 1 0))
+             (c (make-point 1 1))
+             (d (make-point 0 1))
+             (p (polygon-from-points a b c d)))
+            (figure p)))
 
 (define (debug-figure-2)
   (let-geo* ((s (random-segment))

@@ -1,10 +1,13 @@
 * Task List
 ** Priorities / Short-term goals
 *** Analyzer:
-    - [ ] Multi-element equalities built up from pairwise, "connected component"-esque
+    - [X] Multi-element equalities built up from pairwise, "connected component"-esque
     - [ ] Properly extract points, etc. from polygons (maybe polygon can be generalized to a "group"
       of elements)?
     - [ ] Detect properties of square, rectangle, parallelogram, etc.
+*** Metadata
+    - [ ] Persist metadata about operations.
+    - [ ] Figure out randomness / overrides for constructions with intermediary steps
 *** Random Generation
     - [ ] Randomly Generate square, rectangle, parallelogram, etc
 *** Construction from Constraints
@@ -77,16 +80,17 @@
     - [ ] Name before vs. name after vs. use symbolic names everywhere...
     - [ ] Multiple element return
 ** Analysis
-*** TODO Simple Analysis [4/9]
+*** TODO Simple Analysis [5/10]
     - [X] Angle Equality
     - [X] Complementary / Supplementary Angles
     - [X] Parallel / Perpendicular
     - [ ] General Angles which sum to same value
     - [X] Basic Segment Length Equality
     - [ ] Gather all segments  with equal lengths
-    - [ ] Go beyond pairs
+    - [X] Go beyond pairs
     - [ ] Segments not actually present?
     - [ ] Concurrency of lines
+    - [ ] Clean up multi-element pairs
 *** TODO Repeated Analysis [0/2]
     - [ ] Perform constructions multiple times
     - [ ] Maintain information
