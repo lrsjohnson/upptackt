@@ -73,6 +73,35 @@
   (make-point (rand-range -0.8 0.8)
               (rand-range -0.8 0.8)))
 
+;;; TODO: Maybe separate out reflection about line?
+(define (random-point-left-of-line line)
+  (let* ((p (random-point))
+         (d (signed-distance-to-line p line))
+         (v (rotate-vec-90
+             (unit-vec-from-direction
+              (line-direction line)))))
+    (if (> d 0)
+        p
+        (add-to-point p (scale-vec v (* 2 (- d)))))))
+
+;;; TODO: Handle when rays intersect!
+(define (random-point-between-rays r1 r2)
+  (let ((offset-vec (sub-points (ray-endpoint r2)
+                            (ray-endpoint r1))))
+    (let ((d1 (ray-direction r1))
+          (d2 (ray-direction r2)))
+      (let ((dir-difference (subtract-directions d2 d1)))
+        (let ((new-dir (add-to-direction
+                        d1
+                        (rand-range 0 dir-difference))))
+          (add-to-point
+           (add-to-point (ray-endpoint r1)
+                         (vec-from-direction-distance
+                          new-dir
+                          (rand-range 0 1)))
+           (scale-vec offset-vec
+                      (rand-range 0 1.0))))))))
+
 (define (random-line)
   (let ((p (random-point)))
     (line-through-point p)))
