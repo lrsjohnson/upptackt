@@ -2,6 +2,7 @@
   (clear-canvas canvas)
   (for-each
    (lambda (element)
+     (canvas-set-color canvas (element-color element))
      ((draw-element element) canvas))
    (figure-elements figure))
   (graphics-flush (canvas-g canvas))
@@ -19,12 +20,10 @@
 
 (define *point-radius* 0.02)
 (define (draw-point canvas point)
-  (canvas-set-color canvas "blue")
   (canvas-fill-circle canvas
                (point-x point)
                (point-y point)
-               *point-radius*)
-  (canvas-set-color canvas "black"))
+               *point-radius*))
 
 (define (draw-segment canvas segment)
   (let ((p1 (segment-endpoint-1 segment))

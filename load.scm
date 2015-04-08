@@ -24,6 +24,7 @@
             "figure/metadata"
             "figure/randomness"
             "figure/transforms"
+            "appearance"
             "graphics"
             "investigations"
             "main"))
