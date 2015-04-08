@@ -82,6 +82,10 @@
         (p2 (random-point)))
     (make-segment p1 p2)))
 
+(define (random-ray)
+  (let ((p (random-point)))
+    (random-ray-from-point p)))
+
 (define (random-circle)
   (let ((pr1 (random-point))
         (pr2 (random-point)))
@@ -91,7 +95,7 @@
   (let ((v (random-direction)))
     (line-from-point-direction p v)))
 
-(define (ray-from-point p)
+(define (random-ray-from-point p)
   (let ((v (random-direction)))
     (ray-from-point-direction p v)))
 

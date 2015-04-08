@@ -5,7 +5,7 @@
 (define (linear-pair)
   (let-geo* ((a (random-point))
              (l1 (line-through-point a))
-             (r (ray-from-point a))
+             (r (random-ray-from-point a))
              (a-1 (smallest-angle-from l1 r))
              (a-2 (smallest-angle-from r (flip l1))))
             (figure a l1 r a-1 a-2)))
