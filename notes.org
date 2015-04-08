@@ -2,16 +2,18 @@
 ** Priorities / Short-term goals
 *** Analyzer:
     - [X] Multi-element equalities built up from pairwise, "connected component"-esque
-    - [ ] Properly extract points, etc. from polygons (maybe polygon can be generalized to a "group"
+    - [X] Properly extract points, etc. from polygons (maybe polygon can be generalized to a "group"
       of elements)?
     - [ ] Detect properties of square, rectangle, parallelogram, etc.
 *** Metadata
     - [ ] Persist metadata about operations.
     - [ ] Figure out randomness / overrides for constructions with intermediary steps
 *** Random Generation
-    - [ ] Randomly Generate square, rectangle, parallelogram, etc
-    - [ ] Distance to Line
-    - [ ] Random Point left of line
+    - [X] Randomly Generate square, rectangle, parallelogram, etc
+    - [X] Distance to Line
+    - [X] Random Point left of line
+    - [ ] Improve random point between rays when rays intersect!
+    - [ ] Improve Random Triangle
 *** Construction from Constraints
     - [ ] Play with generating an isoceles triangle or Kite from its given properties...
 *** Learning!
@@ -41,22 +43,26 @@
 *** TODO Clean up Changes
     - [ ] line-p1, ray-p1, etc
     - [ ] ->vec
+    - [ ] Directions to vector (dir + distance)
     - [ ] Angle arms
     - [ ] Angle Measure
 *** TODO More Constructions
-    - [ ] Dealing with ordering of segments (a->b vs. b->a)?
+    - [ ] Dealing with ordering of segments (a->b vs. b->a)? Standardize?
+    - [ ] Intersections of segments, rays, etc.
 *** TODO Circle-related constructions
     - [ ] Representing / Measuring Arcs
     - [ ] Circles, Radii, Diameter
     - [ ] Tangents, etc.
-*** TODO Element Representations [3/4]
-    - [ ] Consider point+direction for line vs. two points
+*** TODO Element Representations [4/4]
+    - [X] Consider point+direction for line vs. two points
     - [X] Angles as vertex point + two vecs
     - [X] Change to using Record structures
     - [X] Refactor files
-*** TODO Compound Constructions [0/6]
-    - [ ] Better Triangle Creator
-    - [ ] Triangle Segments
+*** TODO Coordinates
+    - [ ] Bounds / specifying coordinate ranges (randomness)
+*** TODO Compound Constructions [2/6]
+    - [X] Better Triangle Creator
+    - [X] Triangle Segments
     - [ ] Triangle Angles
     - [ ] Perpendicular-to (point-to-line)
     - [ ] "Construct Altitudes"
@@ -106,10 +112,13 @@
 *** TODO Understand Results
     - [ ] Provide/get new name for points, e.g. "Incenter"
 ** Display
-*** TODO Figure Element Appearance [1/3]
+*** TODO Figure Element Appearance [2/4]
     - [X] Colors for elements
+    - [X] Custom-set colors for elements
     - [ ] Labels for points
     - [ ] Aux segment for secondary / hinted segments.
+*** TODO Debug Display
+    - [ ] Show directions on lines, segments, etc.
 *** TODO Markings for Constraints, findings [0/1]
     - [ ] Mark equal segments, bisectors, etc.
 *** TODO Diagram-level Graphics [0/3]
