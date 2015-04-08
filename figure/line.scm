@@ -53,6 +53,9 @@
 (define (ray-from-point-direction p dir)
   (make-ray p dir))
 
+(define (ray-from-points endpoint p1)
+  (make-ray endpoint (direction-from-points endpoint p1)))
+
 ;;; Constructors from angles
 (define (ray-from-arm-1 a)
   (let ((v (angle-vertex a))
@@ -81,6 +84,10 @@
 (define (flip-segment s)
   (make-segment (segment-endpoint-2 s) (segment-endpoint-1 s)))
 (defhandler flip flip-segment segment?)
+
+(define (reverse-ray r)
+  (make-ray (ray-endpoint r)
+            (reverse-direction (ray-direction r))))
 
 ;;; Operations
 
