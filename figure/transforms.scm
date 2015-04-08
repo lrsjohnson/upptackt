@@ -8,13 +8,13 @@
 
 (define (rotate-segment-about rot-origin radians seg)
   (define (rotate-point p) (rotate-point-about rot-origin radians p))
-  (segment (rotate-point (segment-endpoint-1 seg))
-           (rotate-point (segment-endpoint-2 seg))))
+  (make-segment (rotate-point (segment-endpoint-1 seg))
+                (rotate-point (segment-endpoint-2 seg))))
 
 (define (rotate-ray-about rot-origin radians r)
   (define (rotate-point p) (rotate-point-about rot-origin radians p))
-  (ray (rotate-point-about rot-origin radians (ray-endpoint r))
-       (add-to-direction (ray-direction r) radians)))
+  (make-ray (rotate-point-about rot-origin radians (ray-endpoint r))
+            (add-to-direction (ray-direction r) radians)))
 
 (define (rotate-line-about rot-origin radians l)
   (make-line (rotate-point-about rot-origin radians (line-point l))
@@ -37,11 +37,11 @@
 
 (define (translate-segment-by vec segment)
   (define (translate-point p) (translate-point-by vec p))
-  (segment (translate-point (segment-endpoint-1 seg))
-           (translate-point (segment-endpoint-2 seg))))
+  (make-segment (translate-point (segment-endpoint-1 seg))
+                (translate-point (segment-endpoint-2 seg))))
 
 (define (translate-ray-by vec r)
-  (make-ray (translate-point-by vec (ray-p1 r))
+  (make-ray (translate-point-by vec (ray-endpoint r))
             (ray-direction r)))
 
 (define (translate-line-by vec l)

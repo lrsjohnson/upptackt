@@ -63,7 +63,6 @@
          (d2 (angle-arm-2 a))
          (angle-start (direction-theta d2))
          (angle-end (direction-theta d1)))
-    ;; Canvas arcs are drawn clockwise
     (canvas-draw-arc canvas
                      (point-x vertex)
                      (point-y vertex)
@@ -78,7 +77,7 @@
               points)
     (for-each (lambda (s)
                 (draw-segment canvas s))
-              (polygon-segments p))))
+              (polygon-segments polygon))))
 
 ;;; Add to generic operations
 
