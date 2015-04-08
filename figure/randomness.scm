@@ -48,6 +48,7 @@
 
 (define *wiggle-ratio* 0.15)
 
+;;; Will return floats even if passed integers
 (define (rand-range min max)
   (let* ((range-size (- max min))
          (wiggle-amount (* range-size *wiggle-ratio*))
@@ -56,12 +57,15 @@
 
 ;;; Random Values - distances, angles
 
-(define (rand-angle-measure)
+(define (rand-theta)
   (rand-range 0 (* 2 pi)))
+
+(define (rand-angle-measure)
+  (rand-range 0 pi))
 
 ;;; Random unit vector
 (define (random-direction)
-  (let ((theta (rand-angle-measure)))
+  (let ((theta (rand-theta)))
     (make-direction theta)))
 
 ;;; Random Elements
@@ -140,7 +144,7 @@
 (define (point-on-circle c)
   (let ((center (circle-center c))
         (radius (circle-radius c))
-        (angle (rand-angle-measure)))
+        (angle (rand-theta)))
     (make-point (+ (point-x center)
                    (* radius (cos angle)))
                 (+ (point-y center)
