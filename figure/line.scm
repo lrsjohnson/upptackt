@@ -34,7 +34,7 @@
 
 ;;; TODO, use for equality tests?
 (define (line-offset line)
-  (let ((direction (direction-from-points p2 p1))
+  (let ((direction (direction-from-points p1 p2))
         (x1 (point-x p1))
         (y1 (point-y p1))
         (x2 (point-x p2))
@@ -45,7 +45,7 @@
       (%make-line direction offset))))
 
 (define (line-from-points p1 p2)
-  (make-line p1 (direction-from-points p2 p1)))
+  (make-line p1 (direction-from-points p1 p2)))
 
 (define (line-from-point-direction p dir)
   (make-line p dir))
@@ -132,8 +132,8 @@
 (define (segment->ray segment)
   (make-ray (segment-endpoint-1 segment)
             (direction-from-points
-             (segment-endpoint-2 segment)
-             (segment-endpoint-1 segment))))
+             (segment-endpoint-1 segment)
+             (segment-endpoint-2 segment))))
 
 (define (ray->line ray)
   (make-line (ray-endpoint ray)
@@ -150,8 +150,8 @@
 
 (define (segment->direction s)
   (direction-from-points
-   (segment-endpoint-2 s)
-   (segment-endpoint-1 s)))
+   (segment-endpoint-1 s)
+   (segment-endpoint-2 s)))
 
 (define ->direction (make-generic-operation 1 '->direction))
 (defhandler ->direction line->direction line?)

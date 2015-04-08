@@ -1,4 +1,5 @@
-;;; v1 and v2 are vectors in the directions of the angle arms
+;;; dir1 and dir2 are directions of the angle arms
+;;; The angle sweeps from dir2 *counter clockwise* to dir1
 (define-record-type <angle>
   (make-angle dir1 vertex dir2)
   angle?
@@ -22,8 +23,8 @@
 ;;; Alternate Constructors
 
 (define (angle-from-points p1 vertex p2)
-  (let ((arm1 (direction-from-points p1 vertex))
-        (arm2 (direction-from-points p2 vertex)))
+  (let ((arm1 (direction-from-points vertex p1))
+        (arm2 (direction-from-points vertex p2)))
     (make-angle arm1 vertex arm2)))
 
 (define (smallest-angle-from-points p1 vertex p2)

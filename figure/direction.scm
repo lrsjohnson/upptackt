@@ -19,8 +19,8 @@
 (define (add-to-direction dir radians)
   (make-direction (+ (direction-theta dir)
                      radians)))
-;;; D1 - D2
-(define (subtract-directions d1 d2)
+;;; D2 - D1
+(define (subtract-directions d2 d1)
   (fix-angle-0-2pi (- (direction-theta d2)
                       (direction-theta d1))))
 

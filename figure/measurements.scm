@@ -31,7 +31,7 @@
 (define (angle-measure a)
   (let* ((d1 (angle-arm-1 a))
          (d2 (angle-arm-2 a)))
-    (subtract-directions d2 d1)))
+    (subtract-directions d1 d2)))
 
 ;;; Created elements
 
