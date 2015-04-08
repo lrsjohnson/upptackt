@@ -1,24 +1,12 @@
 (define (debug-figure)
-  (let-geo* ((a (make-point 0 0))
-             (b (make-point 1 0))
-             (c (make-point 1 1))
-             (d (make-point 0 1))
-             (p (polygon-from-points a b c d)))
-            (figure p)))
-
-(define (debug-figure-2)
-  (let-geo* ((s (random-segment))
-             (a (segment-endpoint-1 s))
-             (b (segment-endpoint-2 s))
-             (m (segment-midpoint s)))
-            (figure a b s m)))
-
-
+  (let ((r (random-rhombus)))
+    (figure r)))
 
 (define (demo-figure)
-  (let-geo* ((a (random-point))
-             (b (random-point))
-             (c (random-point))
+  (let-geo* ((t (random-equilateral-triangletriangle))
+             (a (polygon-point-ref t 0))
+             (b (polygon-point-ref t 1))
+             (c (polygon-point-ref t 2))
 
              (d (midpoint a b))
              (e (midpoint a c))
