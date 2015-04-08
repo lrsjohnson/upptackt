@@ -192,3 +192,103 @@
                       radius)))
       (let ((radius-point (add-to-point center radius-vec)))
         (segment center radius-point)))))
+
+;;; Random Polygons
+(define (random-n-gon n)
+  (if (< n 3)
+      (error "n must be > 3"))
+  (let* ((p1 (random-point))
+         (p2 (random-point)))
+    (let ((ray2 (reverse-ray (ray-from-points p1 p2))))
+      (let lp ((n-remaining (- n 2))
+               (points (list p2 p1)))
+        (if (= n-remaining 0)
+            (apply polygon-from-points (reverse points))
+            (lp (- n-remaining 1)
+                (cons (random-point-between-rays
+                       (reverse-ray (ray-from-points (car points)
+                                                     (cadr points)))
+                       ray2)
+                      points)))))))
+
+(define (random-triangle)
+  (let* ((p1 (random-point))
+         (p2 (random-point))
+         (p3 (random-point-left-of-line (line-from-points p1 p2))))
+    (polygon-from-points p1 p2 p3)))
+
+;;; Random Triangles
+(define (random-equilateral-triangle)
+  (let* ((s1 (random-segment))
+         (s2 (rotate-about (segment-endpoint-1 s1)
+                           (/ pi 3)
+                           s1)))
+    (polygon-from-points
+     (segment-endpoint-1 s1)
+     (segment-endpoint-2 s1)
+     (segment-endpoint-2 s2))))
+
+(define (random-isoceles-triangle)
+  (let* ((s1 (random-segment))
+         (base-angle (rand-angle-measure))
+         (s2 (rotate-about (segment-endpoint-1 s1)
+                           base-angle
+                           s1)))
+    (polygon-from-points
+     (segment-endpoint-1 s1)
+     (segment-endpoint-2 s1)
+     (segment-endpoint-2 s2))))
+
+;;; Random Quadrilaterals
+(define (random-square)
+  (let* ((s1 (random-segment))
+         (p1 (segment-endpoint-1 s1))
+         (p2 (segment-endpoint-2 s1))
+         (p3 (rotate-about p2
+                           (- (/ pi 2))
+                           p1))
+         (p4 (rotate-about p1
+                           (/ pi 2)
+                           p2)))
+    (polygon-from-points p1 p2 p3 p4)))
+
+;;; Random Quadrilaterals
+(define (random-rectangle)
+  (let* ((r1 (random-ray))
+         (p1 (ray-endpoint r1))
+         (r2 (rotate-about (ray-endpoint r1)
+                           (/ pi 2)
+                           r1))
+         (p2 (point-on-ray r1))
+         (p4 (point-on-ray r2))
+         (p3 (add-to-point
+              p2
+              (sub-points p4 p1))))
+    (polygon-from-points
+     p1 p2 p3 p4)))
+
+(define (random-parallelogram)
+  (let* ((r1 (random-ray))
+         (p1 (ray-endpoint r1))
+         (r2 (rotate-about (ray-endpoint r1)
+                           (rand-angle-measure)
+                           r1))
+         (p2 (point-on-ray r1))
+         (p4 (point-on-ray r2))
+         (p3 (add-to-point
+              p2
+              (sub-points p4 p1))))
+    (polygon-from-points
+     p1 p2 p3 p4)))
+
+(define (random-rhombus)
+  (let* ((s1 (random-segment))
+         (p1 (segment-endpoint-1 s1))
+         (p2 (segment-endpoint-2 s1))
+         (p4 (rotate-about p1
+                           (rand-angle-measure)
+                           p2))
+         (p3 (add-to-point
+              p2
+              (sub-points p4 p1))))
+    (polygon-from-points p1 p2 p3 p4)))
