@@ -1,3 +1,4 @@
+
 ;;; Vector structure for computation, cartesian
 (define-record-type <vec>
   (make-vec dx dy)
@@ -37,6 +38,9 @@
 (define (unit-vec-from-direction direction)
   (let ((theta (direction-theta direction)))
    (make-vec (cos theta) (sin theta))))
+
+(define (vec-from-direction-distance direction distance)
+  (scale-vec (unit-vec-from-direction direction) distance))
 
 (define (reverse-vec v)
   (make-vec (- (vec-x v))
