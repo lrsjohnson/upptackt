@@ -3,48 +3,7 @@
 ;;;  Base: Random Scalars
 (define (internal-rand-range min-v max-v)
   (let ((interval-size (max *machine-epsilon* (- max-v min-v))))
-    (+ min-v (random (* 1.0 interval-size)))))
-
-;;; Global for if its the first construction of the
-(define *first-construction* #t)
-(define *random-call-count* 0)
-(define *max-random-call-count* 0)
-(define *wiggle-random-call-count* 0)
-(define *random-values-table* (make-key-weak-eq-hash-table))
-
-(define (reset-randomness)
-  (set! *first-construction* #t)
-  (set! *random-call-count* 0)
-  (set! *max-random-call-count* 0)
-  (set! *wiggle-random-call-count* 0)
-  (set! *random-values-table* (make-key-weak-eq-hash-table)))
-
-(define (next-wiggle-instance)
-  (let ((result
-         (if (< *wiggle-random-call-count*
-                (- *max-random-call-count* 1))
-             (begin (set! *wiggle-random-call-count*
-                          (+ 1 *wiggle-random-call-count*))
-                    #t)
-             #f)))
-    (next-instance)
-    result))
-
-(define (next-instance)
-  (set! *first-construction* #f)
-  (set! *random-call-count* 0))
-
-(define (save-random-value v)
-  (hash-table/put! *random-values-table* *random-call-count* v)
-  (set! *random-call-count*
-        (+ 1 *random-call-count*)))
-
-(define (get-random-value)
-  (hash-table/get *random-values-table* *random-call-count* #f))
-
-(define (should-wiggle)
-  (and (not *first-construction*) (= *random-call-count* *wiggle-random-call-count*)))
-
+    (persist-value (+ min-v (random (* 1.0 interval-size))))))
 
 (define *wiggle-ratio* 0.15)
 
@@ -52,7 +11,7 @@
 (define (rand-range min max)
   (let* ((range-size (- max min))
          (wiggle-amount (* range-size *wiggle-ratio*))
-         (v (persist-value (internal-rand-range min (- max wiggle-amount)))))
+         (v (internal-rand-range min (- max wiggle-amount))))
     (animate-range v (+ v wiggle-amount))))
 
 ;;; Random Values - distances, angles
