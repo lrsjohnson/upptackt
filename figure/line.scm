@@ -5,6 +5,15 @@
   (p1 segment-endpoint-1)
   (p2 segment-endpoint-2))
 
+(define (set-segment-dependency! segment dependency)
+  (set-dependency! segment dependency)
+  (set-dependency!
+   (segment-endpoint-1 segment)
+   `(segment-endpoint-1 ,dependency))
+  (set-dependency!
+   (segment-endpoint-2 segment)
+   `(segment-endpoint-2 ,dependency)))
+
 (define-record-type <line>
   (%make-line point dir)
   line?
@@ -30,7 +39,16 @@
     (set-element-name!
      seg
      (symbol '*seg*: (element-name p1) '- (element-name p2)))
-    seg))
+    (with-dependency
+     `(segment ,(element-dependency p1)
+               ,(element-dependency p2))
+     seg)))
+
+(define (make-auxiliary-segment p1 p2)
+  (with-dependency
+   `(aux-segment ,(element-dependency p1)
+                 ,(element-dependency p2))
+   (make-segment p1 p2)))
 
 ;;; TODO, use for equality tests?
 (define (line-offset line)
