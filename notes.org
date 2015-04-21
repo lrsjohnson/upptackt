@@ -1,11 +1,20 @@
 * Task List
 ** Priorities / Short-term goals
+*** Construction from Constraints
+    - [ ] Play with generating an isoceles triangle or Kite from its given
+      properties...
+*** Learning!
+    - [ ] Generalize and learn from basic examples
+    - [ ] Experiment with finding minimal properties (Rhombus: only opposite
+      angles equal sufficient? or pairs of edges equal?)
+*** Simplification of Discoveries
+    - [ ] Exclude extremely obvious facts!
 *** Analyzer:
     - [X] Multi-element equalities built up from pairwise, "connected
       component"-esque
     - [X] Properly extract points, etc. from polygons (maybe polygon can be
       generalized to a "group" of elements)?
-    - [ ] Detect properties of square, rectangle, parallelogram, etc.
+    - [X] Detect properties of square, rectangle, parallelogram, etc.
 *** Metadata
     - [X] Persist metadata about operations.
     - [ ] Figure out randomness / overrides for constructions with intermediary
@@ -16,12 +25,6 @@
     - [X] Random Point left of line
     - [ ] Improve random point between rays when rays intersect!
     - [ ] Improve Random Triangle
-*** Construction from Constraints
-    - [ ] Play with generating an isoceles triangle or Kite from its given
-      properties...
-*** Learning!
-    - [ ] Experiment with finding minimal properties (Rhombus: only opposite
-      angles equal sufficient? or pairs of edges equal?)
 ** Core
 *** TODO Numeric Stuff [1/3]
     - [X] Improved close-enuf?
@@ -91,7 +94,7 @@
     - [ ] Name before vs. name after vs. use symbolic names everywhere...
     - [ ] Multiple element return
 ** Analysis
-*** TODO Simple Analysis [5/10]
+*** TODO Simple Analysis [7/10]
     - [X] Angle Equality
     - [X] Complementary / Supplementary Angles
     - [X] Parallel / Perpendicular
@@ -99,14 +102,14 @@
     - [X] Basic Segment Length Equality
     - [ ] Gather all segments  with equal lengths
     - [X] Go beyond pairs
-    - [ ] Segments not actually present?
+    - [X] Segments not actually present?
     - [ ] Concurrency of lines
-    - [ ] Clean up multi-element pairs
+    - [X] Clean up multi-element pairs
 *** TODO Repeated Analysis [0/2]
     - [ ] Perform constructions multiple times
     - [ ] Maintain information
-*** TODO Dependencies [0/2]
-    - [ ] Keeping Track of known properties
+*** TODO Dependencies [1/2]
+    - [X] Keeping Track of known properties
     - [ ] Exclude known vertex points from "concurrent", for instance
 *** TODO Fancier Analysis [0/2]
     - [ ] Provide property to minimize
