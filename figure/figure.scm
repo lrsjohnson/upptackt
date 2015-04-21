@@ -8,3 +8,18 @@
 
 (define (figure-filter predicate figure)
   (filter predicate (figure-elements figure)))
+
+(define (figure-points figure)
+  (append (figure-filter point? figure)
+          (append-map (lambda (polygon) (polygon-points polygon))
+                      (figure-filter polygon? figure))))
+
+(define (figure-segments figure)
+  (append (figure-filter segment? figure)
+          (append-map (lambda (polygon) (polygon-segments polygon))
+                      (figure-filter polygon? figure))))
+
+(define (figure-linear-elements figure)
+  (append (figure-filter linear-element? figure)
+          (append-map (lambda (polygon) (polygon-segments polygon))
+                      (figure-filter polygon? figure))))
