@@ -7,12 +7,16 @@
                           (point-y p2)))))
     (mark-known-equal (make-segment p1 newpoint)
                       (make-segment newpoint p2))
-    newpoint))
+    (with-dependency
+     `(midpoint ,(element-dependency p1) ,(element-dependency p2))
+     newpoint)))
 
 (define (segment-midpoint s)
   (let ((p1 (segment-endpoint-1 s))
         (p2 (segment-endpoint-2 s)))
-    (midpoint p1 p2)))
+    (with-dependency
+     `(segment-midpoint ,(element-dependency s))
+     (midpoint p1 p2))))
 
 (define (on-segment? p seg)
   (let ((p1 (segment-endpoint-1 seg))
