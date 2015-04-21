@@ -115,10 +115,10 @@
 *** TODO Understand Results
     - [ ] Provide/get new name for points, e.g. "Incenter"
 ** Display
-*** TODO Figure Element Appearance [2/4]
+*** TODO Figure Element Appearance [3/4]
     - [X] Colors for elements
     - [X] Custom-set colors for elements
-    - [ ] Labels for points
+    - [X] Labels for points
     - [ ] Aux segment for secondary / hinted segments.
 *** TODO Debug Display
     - [ ] Show directions on lines, segments, etc.

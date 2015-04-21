@@ -5,11 +5,19 @@
      (canvas-set-color canvas (element-color element))
      ((draw-element element) canvas))
    (figure-elements figure))
+  (for-each
+   (lambda (element)
+     (canvas-set-color canvas (element-color element))
+     ((draw-label element) canvas))
+   (figure-elements figure))
   (graphics-flush (canvas-g canvas))
   )
 
 (define draw-element
   (make-generic-operation 1 'draw-element))
+
+(define draw-label
+  (make-generic-operation 1 'draw-label (lambda (e) (lambda (c)'done))))
 
 (define (add-to-draw-element! predicate handler)
   (defhandler draw-element
@@ -18,12 +26,25 @@
         (handler canvas element)))
     predicate))
 
+(define (add-to-draw-label! predicate handler)
+  (defhandler draw-label
+    (lambda (element)
+      (lambda (canvas)
+        (handler canvas element)))
+    predicate))
+
+
 (define *point-radius* 0.02)
 (define (draw-point canvas point)
   (canvas-fill-circle canvas
                (point-x point)
                (point-y point)
                *point-radius*))
+(define (draw-point-label canvas point)
+  (canvas-draw-text canvas
+                    (+ (point-x point) *point-radius*)
+                    (+ (point-y point) *point-radius*)
+                    (symbol->string (element-name point))))
 
 (define (draw-segment canvas segment)
   (let ((p1 (segment-endpoint-1 segment))
@@ -33,6 +54,16 @@
                       (point-y p1)
                       (point-x p2)
                       (point-y p2))))
+(define (draw-segment-label canvas segment)
+  (let ((v (vec-from-direction-distance (rotate-direction-90
+                                         (segment->direction segment))
+                                        (* 2 *point-radius*)))
+        (m (segment-midpoint segment)))
+    (let ((label-point (add-to-point m v)))
+      (canvas-draw-text canvas
+                        (point-x label-point)
+                        (point-y label-point)
+                        (symbol->string (element-name segment))))))
 
 (define (draw-line canvas line)
   (let ((p1 (line-p1 line)))
@@ -89,6 +120,9 @@
 (add-to-draw-element! ray? draw-ray)
 (add-to-draw-element! polygon? draw-polygon)
 
+(add-to-draw-label! point? draw-point-label)
+(add-to-draw-label! segment? draw-segment-label)
+
 ;;; Canvas for x-graphics
 
 (define (x-graphics) (make-graphics-device 'x))
@@ -110,6 +144,9 @@
   (graphics-operation (canvas-g canvas)
                       'draw-circle
                       x y radius))
+
+(define (canvas-draw-text canvas x y text)
+  (graphics-draw-text (canvas-g canvas) x y text))
 
 (define (canvas-draw-arc canvas x y radius
                          angle-start angle-end)
