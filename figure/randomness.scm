@@ -28,9 +28,16 @@
     (make-direction theta)))
 
 ;;; Random Elements
+(define *point-wiggle-radius* 0.05)
 (define (random-point)
-  (make-point (rand-range -0.8 0.8)
-              (rand-range -0.8 0.8)))
+  (let ((x (internal-rand-range -0.8 0.8))
+        (y (internal-rand-range -0.8 0.8))
+        (theta (internal-rand-range 0 (* 2 pi)))
+        (d-theta (animate-range 0 (* 2 pi))))
+    (let ((dir (make-direction (+ theta d-theta))))
+      (add-to-point
+       (make-point x y)
+       (vec-from-direction-distance dir *point-wiggle-radius*)))))
 
 ;;; TODO: Maybe separate out reflection about line?
 (define (random-point-left-of-line line)
@@ -68,7 +75,9 @@
 (define (random-segment)
   (let ((p1 (random-point))
         (p2 (random-point)))
-    (make-segment p1 p2)))
+    (let ((seg (make-segment p1 p2)))
+      (set-segment-dependency! seg `(random-segment))
+      seg)))
 
 (define (random-ray)
   (let ((p (random-point)))
@@ -129,7 +138,7 @@
          (seg (ray-extend-to-max-segment p1 p2))
          (sp1 (segment-endpoint-1 seg))
          (sp2 (segment-endpoint-2 seg))
-         (t (rand-range 0.0 1.0))
+         (t (rand-range 0.1 1.0))
          (v (sub-points sp2 sp1)))
     (add-to-point sp1 (scale-vec v t))))
 
@@ -174,7 +183,9 @@
   (let* ((p1 (random-point))
          (p2 (random-point))
          (p3 (random-point-left-of-line (line-from-points p1 p2))))
-    (polygon-from-points p1 p2 p3)))
+    (with-dependency
+     '(random-triangle)
+     (polygon-from-points p1 p2 p3))))
 
 ;;; Random Triangles
 (define (random-equilateral-triangle)
@@ -182,10 +193,12 @@
          (s2 (rotate-about (segment-endpoint-1 s1)
                            (/ pi 3)
                            s1)))
-    (polygon-from-points
-     (segment-endpoint-1 s1)
-     (segment-endpoint-2 s1)
-     (segment-endpoint-2 s2))))
+    (with-dependency
+     '(random-equilateral-triangle)
+     (polygon-from-points
+      (segment-endpoint-1 s1)
+      (segment-endpoint-2 s1)
+      (segment-endpoint-2 s2)))))
 
 (define (random-isoceles-triangle)
   (let* ((s1 (random-segment))
@@ -193,10 +206,12 @@
          (s2 (rotate-about (segment-endpoint-1 s1)
                            base-angle
                            s1)))
-    (polygon-from-points
-     (segment-endpoint-1 s1)
-     (segment-endpoint-2 s1)
-     (segment-endpoint-2 s2))))
+    (with-dependency
+     '(random-isoceles-triangle)
+     (polygon-from-points
+      (segment-endpoint-1 s1)
+      (segment-endpoint-2 s1)
+      (segment-endpoint-2 s2)))))
 
 ;;; Random Quadrilaterals
 (define (random-square)
@@ -209,7 +224,9 @@
          (p4 (rotate-about p1
                            (/ pi 2)
                            p2)))
-    (polygon-from-points p1 p2 p3 p4)))
+    (with-dependency
+     '(random-square)
+     (polygon-from-points p1 p2 p3 p4))))
 
 ;;; Random Quadrilaterals
 (define (random-rectangle)
@@ -223,8 +240,10 @@
          (p3 (add-to-point
               p2
               (sub-points p4 p1))))
-    (polygon-from-points
-     p1 p2 p3 p4)))
+    (with-dependency
+     '(random-rectangle)
+     (polygon-from-points
+      p1 p2 p3 p4))))
 
 (define (random-parallelogram)
   (let* ((r1 (random-ray))
@@ -237,8 +256,9 @@
          (p3 (add-to-point
               p2
               (sub-points p4 p1))))
-    (polygon-from-points
-     p1 p2 p3 p4)))
+    (with-dependency
+     '(random-parallelogram)
+     (polygon-from-points p1 p2 p3 p4))))
 
 (define (random-rhombus)
   (let* ((s1 (random-segment))
@@ -250,4 +270,6 @@
          (p3 (add-to-point
               p2
               (sub-points p4 p1))))
-    (polygon-from-points p1 p2 p3 p4)))
+    (with-dependency
+     '(random-rhombus)
+     (polygon-from-points p1 p2 p3 p4))))
