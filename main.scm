@@ -1,12 +1,26 @@
 (define (debug-figure)
-  (let ((r (random-rhombus)))
-    (figure r)))
+  (let-geo* ((r (random-parallelogram))
+             (a (polygon-point r 0))
+             (b (polygon-point r 1))
+             (c (polygon-point r 2))
+             (d (polygon-point r 3))
+             (m1 (segment-midpoint (make-segment a b)))
+             (m2 (segment-midpoint (make-segment c d))))
+            (figure r m1 m2)))
+
+(define (debug-figure-2)
+  (let-geo* ((s (random-segment))
+             (a (segment-endpoint-1 s))
+             (b (segment-endpoint-2 s))
+             (m (segment-midpoint s)))
+            (figure s a b m)))
+
 
 (define (demo-figure)
-  (let-geo* ((t (random-equilateral-triangletriangle))
-             (a (polygon-point-ref t 0))
-             (b (polygon-point-ref t 1))
-             (c (polygon-point-ref t 2))
+  (let-geo* ((t (random-equilateral-triangle))
+             (a (polygon-point t 0))
+             (b (polygon-point t 1))
+             (c (polygon-point t 2))
 
              (d (midpoint a b))
              (e (midpoint a c))
@@ -117,7 +131,9 @@
        (let ((current-figure (current-figure-proc)))
          (draw-figure current-figure c)
          (let ((analysis-results (analyze-figure current-figure)))
-           (save-results analysis-results analysis-data)))))))
+           (save-results analysis-results analysis-data)))))
+    (display "--- Results ---\n")
+    (print-analysis-results analysis-data)))
 
 (define interesting-figures
   (list
