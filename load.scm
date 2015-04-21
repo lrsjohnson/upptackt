@@ -1,6 +1,10 @@
 ;;; Start from scratch
 (set! *random-state* (fasload "a-random-state"))
 
+(define (reset)
+  (ge (make-top-level-environment))
+  (load "load"))
+
 (for-each (lambda (f) (load f))
           '("lib/ghelper"
             "lib/eq-properties"

@@ -15,7 +15,6 @@
              (m (segment-midpoint s)))
             (figure s a b m)))
 
-
 (define (demo-figure)
   (let-geo* ((t (random-equilateral-triangle))
              (a (polygon-point t 0))
@@ -43,7 +42,7 @@
              i1 i2)))
 
 (define (circle-test)
-  (let* ((a (random-point))
+  (let-geo* ((a (random-point))
          (b (random-point))
          (d (distance a b))
          (r (rand-range
@@ -61,7 +60,7 @@
             (make-segment b d))))
 
 (define (line-test)
-  (let* ((a (random-point))
+  (let-geo* ((a (random-point))
          (b (random-point))
          (c (random-point))
          (d (random-point))
@@ -73,12 +72,12 @@
     (figure a b c d l1 l2 e f cir)))
 
 (define (angle-test)
-  (let* ((a (random-point))
+  (let-geo* ((a (random-point))
          (b (random-point))
          (c (random-point))
-         (a-1 (smallest-angle (angle a b c)))
-         (a-2 (smallest-angle (angle b c a)))
-         (a-3 (smallest-angle (angle c a b)))
+         (a-1 (smallest-angle (angle-from-points a b c)))
+         (a-2 (smallest-angle (angle-from-points b c a)))
+         (a-3 (smallest-angle (angle-from-points c a b)))
          (l1 (angle-bisector a-1))
          (l2 (angle-bisector a-2))
          (l3 (angle-bisector a-3))
