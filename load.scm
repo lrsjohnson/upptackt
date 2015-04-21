@@ -5,9 +5,14 @@
   (ge (make-top-level-environment))
   (load "load"))
 
+(load "lib/eq-properties")
+
+(cd "lib/propagator")
+(load "load")
+(cd "../..")
+
 (for-each (lambda (f) (load f))
           '("lib/ghelper"
-            "lib/eq-properties"
             "utils"
             "macros"
             "analyzer"
@@ -31,4 +36,7 @@
             "appearance"
             "graphics"
             "investigations"
+            "manipulate/linkages"
             "main"))
+
+(initialize-scheduler)
