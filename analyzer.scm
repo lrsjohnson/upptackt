@@ -6,24 +6,34 @@
 
 (define (results-with-names result-type elements)
   (map (lambda (p-pair)
-         (cons result-type (map element-name p-pair)))
+         (cons result-type (map element-dependency p-pair)))
        elements))
 
 ;;; Given a figure, report what's interesting
 (define (analyze figure)
-  (let* ((points (append (figure-filter point? figure)
-                         (append-map (lambda (polygon) (polygon-points polygon))
-                                     (figure-filter polygon? figure))))
+  (let* ((points (figure-points figure))
          (angles (figure-filter angle? figure))
-         (linear-elements (figure-filter linear-element? figure))
-         (implied-segments (point-pairs->segments (all-pairs points))))
-    (append (results-with-names 'concurrent (report-concurrent-points points))
-            (results-with-names 'angle-equal (report-equal-angles angles))
-            (results-with-names 'supplementary (report-supplementary-angles angles))
-            (results-with-names 'complementary (report-complementary-angles angles))
-            (results-with-names 'parallel (report-parallel-elements linear-elements))
-            (results-with-names 'perpendicular (report-perpendicular-elements linear-elements))
-            (results-with-names 'equal-length (report-equal-segments implied-segments)))))
+         (implied-segments (point-pairs->segments (all-pairs points)))
+         (linear-elements (append
+                           (figure-linear-elements figure)
+                           implied-segments))
+         (segments (append
+                    (figure-segments figure)
+                    implied-segments)))
+    (append (results-with-names 'concurrent
+                                (report-concurrent-points points))
+            (results-with-names 'angle-equal
+                                (report-equal-angles angles))
+            (results-with-names 'supplementary
+                                (report-supplementary-angles angles))
+            (results-with-names 'complementary
+                                (report-complementary-angles angles))
+            (results-with-names 'parallel
+                                (report-parallel-elements linear-elements))
+            (results-with-names 'perpendicular
+                                (report-perpendicular-elements linear-elements))
+            (results-with-names 'equal-length
+                                (report-equal-segments segments)))))
 
 ;;; General proceudres for generating pairs
 (define (all-pairs elements)
@@ -43,14 +53,52 @@
 
 ;;; Obtaining segments
 
+(define (segment-for-endpoint p1)
+  (let ((dep (element-dependency p1)))
+    (and dep
+         (or (and (eq? (car dep) 'segment-endpoint-1)
+                  (cadr dep))
+             (and (eq? (car dep) 'segment-endpoint-2)
+                  (cadr dep))))))
+
+(define (derived-from-same-segment? p1 p2)
+  (and
+   (segment-for-endpoint p1)
+   (segment-for-endpoint p2)
+   (eq? (segment-for-endpoint p1)
+        (segment-for-endpoint p2))))
+
+(define (polygon-for-point p1)
+  (let ((dep (element-dependency p1)))
+    (and dep
+         (and (eq? (car dep) 'polygon-point)
+              (cons (caddr dep)
+                    (cadr dep))))))
+
+(define (adjacent-in-same-polygon? p1 p2)
+  (let ((poly1 (polygon-for-point p1))
+        (poly2 (polygon-for-point p2)))
+    (and poly1 poly2
+         (eq? (car poly1) (car poly2))
+         (or (= (abs (- (cdr poly1)
+                        (cdr poly2)))
+                1)
+             (and (= (cdr poly1) 0)
+                  (= (cdr poly2) 3))
+             (and (= (cdr poly1) 3)
+                  (= (cdr poly2) 0))))))
+
 (define (point-pairs->segments ppairs)
   (filter (lambda (segment) segment)
           (map (lambda (point-pair)
                  (let ((p1 (car point-pair))
                        (p2 (cadr point-pair)))
                    (and (not (point-equal? p1 p2))
-                        (make-segment (car point-pair)
-                                      (cadr point-pair))))) ; TODO: Name segment
+                        (not (derived-from-same-segment? p1 p2))
+                        (not (adjacent-in-same-polygon? p1 p2))
+                        (make-auxiliary-segment
+                         (car point-pair)
+                         (cadr point-pair))))) ; TODO: Name segment
                ppairs)))
 
 ;;; Check for pairwise equality
