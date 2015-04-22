@@ -19,20 +19,25 @@
 
 (define (m:instantiate cell value premise)
   (add-content cell
-               (make-tms
-                (contingent value (list premise)))))
+               ;(make-tms (contingent value (list premise)))
+               value))
 
 (define (m:examine-cell cell)
   (let ((v (content cell)))
-    (if (nothing? v) v
-        (contingent-info (tms-query v)))))
+    (cond ((nothing? v) v)
+          ((tms? v)
+           (contingent-info (tms-query v)))
+          (else v))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Dealing with Angles ;;;;;;;;;;;;;;;;;;;;;;
 
 (propagatify fix-angle-0-2pi)
-(define (e:reverse-direction dir-cell)
-  (e:fix-angle-0-2pi
-   (e:negate dir-cell)))
+
+(define (ce:reverse-direction dir-cell)
+  (let-cells (output-cell two-pi)
+    ((constant (* 2 pi)) two-pi)
+    (c:- two-pi dir-cell output-cell)
+    output-cell))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Vec ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-record-type <m:vec>
@@ -68,12 +73,10 @@
     (%m:make-point x y)))
 
 (define (m:instantiate-point p x y premise)
-  (add-content (m:point-x p)
-               (make-tms
-                (contingent x (list premise))))
-  (add-content (m:point-y p)
-               (make-tms
-                (contingent y (list premise)))))
+  (m:instantiate (m:point-x p)
+                 x premise)
+  (m:instantiate (m:point-y p)
+                 y premise))
 
 (define (m:examine-point p)
   (list 'm:point
