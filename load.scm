@@ -13,6 +13,7 @@
 
 (for-each (lambda (f) (load f))
           '("lib/ghelper"
+            "lib/stack-queue"
             "utils"
             "macros"
             "analyzer"
