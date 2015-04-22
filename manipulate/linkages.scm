@@ -319,3 +319,23 @@
 (define (m:initialize-joint joint)
   (m:instantiate-point (m:joint-vertex joint) 0 0 'initialize)
   (m:instantiate (m:joint-dir-1 joint) 0 'initialize))
+
+;;;;;;;;;; Assembling named joints into diagrams ;;;;;;;
+
+(define (m:assemble-diagram bars joints)
+  (let ((bar-table (m:make-bars-by-name-table bars)))
+    (for-each
+     (lambda (joint)
+       (let ((vertex-name (m:joint-vertex-name joint))
+             (dir-1-name (m:joint-dir-1-name joint))
+             (dir-2-name (m:joint-dir-2-name joint)))
+         (for-each (lambda (dir-name)
+                     (let ((bar (m:find-bar-by-unordered-endpoint-names
+                                 bar-table
+                                 vertex-name
+                                 dir-name)))
+                       (if (eq? bar #f)
+                           (error "Could not find bar for" vertex-name dir-name))
+                       (m:identify-joint-bar-by-name joint bar)))
+                   (list dir-1-name dir-2-name))))
+     joints)))
