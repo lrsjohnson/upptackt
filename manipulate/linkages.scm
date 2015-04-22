@@ -164,3 +164,104 @@
                      (m:bar-p2 bar))
   (c:id (m:joint-dir-2 joint)
         (e:reverse-direction (m:bar-direction bar))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:name-element! element name)
+  (eq-put! element 'm:name name))
+
+(define (m:element-name element)
+  (or (eq-get element 'm:name)
+      '*unnamed*))
+
+(define (m:make-named-bar p1-name p2-name)
+  (let ((bar (m:make-bar)))
+    (m:name-element! (m:bar-p1 bar) p1-name)
+    (m:name-element! (m:bar-p2 bar) p2-name)
+    bar))
+
+(define (m:bar-name bar)
+  (m:make-bar-name-key
+   (m:element-name (m:bar-p1 bar))
+   (m:element-name (m:bar-p2 bar))))
+
+(define (m:bar-p1-name bar)
+  (m:element-name (m:bar-p1 bar)))
+
+(define (m:bar-p2-name bar)
+  (m:element-name (m:bar-p2 bar)))
+
+
+
+(define (m:make-named-joint arm-1-name vertex-name arm-2-name)
+  (let ((joint (m:make-joint)))
+    (m:name-element! (m:joint-dir-1 joint) arm-1-name)
+    (m:name-element! (m:joint-vertex joint) vertex-name)
+    (m:name-element! (m:joint-dir-2 joint) arm-2-name)
+    joint))
+
+(define (m:joint-vertex-name joint)
+  (m:element-name (m:joint-vertex joint)))
+
+(define (m:joint-dir-1-name joint)
+  (m:element-name (m:joint-dir-1 joint)))
+
+(define (m:joint-dir-2-name joint)
+  (m:element-name (m:joint-dir-2 joint)))
+
+;;;;;;;;;;;;;;;;;; Table and operations using names ;;;;;;;;;;;;;;;;;;
+
+(define (m:identify-joint-bar-by-name joint bar)
+  (let ((vertex-name (m:joint-vertex-name joint))
+        (dir-1-name (m:joint-dir-1-name joint))
+        (dir-2-name (m:joint-dir-2-name joint))
+        (bar-p1-name (m:bar-p1-name bar))
+        (bar-p2-name (m:bar-p2-name bar)))
+    (cond ((eq? vertex-name bar-p1-name)
+           (cond ((eq? dir-1-name bar-p2-name)
+                  (m:identify-out-of-arm-1 joint bar))
+                 ((eq? dir-2-name bar-p2-name)
+                  (m:identify-out-of-arm-2 joint bar))
+                 (else (error "Bar can't be identified with joint - no arm"
+                              bar-p2-name))))
+          ((eq? vertex-name bar-p2-name)
+           (cond ((eq? dir-1-name bar-p1-name)
+                  (m:identify-into-arm-1 joint bar))
+                 ((eq? dir-2-name bar-p1-name)
+                  (m:identify-into-arm-2 joint bar))
+                 (else (error "Bar can't be identified with joint - no arm"
+                              bar-p1-name))))
+          (else (error "Bar can't be identified with joint - no vertex"
+                       vertex-name)))))
+
+(define (m:make-bar-name-key p1-name p2-name)
+  (symbol 'm:bar: p1-name ': p2-name))
+
+(define (m:make-bars-by-name-table bars)
+  (let ((table (make-key-weak-eqv-hash-table)))
+    (for-each (lambda (bar)
+                (hash-table/put! table
+                                 (m:bar-name bar)
+                                 bar))
+              bars)
+    table))
+
+(define (m:find-bar-by-unordered-endpoint-names table p1-name p2-name)
+  (or (hash-table/get table
+                      (m:make-bar-name-key p1-name p2-name)
+                      #f)
+      (hash-table/get table
+                      (m:make-bar-name-key p2-name p1-name)
+                      #f)))
+
+(define (m:make-vertex-name-key vertex-name)
+  (list 'm:vertex vertex-name))
+
+(define (m:make-joints-by-vertex-name-table joints)
+  (let ((table (make-key-weak-eq-hash-table)))
+    (for-each (lambda (joint)
+                (hash-table/put! table
+                                 (m:joint-vertex-name joint)
+                                 joint))
+              joints)
+    table))
+
