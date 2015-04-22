@@ -2,25 +2,22 @@
 
 ;;; Example
 #|
-(let* ((s1 (m:make-bar))
-       (s2 (m:make-bar))
-       (j (m:make-joint)))
-  (m:instantiate-cell (m:joint-dir-1 j) 0 'dir-1)
-  (m:instantiate-cell (m:joint-theta j) (/ pi 4) 'theta)
-  (m:identify-out-of-arm-1 j s1)
-  (m:identify-out-of-arm-2 j s2)
-  (run)
-  (m:instantiate-cell (m:bar-length s1) 4 'bar-1-length)
-  (m:instantiate-cell (m:bar-length s2) 3 'bar-2-length)
-  (m:instantiate-point (m:bar-p2 s1) 4 0 'bar-2-endpoint)
-  (run)
-  (m:examine-point (m:bar-p2 s2)))
-
+ (let* ((s1 (m:make-bar))
+        (s2 (m:make-bar))
+        (j (m:make-joint)))
+   (m:instantiate (m:joint-theta j) (/ pi 2) 'theta)
+   (c:id (m:bar-length s1)
+         (m:bar-length s2))
+   (m:instantiate-point (m:bar-p2 s1) 4 0 'bar-2-endpoint)
+   (m:instantiate-point (m:bar-p1 s1) 2 -2 'bar-2-endpoint)
+   (m:identify-out-of-arm-2 j s2)
+   (run)
+   (m:examine-point (m:bar-p2 s2)))
 |#
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; TMS Interfaces ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (m:instantiate-cell cell value premise)
+(define (m:instantiate cell value premise)
   (add-content cell
                (make-tms
                 (contingent value (list premise)))))
