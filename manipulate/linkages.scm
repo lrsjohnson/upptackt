@@ -141,29 +141,30 @@
        theta)
       (%m:make-joint vertex dir-1 dir-2 theta))))
 
-(define (m:identify-out-of-arm-1 joint bar)
+(define (m:identify-out-of joint arm-getter bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p1 bar))
-  (c:id (m:joint-dir-1 joint)
+  (c:id (arm-getter joint)
         (m:bar-direction bar)))
+
+(define (m:identify-into joint arm-getter bar)
+  (m:identify-points (m:joint-vertex joint)
+                     (m:bar-p2 bar))
+  (c:id (arm-getter joint)
+        (ce:reverse-direction (m:bar-direction bar))))
 
 (define (m:identify-into-arm-1 joint bar)
-  (m:identify-points (m:joint-vertex joint)
-                     (m:bar-p2 bar))
-  (c:id (m:joint-dir-1 joint)
-        (e:reverse-direction (m:bar-direction bar))))
+  (m:identify-into joint m:joint-dir-1 bar))
 
-(define (m:identify-out-of-arm-2 joint bar)
-  (m:identify-points (m:joint-vertex joint)
-                     (m:bar-p1 bar))
-  (c:id (m:joint-dir-2 joint)
-        (m:bar-direction bar)))
+(define (m:identify-out-of-arm-1 joint bar)
+  (m:identify-out-of joint m:joint-dir-1 bar))
 
 (define (m:identify-into-arm-2 joint bar)
-  (m:identify-points (m:joint-vertex joint)
-                     (m:bar-p2 bar))
-  (c:id (m:joint-dir-2 joint)
-        (e:reverse-direction (m:bar-direction bar))))
+  (m:identify-into joint m:joint-dir-2 bar))
+
+(define (m:identify-out-of-arm-2 joint bar)
+  (m:identify-out-of joint m:joint-dir-2 bar))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:name-element! element name)
@@ -265,3 +266,56 @@
               joints)
     table))
 
+;;;;;;;;;;;;;;;;;;;;;;;;; Degrees of Freedom  ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:specified? cell)
+  (not (nothing? (m:examine-cell cell))))
+
+(define (m:bar-length-specified? bar)
+  (m:specified? (m:bar-length bar)))
+
+(define (m:bar-direction-specified? bar)
+  (m:specified? (m:bar-direction bar)))
+
+(define (m:joint-theta-specified? joint)
+  (m:specified? (m:joint-theta joint)))
+
+;;;;;;;;;; Determining if linkages are specified or anchored   ;;;;;;;
+
+(define (m:bar-p1-specified? bar)
+  (and (m:specified? (m:point-x (m:bar-p1 bar)))
+       (m:specified? (m:point-y (m:bar-p1 bar)))))
+
+(define (m:bar-p2-specified? bar)
+  (and (m:specified? (m:point-x (m:bar-p2 bar)))
+       (m:specified? (m:point-y (m:bar-p2 bar)))))
+
+(define (m:bar-anchored? bar)
+  (or (m:bar-p1-specified? bar)
+      (m:bar-p2-specified? bar)))
+
+(define (m:bar-specified? bar)
+  (and (m:bar-p1-specified? bar)
+       (m:bar-p2-specified? bar)))
+
+;;; Joints
+
+(define (m:joint-dir-1-specified? joint)
+  (m:specified? (m:joint-dir-1 joint)))
+
+(define (m:joint-dir-2-specified? joint)
+  (m:specified? (m:joint-dir-2 joint)))
+
+(define (m:joint-anchored? joint)
+  (or (m:joint-dir-1-specified? joint)
+      (m:joint-dir-2-specified? joint)))
+
+(define (m:joint-specified? joint)
+  (and (m:joint-dir-1-specified? joint)
+       (m:joint-dir-2-specified? joint)))
+
+;;;;;;;;;;; Specifying Values ;;;;;;;
+
+(define (m:initialize-joint joint)
+  (m:instantiate-point (m:joint-vertex joint) 0 0 'initialize)
+  (m:instantiate (m:joint-dir-1 joint) 0 'initialize))
