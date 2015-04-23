@@ -15,6 +15,8 @@
           '("lib/ghelper"
             "lib/stack-queue"
             "utils"
+            "lib/scmutils-basic"
+            "LIB/multimin"
             "macros"
             "analyzer"
             "animation"
@@ -39,5 +41,6 @@
             "investigations"
             "manipulate/linkages"
             "main"))
-
 (initialize-scheduler)
+
+'done-loading
