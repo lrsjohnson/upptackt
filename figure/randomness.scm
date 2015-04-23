@@ -1,9 +1,11 @@
 ;;; Utilities
 
-;;;  Base: Random Scalars
+;;;;;;;;;;;;;;;;;;;;;;  Base: Random Scalars ;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (internal-rand-range min-v max-v)
   (let ((interval-size (max *machine-epsilon* (- max-v min-v))))
     (persist-value (+ min-v (random (* 1.0 interval-size))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; Animated Ranges ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *wiggle-ratio* 0.15)
 
@@ -22,12 +24,12 @@
 (define (rand-angle-measure)
   (rand-range 0 pi))
 
-;;; Random unit vector
 (define (random-direction)
   (let ((theta (rand-theta)))
     (make-direction theta)))
 
-;;; Random Elements
+;;;;;;;;;;;;;;;;;;;;;;;;;; Random Points ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define *point-wiggle-radius* 0.05)
 (define (random-point)
   (let ((x (internal-rand-range -0.8 0.8))
@@ -35,9 +37,11 @@
         (theta (internal-rand-range 0 (* 2 pi)))
         (d-theta (animate-range 0 (* 2 pi))))
     (let ((dir (make-direction (+ theta d-theta))))
-      (add-to-point
-       (make-point x y)
-       (vec-from-direction-distance dir *point-wiggle-radius*)))))
+      (with-dependency
+       `(random-point ,(make-random-dependency))
+       (add-to-point
+        (make-point x y)
+        (vec-from-direction-distance dir *point-wiggle-radius*))))))
 
 ;;; TODO: Maybe separate out reflection about line?
 (define (random-point-left-of-line line)
@@ -50,7 +54,6 @@
         p
         (add-to-point p (scale-vec v (* 2 (- d)))))))
 
-;;; TODO: Handle when rays intersect!
 (define (random-point-between-rays r1 r2)
   (let ((offset-vec (sub-points (ray-endpoint r2)
                             (ray-endpoint r1))))
@@ -68,52 +71,7 @@
            (scale-vec offset-vec
                       (rand-range 0 1.0))))))))
 
-(define (random-line)
-  (let ((p (random-point)))
-    (line-through-point p)))
-
-(define (random-segment)
-  (let ((p1 (random-point))
-        (p2 (random-point)))
-    (let ((seg (make-segment p1 p2)))
-      (set-segment-dependency! seg `(random-segment))
-      seg)))
-
-(define (random-ray)
-  (let ((p (random-point)))
-    (random-ray-from-point p)))
-
-(define (random-circle)
-  (let ((pr1 (random-point))
-        (pr2 (random-point)))
-    (circle-from-points (midpoint pr1 pr2) pr1)))
-
-(define (line-through-point p)
-  (let ((v (random-direction)))
-    (line-from-point-direction p v)))
-
-(define (random-ray-from-point p)
-  (let ((v (random-direction)))
-    (ray-from-point-direction p v)))
-
-(define (horizontal-line)
-  (let ((p (random-point))
-        (v (make-vec 1 0)))
-    (line-from-point-vec p v)))
-
-(define (vertical-line)
-  (let ((p (random-point))
-        (v (make-vec 0 1)))
-    (line-from-point-vec p v)))
-
-(define (random-angle)
-  (let ((v (random-point))
-        (d1 (random-direction))
-        (d2 (random-direction)))
-    (smallest-angle (make-angle d1 v d2))))
-
-;;;  Points on Random Elements
-(define (point-on-segment seg)
+(define (random-point-on-segment seg)
   (let* ((p1 (segment-endpoint-1 seg))
          (p2 (segment-endpoint-2 seg))
          (t (rand-range 0.0 1.0))
@@ -121,7 +79,7 @@
     (add-to-point p1 (scale-vec v t))))
 
 ;;; TODO: Fix this for new construction
-(define (point-on-line l)
+(define (random-point-on-line l)
   (let* ((p1 (line-p1 l))
          (p2 (line-p2 l))
          (seg (extend-to-max-segment p1 p2))
@@ -131,7 +89,7 @@
          (v (sub-points sp2 sp1)))
     (add-to-point sp1 (scale-vec v t))))
 
-(define (point-on-ray r)
+(define (random-point-on-ray r)
   (let* ((p1 (ray-endpoint r))
          (dir (ray-direction r))
          (p2 (add-to-point p1 (vec-from-direction dir)))
@@ -142,18 +100,59 @@
          (v (sub-points sp2 sp1)))
     (add-to-point sp1 (scale-vec v t))))
 
-(define (point-on-circle c)
+(define (random-point-on-circle c)
   (let ((center (circle-center c))
         (radius (circle-radius c))
-        (angle (rand-theta)))
+        (dir (random-direction)))
     (make-point (+ (point-x center)
                    (* radius (cos angle)))
                 (+ (point-y center)
                    (* radius (sin angle)))))) ;; TODO  Cleanup
 
-(define (random-circle-radius c)
-  (let ((center (circle-center c))
-        (radius (circle-radius c))
+;;;;;;;;;;;;;;;;;;;;;;; Random Linear Elements ;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (random-line)
+  (let ((p (random-point)))
+    (with-dependency
+     `(random-line ,(make-random-dependency))
+     (random-line-through-point p))))
+
+(define (random-segment)
+  (let ((p1 (random-point))
+        (p2 (random-point)))
+    (let ((seg (make-segment p1 p2)))
+      (set-segment-dependency!
+       seg
+       `(random-segment ,(make-external-dependency)))
+      seg)))
+
+(define (random-ray)
+  (let ((p (random-point)))
+    (random-ray-from-point p)))
+
+(define (random-line-through-point p)
+  (let ((v (random-direction)))
+    (line-from-point-direction p v)))
+
+(define (random-ray-from-point p)
+  (let ((v (random-direction)))
+    (ray-from-point-direction p v)))
+
+(define (random-horizontal-line)
+  (let ((p (random-point))
+        (v (make-vec 1 0)))
+    (line-from-point-vec p v)))
+
+(define (random-vertical-line)
+  (let ((p (random-point))
+        (v (make-vec 0 1)))
+    (line-from-point-vec p v)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;; Random Circle Elements ;;;;;;;;;;;;;;;;;;;;;
+
+(define (random-circle-radius circle)
+  (let ((center (circle-center circle))
+        (radius (circle-radius circle))
         (angle (random-direction)))
     (let ((radius-vec
            (scale-vec (unit-vec-from-direction)
@@ -161,7 +160,19 @@
       (let ((radius-point (add-to-point center radius-vec)))
         (segment center radius-point)))))
 
-;;; Random Polygons
+(define (random-circle)
+  (let ((pr1 (random-point))
+        (pr2 (random-point)))
+    (circle-from-points (midpoint pr1 pr2) pr1)))
+
+(define (random-angle)
+  (let ((v (random-point))
+        (d1 (random-direction))
+        (d2 (random-direction)))
+    (smallest-angle (make-angle d1 v d2))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Random Polygons ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (random-n-gon n)
   (if (< n 3)
       (error "n must be > 3"))
@@ -179,6 +190,8 @@
                        ray2)
                       points)))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Random Triangles ;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (random-triangle)
   (let* ((p1 (random-point))
          (p2 (random-point))
@@ -187,7 +200,6 @@
      '(random-triangle)
      (polygon-from-points p1 p2 p3))))
 
-;;; Random Triangles
 (define (random-equilateral-triangle)
   (let* ((s1 (random-segment))
          (s2 (rotate-about (segment-endpoint-1 s1)
@@ -213,7 +225,8 @@
       (segment-endpoint-2 s1)
       (segment-endpoint-2 s2)))))
 
-;;; Random Quadrilaterals
+;;;;;;;;;;;;;;;;;;;;;;;;; Random Quadrilaterals ;;;;;;;;;;;;;;;;;;;;;;
+
 (define (random-square)
   (let* ((s1 (random-segment))
          (p1 (segment-endpoint-1 s1))
@@ -228,7 +241,6 @@
      '(random-square)
      (polygon-from-points p1 p2 p3 p4))))
 
-;;; Random Quadrilaterals
 (define (random-rectangle)
   (let* ((r1 (random-ray))
          (p1 (ray-endpoint r1))

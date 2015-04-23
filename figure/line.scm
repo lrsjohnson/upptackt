@@ -1,4 +1,7 @@
 ;;; Segment, Line, Ray Types
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Segments ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define-record-type <segment>
   (%segment p1 p2)
   segment?
@@ -9,10 +12,28 @@
   (set-dependency! segment dependency)
   (set-dependency!
    (segment-endpoint-1 segment)
-   `(segment-endpoint-1 ,dependency))
+   `(segment-endpoint-1 segment))
   (set-dependency!
    (segment-endpoint-2 segment)
-   `(segment-endpoint-2 ,dependency)))
+   `(segment-endpoint-2 segment)))
+
+;;; Alternate, helper constructors
+
+(define (make-segment p1 p2)
+  (let ((seg (%segment p1 p2)))
+    (set-element-name!
+     seg
+     (symbol '*seg*: (element-name p1) '- (element-name p2)))
+    (with-dependency
+     `(segment p1 p2)
+     seg)))
+
+(define (make-auxiliary-segment p1 p2)
+  (with-dependency
+   `(aux-segment p1 p2)
+   (make-segment p1 p2)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Lines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <line>
   (%make-line point dir)
@@ -22,33 +43,11 @@
 
 (define make-line %make-line)
 
-(define-record-type <ray>
-  (make-ray initial-point direction)
-  ray?
-  (initial-point ray-endpoint)
-  (direction ray-direction))
+(define (line-from-points p1 p2)
+  (make-line p1 (direction-from-points p1 p2)))
 
-(define (linear-element? x)
-  (or (line? x)
-      (segment? x)
-      (ray? x)))
-
-;;; Alternate, helper constructors
-(define (make-segment p1 p2)
-  (let ((seg (%segment p1 p2)))
-    (set-element-name!
-     seg
-     (symbol '*seg*: (element-name p1) '- (element-name p2)))
-    (with-dependency
-     `(segment ,(element-dependency p1)
-               ,(element-dependency p2))
-     seg)))
-
-(define (make-auxiliary-segment p1 p2)
-  (with-dependency
-   `(aux-segment ,(element-dependency p1)
-                 ,(element-dependency p2))
-   (make-segment p1 p2)))
+(define (line-from-point-direction p dir)
+  (make-line p dir))
 
 ;;; TODO, use for equality tests?
 (define (line-offset line)
@@ -62,11 +61,28 @@
                      (distance p1 p2))))
       (%make-line direction offset))))
 
-(define (line-from-points p1 p2)
-  (make-line p1 (direction-from-points p1 p2)))
+;;; TODO: Figure out dependencies for these
+(define (two-points-on-line line)
+  (let ((point-1 (line-point line)))
+   (let ((point-2 (add-to-point
+                   point-1
+                   (vec-from-direction (line-direction line)))))
+     (list point-1 point-2))))
 
-(define (line-from-point-direction p dir)
-  (make-line p dir))
+(define (line-p1 line)
+  (car (two-points-on-line line)))
+
+(define (line-p2 line)
+  (cadr (two-points-on-line line)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Rays ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define-record-type <ray>
+  (make-ray initial-point direction)
+  ray?
+  (initial-point ray-endpoint)
+  (direction ray-direction))
 
 (define (ray-from-point-direction p dir)
   (make-ray p dir))
@@ -74,7 +90,8 @@
 (define (ray-from-points endpoint p1)
   (make-ray endpoint (direction-from-points endpoint p1)))
 
-;;; Constructors from angles
+;;;;;;;;;;;;;;;;;;;;;; Constructors from angles ;;;;;;;;;;;;;;;;;;;;;;
+
 (define (ray-from-arm-1 a)
   (let ((v (angle-vertex a))
         (dir (angle-arm-1 a)))
@@ -89,7 +106,7 @@
 (define (line-from-arm-2 a)
   (ray->line (ray-from-arm-2 a)))
 
-;;; Transforms
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Transforms ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define flip (make-generic-operation 1 'flip))
 
@@ -107,27 +124,18 @@
   (make-ray (ray-endpoint r)
             (reverse-direction (ray-direction r))))
 
-;;; Operations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (segment-length seg)
   (distance (segment-endpoint-1 seg)
             (segment-endpoint-2 seg)))
 
-(define (two-points-on-line line)
-  (let ((point-1 (line-point line)))
-   (let ((point-2 (add-to-point
-                   point-1
-                   (vec-from-direction (line-direction line)))))
-     (list point-1 point-2))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; TODO: Replace
-(define (line-p1 line)
-  (car (two-points-on-line line)))
-
-(define (line-p2 line)
-  (cadr (two-points-on-line line)))
-
-;;; Predicates
+(define (linear-element? x)
+  (or (line? x)
+      (segment? x)
+      (ray? x)))
 
 (define (parallel? a b)
   (direction-parallel? (->direction a)
@@ -152,7 +160,8 @@
   (close-enuf? (segment-length seg-1)
                (segment-length seg-2)))
 
-;;; Conversions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Conversions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;; Ray shares point p1
 (define (segment->ray segment)
   (make-ray (segment-endpoint-1 segment)
