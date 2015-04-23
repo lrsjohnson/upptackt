@@ -69,14 +69,14 @@
   (let ((p1 (line-p1 line)))
    (let ((p2 (add-to-point
               p1
-              (vec-from-direction (line-direction line)))))
+              (unit-vec-from-direction (line-direction line)))))
      (draw-segment canvas (extend-to-max-segment p1 p2)))))
 
 (define (draw-ray canvas ray)
   (let ((p1 (ray-endpoint ray)))
     (let ((p2 (add-to-point
                p1
-               (vec-from-direction (ray-direction ray)))))
+               (unit-vec-from-direction (ray-direction ray)))))
       (draw-segment canvas (ray-extend-to-max-segment p1 p2)))))
 
 (define (draw-circle canvas c)

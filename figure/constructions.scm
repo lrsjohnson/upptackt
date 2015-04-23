@@ -1,4 +1,20 @@
-;;; Constructions
+;;; constructions.scm --- Constructions
+
+;;; Commentary:
+
+;; Ideas:
+;; - Various logical constructions that can be peformed on elements
+;; - Some higher-level constructions...
+
+;; Future:
+;; - More constructions?
+;; - Separation between compass/straightedge and compound?
+;; - Experiment with higher-level vs. learned constructions
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;; Segment Constructions ;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (midpoint p1 p2)
   (let ((newpoint
          (make-point (avg (point-x p1)
@@ -16,6 +32,9 @@
      `(segment-midpoint ,(element-dependency s))
      (midpoint p1 p2))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; TODO: Where to put these?
 (define (on-segment? p seg)
   (let ((p1 (segment-endpoint-1 seg))
         (p2 (segment-endpoint-2 seg)))
@@ -30,6 +49,8 @@
    p
    (make-segment (line-p1 l)
                  (line-p2 l))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Intersections ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (intersect-lines line1 line2)
   (let ((p1 (line-p1 line1))
@@ -96,6 +117,8 @@
                 (make-point (- x1 dx)
                             (- y1 dy)))))))
 
+;;;;;;;;;;;;;;;;;;;;;;; Construction of lines ;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (perpendicular linear-element point)
   (let* ((direction (->direction linear-element))
          (rotated-direction (rotate-direction-90 direction)))
@@ -106,7 +129,6 @@
     (perpendicular (segment->line segment)
                    midpt)))
 
-;; Angle -> Ray
 (define (angle-bisector a)
   (let* ((d1 (angle-arm-1 a))
          (d2 (angle-arm-2 a))

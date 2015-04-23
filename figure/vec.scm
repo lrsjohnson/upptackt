@@ -1,12 +1,23 @@
+;;; vec.scm --- Low-level vector structures
 
-;;; Vector structure for computation, cartesian
+;;; Commentary:
+
+;; Ideas:
+;; - Simplifies lots of computation, cartesian coordiates
+;; - Currently 2D, could extend
+
+;; Future:
+;; - Could generalize to allow for polar vs. cartesian vectors
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; Vector Structure ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define-record-type <vec>
   (make-vec dx dy)
   vec?
   (dx vec-x)
   (dy vec-y))
-
-;;; Computations of Vectors
 
 ;;; Transformations of Vectors
 (define (vec-magnitude v)
@@ -14,12 +25,26 @@
         (dy (vec-y v)))
     (sqrt (+ (square dx) (square dy)))))
 
+;;;;;;;;;;;;;;;;;;;;;;; Alternate Constructors ;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (unit-vec-from-direction direction)
+  (let ((theta (direction-theta direction)))
+   (make-vec (cos theta) (sin theta))))
+
+(define (vec-from-direction-distance direction distance)
+  (scale-vec (unit-vec-from-direction direction) distance))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Conversions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (vec->direction v)
   (let ((dx (vec-x v))
         (dy (vec-y v)))
     (make-direction (atan dy dx))))
 
-;;; Rotate vector counter-clockwise
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Returns new vecs
+
 (define (rotate-vec v radians)
   (let ((dx (vec-x v))
         (dy (vec-y v))
@@ -33,14 +58,8 @@
         (dy (vec-y v)))
     (make-vec (* c dx) (* c dy))))
 
-;;; Helpful creators for vector manipulation
-
-(define (unit-vec-from-direction direction)
-  (let ((theta (direction-theta direction)))
-   (make-vec (cos theta) (sin theta))))
-
-(define (vec-from-direction-distance direction distance)
-  (scale-vec (unit-vec-from-direction direction) distance))
+(define (scale-vec-to-dist v dist)
+  (scale-vec (unit-vec v) dist))
 
 (define (reverse-vec v)
   (make-vec (- (vec-x v))
@@ -54,10 +73,8 @@
 (define (unit-vec v)
   (scale-vec v (/ (vec-magnitude v))))
 
-(define (scale-vec-to-dist v dist)
-  (scale-vec (unit-vec v) dist))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; Compare Equality
 (define (vec-equal? v1 v2)
   (and (close-enuf? (vec-x v1)  (vec-x v2))
        (close-enuf? (vec-y v1)  (vec-y v2))))

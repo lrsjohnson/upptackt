@@ -1,11 +1,28 @@
-(define max-dist 2)
+;;; bounds.scm --- Graphics Bounds
+
+;;; Commentary:
+
+;; Ideas:
+;; - Logic to extend segments to graphics bounds so they can be drawn.
+
+;; Future:
+;; - Separate logical bounds of figures from graphics bounds
+;; - Combine logic for line and ray (one vs. two directions)
+;; - Should these be a part of "figure" vs. "graphics"
+;; - Remapping of entire figures to different canvas dimensions
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; Bounds Constants ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Max bounds of the graphics window
 
 (define *g-min-x* -1)
 (define *g-max-x*  1)
 (define *g-min-y* -1)
 (define *g-max-y*  1)
 
-;;; Measurement-directed constructions
+;;;;;;;;;;;;;;;; Conversion to segments for Graphics ;;;;;;;;;;;;;;;;;
 
 (define (extend-to-max-segment p1 p2)
   (let ((x1 (point-x p1))

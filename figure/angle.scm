@@ -1,3 +1,23 @@
+;;; angle.scm --- Angles
+
+;;; Commentary:
+
+;; Ideas:
+;; - Initially three points, now vertex + two directions
+;; - Counter-clockwise orientation
+;; - Uniquely determining from elements forces directions
+;; - naming of "arms" vs. "directions"
+
+;; Future Ideas:
+;; - Automatically discover angles from diagrams (e.g. from a pile of
+;;     points and segments)
+;; - Angle intersections
+;; - Angles from "joints"
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Angles ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;; dir1 and dir2 are directions of the angle arms
 ;;; The angle sweeps from dir2 *counter clockwise* to dir1
 (define-record-type <angle>
@@ -7,7 +27,7 @@
   (vertex angle-vertex)
   (dir2 angle-arm-2))
 
-;;; Transformations on Angles
+;;;;;;;;;;;;;;;;;;;;; Transformations on Angles ;;;;;;;;;;;;;;;;;;;;;;
 
 (define (reverse-angle a)
   (let ((d1 (angle-arm-1 a))
@@ -20,7 +40,7 @@
       (reverse-angle a)
       a))
 
-;;; Alternate Constructors
+;;;;;;;;;;;;;;;;;;;;;;; Alternate Constructors ;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (angle-from-points p1 vertex p2)
   (let ((arm1 (direction-from-points vertex p1))
@@ -30,7 +50,7 @@
 (define (smallest-angle-from-points p1 vertex p2)
   (smallest-angle (angle-from-points p1 vertex p2)))
 
-;;; Angle from pairs of lines / rays / segments
+;;;;;;;;;;;;;;;;;;;; Angle from pairs of elements ;;;;;;;;;;;;;;;;;;;;
 
 (define angle-from (make-generic-operation 2 'angle-from))
 
@@ -43,7 +63,8 @@
 
 (define (angle-from-line-ray l r)
   (let ((vertex (ray-endpoint r)))
-    (assert (on-line? vertex l) "Angle-from-line-ray: Vertex of ray not on line")
+    (assert (on-line? vertex l)
+            "Angle-from-line-ray: Vertex of ray not on line")
     (let ((d1 (line->direction l))
           (d2 (ray->direction r)))
       (make-angle d1 vertex d2))))
@@ -77,7 +98,8 @@
 (define (smallest-angle-from a b)
   (smallest-angle (angle-from a b)))
 
-;;; Predicates on Angles
+;;;;;;;;;;;;;;;;;;;;;;;; Predicates on Angles ;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (angle-measure-equal? a1 a2)
   (close-enuf? (angle-measure a1)
                (angle-measure a2)))
@@ -92,7 +114,8 @@
                   (angle-measure a2))
                (/ pi 2.0)))
 
-;;; Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;; TODO? Consider learning or putiting elsewhere
 (define (linear-pair? a1 a2)
   (define (linear-pair-internal? a1 a2)

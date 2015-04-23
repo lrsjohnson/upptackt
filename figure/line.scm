@@ -1,4 +1,20 @@
-;;; Segment, Line, Ray Types
+;;; line.scm --- Line
+
+;;; Commentary:
+
+;; Ideas:
+;; - Linear Elements: Segments, Lines, Rays
+;; - All have direction
+;; - Conversions to directions, extending.
+;; - Lines are point + direction, but hard to access point
+;; - Means to override dependencies for random segments
+
+;; Future:
+;; - Simplify direction requirements
+;; - Improve some predicates, more tests
+;; - Fill out more dependency information
+
+;;; Code:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Segments ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -66,7 +82,7 @@
   (let ((point-1 (line-point line)))
    (let ((point-2 (add-to-point
                    point-1
-                   (vec-from-direction (line-direction line)))))
+                   (unit-vec-from-direction (line-direction line)))))
      (list point-1 point-2))))
 
 (define (line-p1 line)
@@ -106,7 +122,7 @@
 (define (line-from-arm-2 a)
   (ray->line (ray-from-arm-2 a)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;; Transforms ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Transforms ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define flip (make-generic-operation 1 'flip))
 
@@ -124,7 +140,7 @@
   (make-ray (ray-endpoint r)
             (reverse-direction (ray-direction r))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (segment-length seg)
   (distance (segment-endpoint-1 seg)
@@ -160,7 +176,7 @@
   (close-enuf? (segment-length seg-1)
                (segment-length seg-2)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Conversions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Conversions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Ray shares point p1
 (define (segment->ray segment)

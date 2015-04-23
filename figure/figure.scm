@@ -1,10 +1,26 @@
-;;; Figure Structure
+;;; figure.scm --- Figure
+
+;;; Commentary:
+
+;; Ideas:
+;; - Gathers elements that are part of a figure
+;; - Helpers to extract relevant elements
+
+;; Future:
+;; - Convert to record type like other structures
+;; - Determine automatically?
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; Figure Structure ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (figure . elements)
   (cons 'figure elements))
 (define (figure-elements figure)
   (cdr figure))
 (define figure? (tag-predicate 'figure))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Getters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (figure-filter predicate figure)
   (filter predicate (figure-elements figure)))

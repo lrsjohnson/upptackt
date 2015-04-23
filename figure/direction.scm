@@ -1,7 +1,21 @@
-;;; A Direction is equivalent to a unit vector pointing in some direction.
+;;; direction.scm --- Low-level direction structure
 
-;;; Wrapping "directions" in a data structure to ensure in [0, 2pi], and allow for better
-;;; propagation ranges, wiggling in the future.
+;;; Commentary:
+
+;; A Direction is equivalent to a unit vector pointing in some direction.
+
+;; Ideas:
+;; - Ensures range [0, 2pi[
+;; - Structure could allow for better propagation/information in future vs.
+;;     constants
+
+;; Future:
+;; - Could generalize to dx, dy or theta
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;; Direction Structure ;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define-record-type <direction>
   (%direction theta)
   direction?
@@ -10,12 +24,8 @@
 (define (make-direction theta)
   (%direction (fix-angle-0-2pi theta)))
 
-;;; Vec from direction
-;;; TODO: Maybe allow directions to be represented as dx, dy
-(define (vec-from-direction direction)
-  (unit-vec-from-direction direction))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Arithemtic ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; Arithmetic
 (define (add-to-direction dir radians)
   (make-direction (+ (direction-theta dir)
                      radians)))
@@ -24,13 +34,16 @@
   (fix-angle-0-2pi (- (direction-theta d2)
                       (direction-theta d1))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (rotate-direction-90 dir)
   (add-to-direction dir (/ pi 2)))
 
 (define (reverse-direction dir)
   (add-to-direction dir pi))
 
-;;; Predicates on Direction
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (direction-equal? d1 d2)
   (close-enuf? (direction-theta d1)
                (direction-theta d2)))
@@ -44,7 +57,6 @@
    (abs (- (direction-theta d1)
            (direction-theta d2)))
    (/ pi 2)))
-
 
 (define (direction-parallel? d1 d2)
   (or (direction-equal? d1 d2)
