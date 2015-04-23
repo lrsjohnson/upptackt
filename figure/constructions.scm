@@ -5,8 +5,6 @@
                           (point-x p2))
                      (avg (point-y p1)
                           (point-y p2)))))
-    (mark-known-equal (make-segment p1 newpoint)
-                      (make-segment newpoint p2))
     (with-dependency
      `(midpoint ,(element-dependency p1) ,(element-dependency p2))
      newpoint)))
