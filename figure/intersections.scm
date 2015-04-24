@@ -100,8 +100,10 @@
                       (ip2 (make-point
                             (/ (- x-a x-b) (square dr))
                             (/ (- y-a y-b) (square dr)))))
-                  (list (add-to-point ip1 (reverse-vec offset))
-                        (add-to-point ip2 (reverse-vec offset)))))))))))
+                  (if (close-enuf? 0 disc) ;; Tangent
+                      (list (add-to-point ip1 (reverse-vec offset)))
+                      (list (add-to-point ip1 (reverse-vec offset))
+                            (add-to-point ip2 (reverse-vec offset))))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Intersections ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
