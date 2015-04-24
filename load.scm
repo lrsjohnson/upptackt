@@ -40,6 +40,7 @@
             "graphics"
             "investigations"
             "manipulate/linkages"
+            "manipulate/region-info"
             "main"))
 (initialize-scheduler)
 

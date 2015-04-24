@@ -3,6 +3,8 @@
 *** Construction from Constraints
     - [ ] Play with generating an isoceles triangle or Kite from its given
       properties...
+    - [X] Regions for partial information
+    - [X] Basic Linkages - Bar + Joint
 *** Learning!
     - [ ] Generalize and learn from basic examples
     - [ ] Experiment with finding minimal properties (Rhombus: only opposite
