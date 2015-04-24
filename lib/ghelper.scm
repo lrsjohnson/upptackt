@@ -1,3 +1,7 @@
+
+(define make-generic-operation make-generic-operator)
+
+#|
 ;;;;           Most General Generic-Operator Dispatch
 (declare (usual-integrations))		; for compiler
 
@@ -85,8 +89,8 @@
 
 #|
 ;;; To illustrate the structure we populate the
-;;; operator table with quoted symbols rather 
-;;; than actual procedures.  
+;;; operator table with quoted symbols rather
+;;; than actual procedures.
 
 (define blend
   (make-generic-operator 2 'blend 'blend-default))
@@ -109,7 +113,7 @@
 #|
 ;;; Backtracking
 
-;;; An operator satisfies bleen? 
+;;; An operator satisfies bleen?
 ;;; if it satisfies either blue? or green?
 
 (defhandler blend 'e+r 'bleen? 'red?)
@@ -170,7 +174,7 @@
 (define (bind-in-tree keys handler tree replace!)
   (let loop ((keys keys) (tree tree) (replace! replace!))
     (cond ((pair? keys)   ; more argument-predicates
-	   (let find-key ((tree* tree)) 
+	   (let find-key ((tree* tree))
 	     (if (pair? tree*)
 		 (if (eq? (caar tree*) (car keys))
 		     ;; There is already some discrimination
@@ -270,11 +274,11 @@
    foo-default)
 
 (defhandler foo 'one-arg-a-prime 'a)
-;Warning: Replacing a default handler: 
+;Warning: Replacing a default handler:
 ;         one-arg-a one-arg-a-prime
 
 (defhandler foo 'two-arg-a-b-prime 'a 'b)
-;Warning: Replacing a handler: 
+;Warning: Replacing a handler:
 ;         two-arg-a-b two-arg-a-b-prime
 
 (defhandler foo 'three-arg-x-y-z 'x 'y 'z)
@@ -283,7 +287,7 @@
    (b (c . two-arg-b-c) . one-arg-b)
    (a (c . two-arg-a-c)
       (b . two-arg-a-b-prime)
-      . 
+      .
       one-arg-a-prime)
    .
    foo-default)
@@ -307,4 +311,4 @@
 		     conj))
 	    applicability))
 
-				
+|#

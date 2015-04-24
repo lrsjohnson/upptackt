@@ -12,11 +12,11 @@
 (cd "../..")
 
 (for-each (lambda (f) (load f))
-          '("lib/ghelper"
-            "lib/stack-queue"
+          '("lib/stack-queue"
             "utils"
+            "lib/ghelper"
             "lib/scmutils-basic"
-            "LIB/multimin"
+            "lib/multimin"
             "macros"
             "analyzer"
             "animation"
