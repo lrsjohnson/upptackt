@@ -1,11 +1,25 @@
-;;; Elements Relating to Points
+;;; point.scm --- Point
 
-;;; Figure Primitives
+;;; Commentary:
+
+;; Ideas:
+;; - Points are the basis for most elements
+
+;; Future:
+;; - Transform to different canvases
+;; - Have points know what elements they are on.
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; Point Structure ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define-record-type <point>
   (make-point x y)
   point?
   (x point-x)
   (y point-y))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (point-equal? p1 p2)
   (and (close-enuf? (point-x p1)
@@ -13,7 +27,8 @@
        (close-enuf? (point-y p1)
                     (point-y p2))))
 
-;;; Vec from p1 to p2
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (sub-points p2 p1)
   (let ((x1 (point-x p1))
         (x2 (point-x p2))
@@ -22,7 +37,6 @@
     (make-vec (- x2 x1)
               (- y2 y1))))
 
-;;; Direction from p1 to p2
 (define (direction-from-points p1 p2)
   (vec->direction (sub-points p2 p1)))
 
@@ -33,5 +47,3 @@
         (dy (vec-y vec)))
     (make-point (+ x dx)
                 (+ y dy))))
-
-(define origin-point (make-point 0 0))

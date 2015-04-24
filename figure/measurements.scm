@@ -1,4 +1,17 @@
-;;; Measurements
+;;; measurements.scm
+
+;;; Commentary:
+
+;; Ideas:
+;; - Measurements primarily for analysis
+;; - Occasionally used for easily duplicating angles or segments
+
+;; Future:
+;; - Arc Measure
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Distance ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (distance p1 p2)
   (sqrt (+ (square (- (point-x p1)
@@ -28,12 +41,14 @@
 (define (distance-to-line point line)
   (abs (signed-distance-to-line point line)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Angles ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (angle-measure a)
   (let* ((d1 (angle-arm-1 a))
          (d2 (angle-arm-2 a)))
     (subtract-directions d1 d2)))
 
-;;; Created elements
+;;;;;;;;;;;;;;;;;;;;;;;;; Measured Elements ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (measured-point-on-ray r dist)
   (let* ((p1 (ray-p1 r))
@@ -46,8 +61,6 @@
   (let* ((v1 (sub-points p1 vertex))
          (v-rotated (rotate-vec v (- radians))))
     (angle v1 vertex v-rotated)))
-
-(define measured-angle measured-angle-ccw)
 
 (define (measured-angle-cw p1 vertex radians)
   (reverse-angle (measured-angle-ccw p1 vertex (- radians))))

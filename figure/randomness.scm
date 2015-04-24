@@ -1,6 +1,19 @@
-;;; Utilities
+;;; randomness.scm --- Random creation of elements
 
-;;;;;;;;;;;;;;;;;;;;;;  Base: Random Scalars ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Commentary:
+
+;; Ideas:
+;; - Random points, segments, etc. essential to system
+;; - Separated out animation / persistence across frames
+
+;; Future:
+;; - Better random support
+;; - Maybe separating out "definitions" (random square, etc.)
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;; Base: Random Scalars ;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (internal-rand-range min-v max-v)
   (let ((interval-size (max *machine-epsilon* (- max-v min-v))))
     (persist-value (+ min-v (random (* 1.0 interval-size))))))
@@ -10,6 +23,7 @@
 (define *wiggle-ratio* 0.15)
 
 ;;; Will return floats even if passed integers
+;;; TODO: Rename to animated?
 (define (rand-range min max)
   (let* ((range-size (- max min))
          (wiggle-amount (* range-size *wiggle-ratio*))
@@ -28,7 +42,7 @@
   (let ((theta (rand-theta)))
     (make-direction theta)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;; Random Points ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Random Points ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *point-wiggle-radius* 0.05)
 (define (random-point)
@@ -92,7 +106,7 @@
 (define (random-point-on-ray r)
   (let* ((p1 (ray-endpoint r))
          (dir (ray-direction r))
-         (p2 (add-to-point p1 (vec-from-direction dir)))
+         (p2 (add-to-point p1 (unit-vec-from-direction dir)))
          (seg (ray-extend-to-max-segment p1 p2))
          (sp1 (segment-endpoint-1 seg))
          (sp2 (segment-endpoint-2 seg))
@@ -148,7 +162,7 @@
         (v (make-vec 0 1)))
     (line-from-point-vec p v)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;; Random Circle Elements ;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;; Random Circle Elements ;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (random-circle-radius circle)
   (let ((center (circle-center circle))
@@ -171,7 +185,7 @@
         (d2 (random-direction)))
     (smallest-angle (make-angle d1 v d2))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;; Random Polygons ;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;; Random Polygons ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (random-n-gon n)
   (if (< n 3)
@@ -190,14 +204,14 @@
                        ray2)
                       points)))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;; Random Triangles ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;; Random Triangles ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (random-triangle)
   (let* ((p1 (random-point))
          (p2 (random-point))
          (p3 (random-point-left-of-line (line-from-points p1 p2))))
     (with-dependency
-     '(random-triangle)
+     `(random-triangle ,(make-random-dependency))
      (polygon-from-points p1 p2 p3))))
 
 (define (random-equilateral-triangle)
@@ -206,7 +220,7 @@
                            (/ pi 3)
                            s1)))
     (with-dependency
-     '(random-equilateral-triangle)
+     `(random-equilateral-triangle ,(make-random-dependency))
      (polygon-from-points
       (segment-endpoint-1 s1)
       (segment-endpoint-2 s1)
@@ -219,13 +233,13 @@
                            base-angle
                            s1)))
     (with-dependency
-     '(random-isoceles-triangle)
+     `(random-isoceles-triangle ,(make-random-dependency))
      (polygon-from-points
       (segment-endpoint-1 s1)
       (segment-endpoint-2 s1)
       (segment-endpoint-2 s2)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;; Random Quadrilaterals ;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;; Random Quadrilaterals ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (random-square)
   (let* ((s1 (random-segment))
@@ -238,7 +252,7 @@
                            (/ pi 2)
                            p2)))
     (with-dependency
-     '(random-square)
+     `(random-square ,(make-random-dependency))
      (polygon-from-points p1 p2 p3 p4))))
 
 (define (random-rectangle)

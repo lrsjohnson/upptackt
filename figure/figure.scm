@@ -18,7 +18,10 @@
   (cons 'figure elements))
 (define (figure-elements figure)
   (cdr figure))
-(define figure? (tag-predicate 'figure))
+
+(define (figure? x)
+  (and (pair? x)
+       (eq? (car x 'figure))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Getters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

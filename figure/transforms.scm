@@ -1,5 +1,19 @@
-;;; Rotations (to points)
-;;; TODO: Make new angles?
+;;; transforms.scm --- Transforms on Elements
+
+;;; Commentary:
+
+;; Ideas:
+;; - Generic transforms - rotation and translation
+;; - None mutate points, just return new copies.
+
+;; Future:
+;; - Translation or rotation to match something
+;; - Consider mutations?
+;; - Reflections?
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Rotations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (rotate-point-about rot-origin radians point)
   (let ((v (sub-points point rot-origin)))
@@ -30,7 +44,7 @@
   (let ((radians (rand-angle-measure)))
     (rotate-about p radians elt)))
 
-;;; Translations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Translations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (translate-point-by vec point)
   (add-to-point point vec))
@@ -61,6 +75,8 @@
 (defhandler translate-by translate-line-by vec? line?)
 (defhandler translate-by translate-angle-by vec? angle?)
 
+;;;;;;;;;;;;;;;;;;;;;;;;; Random Translation ;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (translate-randomly-along-line l elt)
   (let* ((vec (unit-vec-from-direction (line->direction l)))
          (scaled-vec (scale-vec vec (rand-range 0.5 1.5))))
@@ -83,8 +99,13 @@
 (define (rand-translation-vec-for-line l)
   (rand-translation-vec-for-point (line-point l)))
 
-(define rand-translation-vec-for (make-generic-operation 1 'rand-translation-vec-for))
-(defhandler rand-translation-vec-for rand-translation-vec-for-point point?)
-(defhandler rand-translation-vec-for rand-translation-vec-for-segment segment?)
-(defhandler rand-translation-vec-for rand-translation-vec-for-ray ray?)
-(defhandler rand-translation-vec-for rand-translation-vec-for-line line?)
+(define rand-translation-vec-for
+  (make-generic-operation 1 'rand-translation-vec-for))
+(defhandler rand-translation-vec-for
+  rand-translation-vec-for-point point?)
+(defhandler rand-translation-vec-for
+  rand-translation-vec-for-segment segment?)
+(defhandler rand-translation-vec-for
+  rand-translation-vec-for-ray ray?)
+(defhandler rand-translation-vec-for
+  rand-translation-vec-for-line line?)

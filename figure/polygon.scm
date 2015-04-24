@@ -1,3 +1,18 @@
+;;; polygon.scm --- Polygons
+
+;;; Commentary:
+
+;; Ideas:
+;; - Points and (derived) segments define polygon
+
+;; Future
+;; - Figure out dependencies better
+;; - Other operations, angles? diagonals? etc.
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;; Polygon Structure ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;; Data structure for a polygon, implemented as a list of
 ;;; points in counter-clockwise order.
 ;;; Drawing a polygon will draw all of its points and segments.
@@ -10,6 +25,8 @@
 (define (polygon-from-points . points)
   (let ((n-points (length points)))
     (%polygon n-points points)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Polygon Points ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Internal reference for polygon points
 (define (polygon-point-ref polygon i)
@@ -27,6 +44,8 @@
   (with-dependency ;;-if-unknown
    `(polygon-point ,i ,(element-dependency polygon))
    (polygon-point-ref polygon i)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; Polygon Segments ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; i and j are indices of adjacent points
 (define (polygon-segment polygon i j)

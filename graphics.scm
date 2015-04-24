@@ -135,7 +135,9 @@
 (define (canvas-g canvas)
   (cadr canvas))
 
-(define canvas? (tag-predicate 'canvas))
+(define (canvas? x)
+  (and (pair? x)
+       (eq? (car x 'canvas))))
 
 (define (clear-canvas canvas)
   (graphics-clear (canvas-g canvas)))
