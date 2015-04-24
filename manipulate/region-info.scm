@@ -94,3 +94,20 @@
 
 (defhandler m:intersect-regions
   m:intersect-point-sets m:point-set? m:point-set?)
+
+;;;;;;;;;;;;;;;;;;; Interface to Propagator System ;;;;;;;;;;;;;;;;;;;
+
+(define (m:region? x)
+  (or (m:point-set? x)
+      (m:ray? x)
+      (m:arc? x)
+      (m:region-contradiction? x)))
+
+(define m:region-equivalent?
+  (make-generic-operation 2 'm:region-equivalent? (lambda (a b) #f)))
+
+;(defhandler equivalent? m:region-equivalent? m:region? m:region?)
+
+;(defhandler merge m:intersect-regions m:region? m:region?)
+
+;(defhandler contradictory? m:region-contradiction? m:region?)
