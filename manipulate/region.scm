@@ -1,4 +1,4 @@
-;;; region-info.scm --- Region Information
+;;; regions.scm --- Region Information
 
 ;;; Commentary:
 
