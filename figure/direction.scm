@@ -5,12 +5,13 @@
 ;; A Direction is equivalent to a unit vector pointing in some direction.
 
 ;; Ideas:
-;; - Ensures range [0, 2pi[
+;; - Ensures range [0, 2pi]
 ;; - Structure could allow for better propagation/information in future vs.
 ;;     constants
 
 ;; Future:
 ;; - Could generalize to dx, dy or theta
+;; - Direction ranges
 
 ;;; Code:
 
@@ -36,6 +37,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; CCW
 (define (rotate-direction-90 dir)
   (add-to-direction dir (/ pi 2)))
 

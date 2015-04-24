@@ -29,6 +29,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; P2 - P1
 (define (sub-points p2 p1)
   (let ((x1 (point-x p1))
         (x2 (point-x p2))

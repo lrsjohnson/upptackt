@@ -19,7 +19,7 @@
 
 (define (m:instantiate cell value premise)
   (add-content cell
-               ;(make-tms (contingent value (list premise)))
+               ;;(make-tms (contingent value (list premise)))
                value))
 
 (define (m:examine-cell cell)
@@ -329,13 +329,14 @@
        (let ((vertex-name (m:joint-vertex-name joint))
              (dir-1-name (m:joint-dir-1-name joint))
              (dir-2-name (m:joint-dir-2-name joint)))
-         (for-each (lambda (dir-name)
-                     (let ((bar (m:find-bar-by-unordered-endpoint-names
-                                 bar-table
-                                 vertex-name
-                                 dir-name)))
-                       (if (eq? bar #f)
-                           (error "Could not find bar for" vertex-name dir-name))
-                       (m:identify-joint-bar-by-name joint bar)))
+         (for-each
+          (lambda (dir-name)
+            (let ((bar (m:find-bar-by-unordered-endpoint-names
+                        bar-table
+                        vertex-name
+                        dir-name)))
+              (if (eq? bar #f)
+                  (error "Could not find bar for" vertex-name dir-name))
+              (m:identify-joint-bar-by-name joint bar)))
                    (list dir-1-name dir-2-name))))
      joints)))
