@@ -28,18 +28,20 @@
             "figure/bounds"
             "figure/circle"
             "figure/constructions"
+            "figure/intersections"
             "figure/figure"
             "figure/math-utils"
             "figure/point"
             "figure/polygon"
             "figure/metadata"
+            "figure/dependencies"
             "figure/randomness"
             "figure/transforms"
             "appearance"
             "graphics"
             "investigations"
             "manipulate/linkages"
-            "manipulate/region-info"
+            "manipulate/region"
             "main"))
 (initialize-scheduler)
 

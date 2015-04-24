@@ -33,6 +33,9 @@
 (define (avg a b)
   (/ (+ a b) 2))
 
+(define (sgn x)
+  (if (< x 0) -1 1))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Linear Alegbra ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (det a11 a12 a21 a22)

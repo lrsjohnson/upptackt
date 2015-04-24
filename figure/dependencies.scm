@@ -43,7 +43,7 @@
       *unknown-dependency*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Random Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;;
-(deifne *random-dependency-num* 0)
+(define *random-dependency-num* 0)
 (define (make-random-dependency)
   (let ((i *random-dependency-num*))
     (set! *random-dependency-num* (+ *random-dependency-num* 1))

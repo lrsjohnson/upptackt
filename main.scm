@@ -6,14 +6,16 @@
              (d (polygon-point r 3))
              (m1 (segment-midpoint (make-segment a b)))
              (m2 (segment-midpoint (make-segment c d))))
-            (figure r m1 m2)))
+    (figure r m1 m2)))
+
+
 
 (define (debug-figure-2)
   (let-geo* ((s (random-segment))
              (a (segment-endpoint-1 s))
              (b (segment-endpoint-2 s))
              (m (segment-midpoint s)))
-            (figure s a b m)))
+    (figure s a b m)))
 
 (define (demo-figure)
   (let-geo* ((t (random-equilateral-triangle))
@@ -34,25 +36,35 @@
 
              (cir (circle-from-points i1 a)))
 
-            (figure
-             (make-segment a b)
-             (make-segment b c)
-             (make-segment a c)
-             a b c l1 l2 l3 cir
-             i1 i2)))
+    (figure
+     (make-segment a b)
+     (make-segment b c)
+     (make-segment a c)
+     a b c l1 l2 l3 cir
+     i1 i2)))
+
+(define (circle-line-intersect-test)
+  (let-geo* ((cir (random-circle))
+             (rad (random-circle-radius cir))
+             (p (random-point-on-segment rad))
+             (l (random-line-through-point p))
+             (cd (intersect-circle-line cir l))
+             (c (car cd))
+             (d (cadr cd)))
+    (figure circle- rad p l c d)))
 
 (define (circle-test)
   (let-geo* ((a (random-point))
-         (b (random-point))
-         (d (distance a b))
-         (r (rand-range
-             (* d 0.5)
-             (* d 1)))
-         (c1 (circle a r))
-         (c2 (circle b r))
-         (cd (intersect-circles c1 c2))
-         (c (car cd))
-         (d (cadr cd)))
+             (b (random-point))
+             (d (distance a b))
+             (r (rand-range
+                 (* d 0.5)
+                 (* d 1)))
+             (c1 (circle a r))
+             (c2 (circle b r))
+             (cd (intersect-circles c1 c2))
+             (c (car cd))
+             (d (cadr cd)))
     (figure a b #|c1 c2|# c d
             (make-segment a c)
             (make-segment a d)
@@ -61,46 +73,46 @@
 
 (define (line-test)
   (let-geo* ((a (random-point))
-         (b (random-point))
-         (c (random-point))
-         (d (random-point))
-         (l1 (line-from-points a b))
-         (l2 (line-from-points c d))
-         (e (intersect-lines l1 l2))
-         (f (point-on-line l1))
-         (cir (circle-from-points e f)))
+             (b (random-point))
+             (c (random-point))
+             (d (random-point))
+             (l1 (line-from-points a b))
+             (l2 (line-from-points c d))
+             (e (intersect-lines l1 l2))
+             (f (point-on-line l1))
+             (cir (circle-from-points e f)))
     (figure a b c d l1 l2 e f cir)))
 
 (define (angle-test)
   (let-geo* ((a (random-point))
-         (b (random-point))
-         (c (random-point))
-         (a-1 (smallest-angle (angle-from-points a b c)))
-         (a-2 (smallest-angle (angle-from-points b c a)))
-         (a-3 (smallest-angle (angle-from-points c a b)))
-         (l1 (angle-bisector a-1))
-         (l2 (angle-bisector a-2))
-         (l3 (angle-bisector a-3))
-         (center-point
-          (intersect-lines (ray->line l1)
-                           (ray->line l2)))
-         (radius-line
-          (perpendicular (line-from-points b c)
-                         center-point))
-         (radius-point
-          (intersect-lines radius-line
-                           (line-from-points b c)))
-         (cir (circle-from-points
-               center-point
-               radius-point))
-         (pb1 (perpendicular-bisector
-               (make-segment a b)))
-         (pb2 (perpendicular-bisector
-               (make-segment b c)))
-         (pb-center (intersect-lines pb1 pb2))
-         (circum-cir (circle-from-points
-                      pb-center
-                      a)))
+             (b (random-point))
+             (c (random-point))
+             (a-1 (smallest-angle (angle-from-points a b c)))
+             (a-2 (smallest-angle (angle-from-points b c a)))
+             (a-3 (smallest-angle (angle-from-points c a b)))
+             (l1 (angle-bisector a-1))
+             (l2 (angle-bisector a-2))
+             (l3 (angle-bisector a-3))
+             (center-point
+              (intersect-lines (ray->line l1)
+                               (ray->line l2)))
+             (radius-line
+              (perpendicular (line-from-points b c)
+                             center-point))
+             (radius-point
+              (intersect-lines radius-line
+                               (line-from-points b c)))
+             (cir (circle-from-points
+                   center-point
+                   radius-point))
+             (pb1 (perpendicular-bisector
+                   (make-segment a b)))
+             (pb2 (perpendicular-bisector
+                   (make-segment b c)))
+             (pb-center (intersect-lines pb1 pb2))
+             (circum-cir (circle-from-points
+                          pb-center
+                          a)))
     (figure a b c cir a-1 a-2 a-3
             pb-center
             circum-cir
@@ -148,7 +160,7 @@
 
 (define (r)
   (for-each (lambda (figure)
-             (run-figure figure))
+              (run-figure figure))
             interesting-figures)
   'done)
 

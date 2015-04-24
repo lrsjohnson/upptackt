@@ -38,6 +38,7 @@
     (make-vec (- x2 x1)
               (- y2 y1))))
 
+;;; Direction from p1 to p2
 (define (direction-from-points p1 p2)
   (vec->direction (sub-points p2 p1)))
 

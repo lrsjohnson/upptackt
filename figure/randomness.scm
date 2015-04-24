@@ -169,10 +169,11 @@
         (radius (circle-radius circle))
         (angle (random-direction)))
     (let ((radius-vec
-           (scale-vec (unit-vec-from-direction)
+           (scale-vec (unit-vec-from-direction
+                       (random-direction))
                       radius)))
       (let ((radius-point (add-to-point center radius-vec)))
-        (segment center radius-point)))))
+        (make-segment center radius-point)))))
 
 (define (random-circle)
   (let ((pr1 (random-point))
