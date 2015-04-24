@@ -61,3 +61,37 @@
 (define (direction-parallel? d1 d2)
   (or (direction-equal? d1 d2)
       (direction-opposite? d1 d2)))
+
+;;;;;;;;;;;;;;;;;;;;;;;; Direction Intervals ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; "arc" of the circle from start-dir CCW to end-dir
+;;; "invalid" allows for "impossible" intervals
+(define-record-type <direction-interval>
+  (%make-direction-interval start-dir end-dir valid)
+  direction-interval?
+  (valid direction-interval-valid?)
+  (start-dir direction-interval-start)
+  (end-dir direction-interval-end))
+
+(define (make-direction-interval start-dir end-dir)
+  (%make-direction-interval start-dir end-dir #t))
+
+(define (within-direction-interval? dir dir-interval)
+  (let ((dir-start (direction-interval-start dir-interval))
+        (dir-end (direction-interval-end dir-interval)))
+    (<= (subtract-directions dir dir-start)
+        (subtract-directions dir-end dir-start))))
+
+#|
+ (define a (make-direction (* 7 (/ pi 4))))
+ (define b (make-direction (/ pi 2)))
+ (define c (make-direction (/ pi 4)))
+
+ (within-direction-interval? c
+  (make-direction-interval a b))
+ ;Value: #t
+
+ (within-direction-interval? c
+  (make-direction-interval b a))
+ ;Value: #f
+|#

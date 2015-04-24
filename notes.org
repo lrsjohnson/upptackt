@@ -59,6 +59,7 @@
     - [ ] Representing / Measuring Arcs
     - [ ] Circles, Radii, Diameter
     - [ ] Tangents, etc.
+    - [X] Direction Intervals
 *** TODO Element Representations [4/4]
     - [X] Consider point+direction for line vs. two points
     - [X] Angles as vertex point + two vecs
