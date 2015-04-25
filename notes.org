@@ -2,11 +2,16 @@
 ** Priorities / Short-term goals
 *** Construction from Constraints
     - [ ] Play with generating an isoceles triangle or Kite from its given
-      properties...
+      properties
     - [X] Regions for partial information
     - [X] Basic Linkages - Bar + Joint
+    - [ ] TMS for linkages / region propagators?
+    - [ ] Picking/dealing with Error Values
+    - [ ] Establishing topology first
+    - [ ] Ordering of value instantiation
+    - [ ] Constraint language
 *** Learning!
-    - [ ] Generalize and learn from basic examples
+    - [ ] Generalize and learn from basic examples analysis results
     - [ ] Experiment with finding minimal properties (Rhombus: only opposite
       angles equal sufficient? or pairs of edges equal?)
 *** Simplification of Discoveries
@@ -17,10 +22,12 @@
     - [X] Properly extract points, etc. from polygons (maybe polygon can be
       generalized to a "group" of elements)?
     - [X] Detect properties of square, rectangle, parallelogram, etc.
+    - [ ] Integrate names and dependencies in results.
 *** Metadata
     - [X] Persist metadata about operations.
     - [ ] Figure out randomness / overrides for constructions with intermediary
       steps
+    - [ ] Traversal / adjacency metadata
 *** Random Generation
     - [X] Randomly Generate square, rectangle, parallelogram, etc
     - [X] Distance to Line
