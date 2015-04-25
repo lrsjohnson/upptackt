@@ -10,6 +10,7 @@
     - [ ] Establishing topology first
     - [ ] Ordering of value instantiation
     - [ ] Constraint language
+    - [ ] Draw mechanisms
 *** Learning!
     - [ ] Generalize and learn from basic examples analysis results
     - [ ] Experiment with finding minimal properties (Rhombus: only opposite

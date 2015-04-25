@@ -30,3 +30,10 @@
 
 (define (assert boolean error-message)
   (if (not boolean) (error error-message)))
+
+(define (flatten list)
+  (cond ((null? list) '())
+        ((list? (car list))
+         (append (flatten (car list))
+                 (flatten (cdr list))))
+        (else (cons (car list) (flatten (cdr list))))))

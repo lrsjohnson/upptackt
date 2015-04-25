@@ -43,6 +43,9 @@
             "investigations"
             "manipulate/linkages"
             "manipulate/region"
+            "manipulate/constraints"
+            "manipulate/topology"
+            "manipulate/mechanism"
             "main"))
 (initialize-scheduler)
 

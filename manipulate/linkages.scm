@@ -341,6 +341,11 @@
 (define (m:joint-dir-2-name joint)
   (m:element-name (m:joint-dir-2 joint)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Keys for Names ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:make-bar-name-key p1-name p2-name)
+  (symbol 'm:bar: p1-name ': p2-name))
+
 ;;;;;;;;;;;;;;;;;; Table and operations using names ;;;;;;;;;;;;;;;;;;
 
 (define (m:identify-joint-bar-by-name joint bar)
@@ -366,9 +371,6 @@
           (else (error "Bar can't be identified with joint - no vertex"
                        vertex-name)))))
 
-(define (m:make-bar-name-key p1-name p2-name)
-  (symbol 'm:bar: p1-name ': p2-name))
-
 (define (m:make-bars-by-name-table bars)
   (let ((table (make-key-weak-eqv-hash-table)))
     (for-each (lambda (bar)
@@ -385,9 +387,6 @@
       (hash-table/get table
                       (m:make-bar-name-key p2-name p1-name)
                       #f)))
-
-(define (m:make-vertex-name-key vertex-name)
-  (list 'm:vertex vertex-name))
 
 (define (m:make-joints-by-vertex-name-table joints)
   (let ((table (make-key-weak-eq-hash-table)))
@@ -454,7 +453,7 @@
 
 ;;;;;;;;;; Assembling named joints into diagrams ;;;;;;;
 
-(define (m:assemble-diagram bars joints)
+(define (m:assemble-linkages bars joints)
   (let ((bar-table (m:make-bars-by-name-table bars)))
     (for-each
      (lambda (joint)
@@ -484,7 +483,7 @@
          (j2 (m:make-named-joint 'c 'b 'a))
          (j3 (m:make-named-joint 'a 'c 'b)))
 
-     (m:assemble-diagram
+     (m:assemble-linkages
       (list b1 b2 b3)
       (list j2 j3 j1))
 
