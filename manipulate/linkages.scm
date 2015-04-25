@@ -10,6 +10,7 @@
          (m:bar-length s2))
    (m:instantiate-point (m:bar-p2 s1) 4 0 'bar-2-endpoint)
    (m:instantiate-point (m:bar-p1 s1) 2 -2 'bar-2-endpoint)
+   (m:identify-out-of-arm-1 j s1)
    (m:identify-out-of-arm-2 j s2)
    (run)
    (m:examine-point (m:bar-p2 s2)))
@@ -34,10 +35,11 @@
 (propagatify fix-angle-0-2pi)
 
 (define (ce:reverse-direction dir-cell)
-  (let-cells (output-cell two-pi)
-    ((constant (* 2 pi)) two-pi)
-    (c:- two-pi dir-cell output-cell)
-    output-cell))
+  (let-cells (output-cell pi-cell)
+    ((constant pi) pi-cell)
+    (e:conditional (e:< dir-cell pi-cell)
+                   (e:+ dir-cell pi-cell)
+                   (e:- dir-cell pi-cell))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Vec ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-record-type <m:vec>
@@ -62,21 +64,49 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Point ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-record-type <m:point>
-  (%m:make-point x y)
+  (%m:make-point x y region)
   m:point?
   (x m:point-x)
-  (y m:point-y))
+  (y m:point-y)
+  (region m:point-region))
 
 ;;; Allocate cells for a point
 (define (m:make-point)
-  (let-cells (x y)
-    (%m:make-point x y)))
+  (let-cells (x y region)
+    (m:x-y->region-propagator x y region)
+    (m:region->x-y-propagator region x y)
+    (%m:make-point x y region)))
+
+(define (m:x-y->region-propagator x y region)
+  (propagator (list x y)
+    (lambda ()
+      (let ((x-value (content x))
+            (y-value (content y)))
+        (if (and (not (nothing? x-value))
+                 (not (nothing? y-value)))
+            (add-content
+             region
+             (m:make-singular-point-set (make-point x-value y-value)))
+            'done)))))
+
+(define (m:region->x-y-propagator region x y)
+  (propagator (list region)
+    (lambda ()
+      (let ((region-value (content region)))
+        (if (m:singular-point-set? region-value)
+            (let ((p (m:singular-point-set-point region-value)))
+              (add-content x (point-x p))
+              (add-content y (point-y p)))
+            'done)))))
 
 (define (m:instantiate-point p x y premise)
   (m:instantiate (m:point-x p)
                  x premise)
   (m:instantiate (m:point-y p)
-                 y premise))
+                 y premise)
+  (m:instantiate (m:point-region p)
+                 (m:make-singular-point-set (make-point x y))
+                 premise))
 
 (define (m:examine-point p)
   (list 'm:point
@@ -85,18 +115,19 @@
 
 ;;; Set p1 and p2 to be equal
 (define (m:identify-points p1 p2)
-  (c:id (m:point-x p1)
-        (m:point-x p2))
-  (c:id (m:point-y p1)
-        (m:point-y p2)))
+  (for-each (lambda (getter)
+              (c:id (getter p1)
+                    (getter p2)))
+            (list m:point-x m:point-y m:point-region)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Bar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-record-type <m:bar>
-  (%m:make-bar p1 p2 vec)
+  (%m:make-bar p1 p2 vec min-dir)
   m:bar?
   (p1 m:bar-p1)
   (p2 m:bar-p2)
-  (vec m:bar-vec))
+  (vec m:bar-vec)
+  (min-dir m:bar-min-dir))
 
 (define (m:bar-direction bar)
   (m:vec-direction (m:bar-vec bar)))
@@ -106,16 +137,49 @@
 
 ;;; Allocate cells and wire up a bar
 (define (m:make-bar)
-  (let ((p1 (m:make-point))
-        (p2 (m:make-point)))
-   (let ((v (m:make-vec)))
-     (c:+ (m:point-x p1)
-          (m:vec-dx v)
-          (m:point-x p2))
-     (c:+ (m:point-y p1)
-          (m:vec-dy v)
-          (m:point-y p2))
-     (%m:make-bar p1 p2 v))))
+  (let-cells (min-dir)
+   (let ((p1 (m:make-point))
+         (p2 (m:make-point)))
+     (let ((v (m:make-vec)))
+       (c:+ (m:point-x p1)
+            (m:vec-dx v)
+            (m:point-x p2))
+       (c:+ (m:point-y p1)
+            (m:vec-dy v)
+            (m:point-y p2))
+       (let ((bar (%m:make-bar p1 p2 v min-dir)))
+         (m:p1->p2-bar-propagator p1 p2 bar)
+         bar)))))
+
+(define (m:p1->p2-bar-propagator p1 p2 bar)
+  (let ((p1x (m:point-x p1))
+        (p1y (m:point-y p1))
+        (p2r (m:point-region p2))
+        (length (m:bar-length bar))
+        (dir (m:bar-direction bar))
+        (min-dir (m:bar-min-dir bar)))
+    (propagator (list p1x p1y length dir min-dir)
+      (lambda ()
+        (let ((x-value (content p1x))
+              (y-value (content p1y))
+              (len-value (content length))
+              (dir-value (content dir))
+              (min-dir-value (content min-dir)))
+          (if (or (nothing? x-value)
+                  (nothing? y-value))
+              'done
+              (let ((vertex (make-point x-value y-value)))
+                (cond ((and (not (nothing? len-value))
+                            (not (nothing? min-dir-value)))
+                       (add-content
+                        p2r
+                        (m:make-arc
+                         vertex len-value
+                         min-dir-value)))
+                      ((not (nothing? dir-value))
+                       (add-content
+                        p2r
+                        (m:make-ray vertex (make-direction dir-value))))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Joint  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Direction-2 is counter-clockwise from direction-1 by theta
@@ -141,29 +205,56 @@
        theta)
       (%m:make-joint vertex dir-1 dir-2 theta))))
 
-(define (m:identify-out-of joint arm-getter bar)
+
+(define (m:propagate-to-min-dir
+         min-dir-value-cell
+         bar-min-dir-interval-cell)
+  (propagator (list min-dir-value-cell)
+    (lambda ()
+      (let ((min-dir-value (content min-dir-value-cell)))
+        (if (nothing? min-dir-value)
+            'done
+            (add-content
+             bar-min-dir-interval-cell
+             (make-semi-circle-direction-interval
+              (make-direction min-dir-value))))))))
+
+;;; TOOD: Abstract?
+(define (m:identify-out-of-arm-1 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p1 bar))
-  (c:id (arm-getter joint)
-        (m:bar-direction bar)))
-
-(define (m:identify-into joint arm-getter bar)
-  (m:identify-points (m:joint-vertex joint)
-                     (m:bar-p2 bar))
-  (c:id (arm-getter joint)
-        (ce:reverse-direction (m:bar-direction bar))))
-
-(define (m:identify-into-arm-1 joint bar)
-  (m:identify-into joint m:joint-dir-1 bar))
-
-(define (m:identify-out-of-arm-1 joint bar)
-  (m:identify-out-of joint m:joint-dir-1 bar))
-
-(define (m:identify-into-arm-2 joint bar)
-  (m:identify-into joint m:joint-dir-2 bar))
+  (c:id (m:joint-dir-1 joint)
+        (m:bar-direction bar))
+  (m:propagate-to-min-dir
+   (ce:reverse-direction (m:joint-dir-2 joint))
+   (m:bar-min-dir bar)))
 
 (define (m:identify-out-of-arm-2 joint bar)
-  (m:identify-out-of joint m:joint-dir-2 bar))
+  (m:identify-points (m:joint-vertex joint)
+                     (m:bar-p1 bar))
+  (c:id (m:joint-dir-2 joint)
+        (m:bar-direction bar))
+  (m:propagate-to-min-dir
+   (m:joint-dir-1 joint)
+   (m:bar-min-dir bar)))
+
+(define (m:identify-into-arm-1 joint bar)
+  (m:identify-points (m:joint-vertex joint)
+                     (m:bar-p2 bar))
+  (c:id (m:joint-dir-1 joint)
+        (ce:reverse-direction (m:bar-direction bar)))
+  (m:propagate-to-min-dir
+   (m:joint-dir-2 joint)
+   (m:bar-min-dir bar)))
+
+(define (m:identify-into-arm-2 joint bar)
+  (m:identify-points (m:joint-vertex joint)
+                     (m:bar-p2 bar))
+  (c:id (m:joint-dir-2 joint)
+        (ce:reverse-direction (m:bar-direction bar)))
+  (m:propagate-to-min-dir
+   (ce:reverse-direction (m:joint-dir-1 joint))
+   (m:bar-min-dir bar)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -190,8 +281,6 @@
 
 (define (m:bar-p2-name bar)
   (m:element-name (m:bar-p2 bar)))
-
-
 
 (define (m:make-named-joint arm-1-name vertex-name arm-2-name)
   (let ((joint (m:make-joint)))
@@ -340,3 +429,29 @@
               (m:identify-joint-bar-by-name joint bar)))
                    (list dir-1-name dir-2-name))))
      joints)))
+
+#|
+ ;; Simple example of "solving for the third point"
+ (begin
+   (initialize-scheduler)
+   (let ((b1 (m:make-named-bar 'a 'c))
+         (b2 (m:make-named-bar 'b 'c))
+         (b3 (m:make-named-bar 'a 'b))
+         (j1 (m:make-named-joint 'b 'a 'c))
+         (j2 (m:make-named-joint 'c 'b 'a))
+         (j3 (m:make-named-joint 'a 'c 'b)))
+
+     (m:assemble-diagram
+      (list b1 b2 b3)
+      (list j2 j3 j1))
+
+     (m:initialize-joint j1)
+     (c:id (m:bar-length b1) (m:bar-length b2))
+
+     (m:instantiate (m:bar-length b3) 6 'b3-len)
+     (m:instantiate (m:bar-length b1) 5 'b1-len)
+     (run)
+     (m:examine-point (m:bar-p2 b1))))
+ ;Value: (m:point 3 4)
+
+|#

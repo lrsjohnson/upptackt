@@ -23,8 +23,38 @@
 (define (m:make-point-set points)
   (%m:make-point-set points))
 
+(define (m:make-singular-point-set point)
+  (m:make-point-set (list point)))
+
 (define (m:in-point-set? p point-set)
   (pair? ((member-procedure point-equal?) p (m:point-set-points point-set))))
+
+(define (m:singular-point-set? x)
+  (and (m:point-set? x)
+       (= 1 (length (m:point-set-points x)))))
+
+(define (m:singular-point-set-point ps)
+  (if (not (m:singular-point-set? ps))
+      (error "Not a singular point set"))
+  (car (m:point-set-points ps)))
+
+(define (m:point-sets-equivalent? ps1 ps2)
+  (define delp (delete-member-procedure list-deletor point-equal?))
+  (define memp (member-procedure point-equal?))
+  (let lp ((points-1 (m:point-set-points ps1))
+           (points-2 (m:point-set-points ps2)))
+    (if (null? points-1)
+        (null? points-2)
+        (let ((p1 (car points-1)))
+          (if (memp p1 points-2)
+              (lp (cdr points-1)
+                  (delp p1 points-2))
+              #f)))))
+
+(define (m:print-point-set ps)
+  (cons 'm:point-set
+        (map (lambda (p) (list 'point (point-x p) (point-y p)))
+             (m:point-set-points ps))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Rays ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -45,6 +75,18 @@
 (define (m:p2-on-ray ray)
   (add-to-point (m:ray-endpoint ray)
                 (unit-vec-from-direction (m:ray-direction ray))))
+
+(define (m:rays-equivalent? ray1 ray2)
+  (and (point-equal? (m:ray-endpoint ray1)
+                     (m:ray-endpoint ray2))
+       (direction-equal? (m:ray-direction ray1)
+                         (m:ray-direction ray2))))
+
+(define (m:print-ray ray)
+  (let ((endpoint (m:ray-endpoint ray)))
+    `(m:ray (,(point-x endpoint)
+             ,(point-y endpoint))
+            ,(direction-theta (m:ray-direction ray)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Semi Circle ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -71,12 +113,33 @@
             dir
             (m:arc-dir-interval arc))))))
 
+(define (m:arcs-equivalent? arc1 arc2)
+  (and (point-equal? (m:arc-center arc1)
+                     (m:arc-center arc2))
+       (close-enuf? (m:arc-radius arc1)
+                    (m:arc-radius arc2))
+       (direction-interval-equal?
+        (m:arc-dir-interval arc1)
+        (m:arc-dir-interval arc2))))
+
+(define (m:print-arc arc)
+  (let ((center-point (m:arc-center arc))
+        (dir-interval (m:arc-dir-interval arc)))
+    `(m:arc (,(point-x center-point)
+             ,(point-y center-point))
+            ,(m:arc-radius arc)
+            (,(direction-theta (direction-interval-start dir-interval))
+             ,(direction-theta (direction-interval-end dir-interval))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;; Contradiction Objects ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <m:region-contradiction>
   (m:make-region-contradiction error-size)
   m:region-contradiction?
   (error-size m:region-contradiction-error))
+
+;;; TODO: Maybe differeniate by error values
+(define (m:region-contradictions-equivalent? rc1 rc2) #t)
 
 ;;;;;;;;;;;;;;;;;;;;;;; Specific Intersections ;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -202,6 +265,25 @@
 (defhandler m:intersect-regions (lambda (a b) a) m:region-contradiction? any?)
 (defhandler m:intersect-regions (lambda (a b) b) any? m:region-contradiction?)
 
+;;;;;;;;;;;;;;;;;;;;;;;; Generic Equivalency ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define m:region-equivalent?
+  (make-generic-operation 2 'm:region-equivalent? (lambda (a b) #f)))
+
+(defhandler m:region-equivalent?
+  m:point-sets-equivalent? m:point-set? m:point-set?)
+
+(defhandler m:region-equivalent?
+  m:rays-equivalent? m:ray? m:ray?)
+
+(defhandler m:region-equivalent?
+  m:arcs-equivalent? m:arc? m:arc?)
+
+(defhandler m:region-equivalent?
+  m:region-contradictions-equivalent?
+  m:region-contradiction?
+  m:region-contradiction?)
+
 ;;;;;;;;;;;;;;;;;;; Interface to Propagator System ;;;;;;;;;;;;;;;;;;;
 
 (define (m:region? x)
@@ -210,8 +292,6 @@
       (m:arc? x)
       (m:region-contradiction? x)))
 
-(define m:region-equivalent?
-  (make-generic-operation 2 'm:region-equivalent? (lambda (a b) #f)))
 
 (defhandler equivalent? m:region-equivalent? m:region? m:region?)
 
