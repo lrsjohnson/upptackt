@@ -34,12 +34,20 @@
 
 (propagatify fix-angle-0-2pi)
 
-(define (ce:reverse-direction dir-cell)
-  (let-cells (output-cell pi-cell)
+(define (p:reverse-direction dir-cell output-cell)
+  (let-cells (pi-cell)
     ((constant pi) pi-cell)
-    (e:conditional (e:< dir-cell pi-cell)
+    (p:conditional (e:< dir-cell pi-cell)
                    (e:+ dir-cell pi-cell)
-                   (e:- dir-cell pi-cell))))
+                   (e:- dir-cell pi-cell)
+                   output-cell)
+    output-cell))
+
+(define (ce:reverse-direction input-cell)
+  (let-cells (output-cell)
+    (p:reverse-direction input-cell output-cell)
+    (p:reverse-direction output-cell input-cell)
+    output-cell))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Vec ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-record-type <m:vec>
