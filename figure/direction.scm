@@ -44,8 +44,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (direction-equal? d1 d2)
-  (close-enuf? (direction-theta d1)
-               (direction-theta d2)))
+  (or (close-enuf? (direction-theta d1)
+                   (direction-theta d2))
+      (close-enuf? (direction-theta (reverse-direction d1))
+                   (direction-theta (reverse-direction d2)))))
 
 (define (direction-opposite? d1 d2)
   (close-enuf? (direction-theta d1)
