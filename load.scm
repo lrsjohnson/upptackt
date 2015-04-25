@@ -22,6 +22,7 @@
             "animation"
             "figure/line"
             "figure/direction"
+            "figure/direction-interval"
             "figure/vec"
             "figure/measurements"
             "figure/angle"
