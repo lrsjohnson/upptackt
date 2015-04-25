@@ -149,6 +149,7 @@
             (m:point-y p2))
        (let ((bar (%m:make-bar p1 p2 v min-dir)))
          (m:p1->p2-bar-propagator p1 p2 bar)
+         (m:p2->p1-bar-propagator p2 p1 bar)
          bar)))))
 
 (define (m:p1->p2-bar-propagator p1 p2 bar)
@@ -180,6 +181,40 @@
                        (add-content
                         p2r
                         (m:make-ray vertex (make-direction dir-value))))))))))))
+
+(define (m:p2->p1-bar-propagator p2 p1 bar)
+  (let ((p2x (m:point-x p2))
+        (p2y (m:point-y p2))
+        (p1r (m:point-region p1))
+        (length (m:bar-length bar))
+        (dir (m:bar-direction bar))
+        (min-dir (m:bar-min-dir bar)))
+    (propagator (list p2x p2y length dir min-dir)
+      (lambda ()
+        (let ((x-value (content p2x))
+              (y-value (content p2y))
+              (len-value (content length))
+              (dir-value (content dir))
+              (min-dir-value (content min-dir)))
+          (if (or (nothing? x-value)
+                  (nothing? y-value))
+              'done
+              (let ((vertex (make-point x-value y-value)))
+                (cond ((and (not (nothing? len-value))
+                            (not (nothing? min-dir-value)))
+                       (add-content
+                        p1r
+                        (m:make-arc
+                         vertex len-value
+                         (reverse-direction-interval
+                          min-dir-value))))
+                      ((not (nothing? dir-value))
+                       (add-content
+                        p1r
+                        (m:make-ray
+                         vertex
+                         (reverse-direction
+                          (make-direction dir-value)))))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Joint  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Direction-2 is counter-clockwise from direction-1 by theta
@@ -241,8 +276,8 @@
 (define (m:identify-into-arm-1 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
-  (c:id (m:joint-dir-1 joint)
-        (ce:reverse-direction (m:bar-direction bar)))
+  (c:id (ce:reverse-direction (m:joint-dir-1 joint))
+        (m:bar-direction bar))
   (m:propagate-to-min-dir
    (m:joint-dir-2 joint)
    (m:bar-min-dir bar)))
@@ -250,8 +285,8 @@
 (define (m:identify-into-arm-2 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
-  (c:id (m:joint-dir-2 joint)
-        (ce:reverse-direction (m:bar-direction bar)))
+  (c:id (ce:reverse-direction (m:joint-dir-2 joint))
+        (m:bar-direction bar))
   (m:propagate-to-min-dir
    (ce:reverse-direction (m:joint-dir-1 joint))
    (m:bar-min-dir bar)))

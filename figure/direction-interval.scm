@@ -57,6 +57,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define (reverse-direction-interval di)
+  (make-direction-interval
+   (reverse-direction (direction-interval-start di))
+   (reverse-direction (direction-interval-end di))))
+
 (define (intersect-dir-intervals di-1 di-2)
   (if (or (direction-interval-invalid? di-1)
           (direction-interval-invalid? di-2))
