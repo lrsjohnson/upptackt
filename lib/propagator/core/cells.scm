@@ -2,18 +2,18 @@
 ;;; Copyright 2009 Massachusetts Institute of Technology.
 ;;; ----------------------------------------------------------------------
 ;;; This file is part of Propagator Network Prototype.
-;;; 
+;;;
 ;;; Propagator Network Prototype is free software; you can
 ;;; redistribute it and/or modify it under the terms of the GNU
 ;;; General Public License as published by the Free Software
 ;;; Foundation, either version 3 of the License, or (at your option)
 ;;; any later version.
-;;; 
+;;;
 ;;; Propagator Network Prototype is distributed in the hope that it
 ;;; will be useful, but WITHOUT ANY WARRANTY; without even the implied
 ;;; warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;;; See the GNU General Public License for more details.
-;;; 
+;;;
 ;;; You should have received a copy of the GNU General Public License
 ;;; along with Propagator Network Prototype.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
@@ -24,10 +24,10 @@
 ;;;; Merging
 
 ;;; My original thought was that merge answers the question:
-;;; 
+;;;
 ;;; "What is the least-commitment information structure that captures
 ;;; all the knowledge in these two information structures?"
-;;; 
+;;;
 ;;; That was a pretty good place to start, but it turns out not to be
 ;;; quite adequate.  What's the problem with it, you might ask?  The
 ;;; problem is that this question cannot have any side-effects.  But
@@ -38,15 +38,15 @@
 ;;; have to merge cells, and the only way to do that is to attach
 ;;; identity propagators between them, which is most definitely an
 ;;; effect.
-;;; 
+;;;
 ;;; After long thought, I understand that the real question that a
 ;;; cell asks (whether or not "merge" is a good name for the function
 ;;; that computes the answer) is:
-;;; 
+;;;
 ;;; "What do I need to do to the network in order to make it reflect
 ;;; the discovery that these two information structures are about the
 ;;; same object?"
-;;; 
+;;;
 ;;; In the common case, the answer to this question is going to amount
 ;;; to just an answer to the previous question, namely "You must
 ;;; record that that object is best described by this information
@@ -62,13 +62,13 @@
 ;;; record the following nogood set."  Or, with carrying cells, the
 ;;; answer can be "The object is described by the following
 ;;; information structure, and you should identify these two cells."
-;;; 
+;;;
 ;;; The advantage of thinking about it this way is that merge can be a
 ;;; pure function, which is allowed to return requests for these
 ;;; effects in addition to refined information structures.  Then places
 ;;; where merge is called recursively have a chance to intercept and
 ;;; modify these requests for effects (for example noting that they
-;;; must be considered conditional on certain premises), and only 
+;;; must be considered conditional on certain premises), and only
 ;;; add-content actually executes the effects that come to it.
 
 ;;;; Propagator cells
@@ -85,9 +85,9 @@
 	  (cond ((eq? new-content content) 'ok)
 		((contradictory? new-content)
 		 (error "Ack! Inconsistency!"
-			(name-stack whoiam) increment)
+			(name-stack whoiam) content 'vs.-new: increment)
 		 'this-is-not-a-tail-call)
-		(else 
+		(else
 		 (set! content new-content)
 		 ;; A debugging aid.
 		 (augment-history! whoiam informant new-content
@@ -124,7 +124,7 @@
      (lambda (self . args)
        (apply application self args))
      (%make-cell
-      (if (default-object? merger)	;Sussman's crock escape hatch. 
+      (if (default-object? merger)	;Sussman's crock escape hatch.
 	  merge
 	  merger))))
   (eq-put! me 'cell #t)
@@ -204,7 +204,7 @@
   (make-generic-operator 1 'contradictory?
    (lambda (thing) (eq? thing the-contradiction))))
 
-(define execute-effect 
+(define execute-effect
   (make-generic-operator 1 'execute-effect (lambda (effect) (effect))))
 
 ;;; Merging utilities
