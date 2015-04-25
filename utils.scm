@@ -37,3 +37,6 @@
          (append (flatten (car list))
                  (flatten (cdr list))))
         (else (cons (car list) (flatten (cdr list))))))
+
+(define ((notp predicate) x)
+  (not (predicate x)))

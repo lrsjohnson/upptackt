@@ -332,6 +332,12 @@
     (m:name-element! (m:joint-dir-2 joint) arm-2-name)
     joint))
 
+(define (m:joint-name joint)
+  (m:make-joint-name-key
+   (m:joint-dir-1-name joint)
+   (m:joint-vertex-name joint)
+   (m:joint-dir-2-name joint)))
+
 (define (m:joint-vertex-name joint)
   (m:element-name (m:joint-vertex joint)))
 
@@ -345,6 +351,9 @@
 
 (define (m:make-bar-name-key p1-name p2-name)
   (symbol 'm:bar: p1-name ': p2-name))
+
+(define (m:make-joint-name-key dir-1-name vertex-name dir-2-name)
+  (symbol 'm:joint: dir-1-name ': vertex-name ': dir-2-name))
 
 ;;;;;;;;;;;;;;;;;; Table and operations using names ;;;;;;;;;;;;;;;;;;
 
@@ -413,19 +422,28 @@
 
 ;;;;;;;;;; Determining if linkages are specified or anchored   ;;;;;;;
 
+(define (m:point-specified? p)
+  (and (m:specified? (m:point-x p))
+       (m:specified? (m:point-y p))))
+
 (define (m:bar-p1-specified? bar)
-  (and (m:specified? (m:point-x (m:bar-p1 bar)))
-       (m:specified? (m:point-y (m:bar-p1 bar)))))
+  (m:point-specified? (m:bar-p1 bar)))
 
 (define (m:bar-p2-specified? bar)
-  (and (m:specified? (m:point-x (m:bar-p2 bar)))
-       (m:specified? (m:point-y (m:bar-p2 bar)))))
+  (m:point-specified? (m:bar-p2 bar)))
 
 (define (m:bar-anchored? bar)
   (or (m:bar-p1-specified? bar)
       (m:bar-p2-specified? bar)))
 
+(define (m:bar-directioned? bar)
+  (and (m:bar-anchored? bar)
+       (m:specified? (m:bar-direction bar))))
+
 (define (m:bar-specified? bar)
+  (and (m:specified? (m:bar-length bar))))
+
+(define (m:bar-fully-specified? bar)
   (and (m:bar-p1-specified? bar)
        (m:bar-p2-specified? bar)))
 
@@ -438,14 +456,35 @@
   (m:specified? (m:joint-dir-2 joint)))
 
 (define (m:joint-anchored? joint)
-  (or (m:joint-dir-1-specified? joint)
-      (m:joint-dir-2-specified? joint)))
+  (and
+   (or (m:joint-dir-1-specified? joint)
+       (m:joint-dir-2-specified? joint))))
 
 (define (m:joint-specified? joint)
-  (and (m:joint-dir-1-specified? joint)
-       (m:joint-dir-2-specified? joint)))
+  (m:specified? (m:joint-theta joint)))
+
+(define (m:joint-fully-specified? joint)
+  (and
+   (m:point-specified? (m:joint-vertex joint))
+   (m:joint-dir-1-specified? joint)
+   (m:joint-dir-2-specified? joint)))
 
 ;;;;;;;;;;; Specifying Values ;;;;;;;
+
+(define (m:random-joint-theta)
+  (internal-rand-range
+   (* 1 (/ pi 10))
+   (* 4 (/ pi 10))))
+
+(define (m:random-bar-length)
+  (internal-rand-range 0.1 1.9))
+
+(define (m:initialize-bar bar)
+  (m:instantiate-point (m:bar-p1 bar) 0 0 'initialize)
+  (m:instantiate (m:bar-direction bar) 0 'initialize)
+  (let ((v (m:random-bar-length)))
+    (pp `(initializing-bar ,(m:bar-name bar) ,v))
+    (m:instantiate (m:bar-length bar) v 'initialize)))
 
 (define (m:initialize-joint joint)
   (m:instantiate-point (m:joint-vertex joint) 0 0 'initialize)
