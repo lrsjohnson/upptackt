@@ -1,6 +1,20 @@
-;;; Constraints between directions and coordinates
+;;; linkages.scm ---  Bar/Joint propagators between directions and coordinates
 
-;;; Example
+;;; Commentary:
+
+;; Ideas:
+;; - Join "Identify" bars and joints to build mechanism
+;;   versions of diagrams
+;; - Use propagator system to deal with partial information
+;; - Used Regions for partial info about points,
+;; - Direction Intervals for partial info about joint directions.
+
+;; Future:
+;; - Other Linkages?
+;; - Draw partially assembled linkages
+
+;;; Example:
+
 #|
  (let* ((s1 (m:make-bar))
         (s2 (m:make-bar))
@@ -15,6 +29,8 @@
    (run)
    (m:examine-point (m:bar-p2 s2)))
 |#
+
+;;; Code:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; TMS Interfaces ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

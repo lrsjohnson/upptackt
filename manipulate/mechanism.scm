@@ -4,10 +4,11 @@
 
 ;; Ideas:
 ;; - Grouping of bars and joints
+;; - Integrate with establishing toplogy
 
 ;; Future:
 ;; - Also specify constraints with it
-;; - Integrate with establishing toplogy
+;; - Convert to Diagram
 
 ;;; Code:
 
@@ -37,7 +38,9 @@
   (every m:bar-fully-specified? (m:mechanism-bars mechanism))
   (every m:joint-fully-specified? (m:mechanism-joints mechanism)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Build ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Specify ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Should these be in Linkages?
 
 (define (m:specify-bar bar)
   (let ((v (m:random-bar-length)))
@@ -59,11 +62,11 @@
           (directioned-bars (filter m:bar-directioned? bars))
           (anchored-joints (filter m:joint-anchored? joints)))
       (cond
-       ((not (null? anchored-bars))
-        (m:specify-bar (car anchored-bars))
-        #t)
        ((not (null? anchored-joints))
         (m:specify-joint (car anchored-joints))
+        #t)
+       ((not (null? anchored-bars))
+        (m:specify-bar (car anchored-bars))
         #t)
        ((not (null? directioned-bars))
         (m:specify-bar (car directioned-bars))
@@ -71,6 +74,8 @@
        (else
         (m:initialize-bar (car bars))
         #t)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Build ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:build-mechanism mechanism)
   (m:assemble-linkages (m:mechanism-bars mechanism)
@@ -83,11 +88,10 @@
             (error "Couldn't find anything to specify."))
         'mechanism-built)))
 
-
 #|
 (begin
   (initialize-scheduler)
   (m:build-mechanism
    (m:mechanism
-    (m:establish-polygon-topology 'a 'b 'c 'd))))
+    (m:establish-polygon-topology 'a 'b 'c))))
 |#
