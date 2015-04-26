@@ -89,9 +89,39 @@
         'mechanism-built)))
 
 #|
-(begin
+ (begin
+   (initialize-scheduler)
+   (m:build-mechanism
+    (m:mechanism
+     (m:establish-polygon-topology 'a 'b 'c))))
+|#
+
+;;;;;;;;;;;;;;;;;;;;;;;; Conversion to Figure ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:mechanism->figure m)
+  (if (not (m:mechanism-fully-specified? m))
+      (error "Can only convert fully specified mechanisms to Figures."))
+  (let ((points
+         (map (lambda (joint)
+                       (m:point->figure-point (m:joint-vertex joint)))
+              (m:mechanism-joints m)))
+        (segments (map m:bar->figure-segment (m:mechanism-bars m)))
+        (angles (map m:joint->figure-angle (m:mechanism-joints m))))
+    (apply figure (append points segments angles))))
+
+#|
+(let lp ()
   (initialize-scheduler)
-  (m:build-mechanism
-   (m:mechanism
-    (m:establish-polygon-topology 'a 'b 'c))))
+  (let ((m (m:mechanism
+            (m:establish-polygon-topology 'a 'b 'c 'd))))
+    (c:id (m:bar-length (car (m:mechanism-bars m)))
+          (m:bar-length (cadr (m:mechanism-bars m))))
+    (c:id (m:bar-length (car (m:mechanism-bars m)))
+          (m:bar-length (caddr (m:mechanism-bars m))))
+    (c:id (m:bar-length (car (m:mechanism-bars m)))
+          (m:bar-length (cadddr (m:mechanism-bars m))))
+    (m:build-mechanism m)
+    (let ((f (m:mechanism->figure m)))
+      (draw-figure f c)
+      (pp (analyze-figure f)))))
 |#

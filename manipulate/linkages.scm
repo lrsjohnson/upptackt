@@ -176,6 +176,7 @@
          (m:p2->p1-bar-propagator p2 p1 bar)
          bar)))))
 
+;;; TODO: Combine p1->p2 / p2->p1
 (define (m:p1->p2-bar-propagator p1 p2 bar)
   (let ((p1x (m:point-x p1))
         (p1y (m:point-y p1))
@@ -436,11 +437,13 @@
 (define (m:joint-theta-specified? joint)
   (m:specified? (m:joint-theta joint)))
 
-;;;;;;;;;; Determining if linkages are specified or anchored   ;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;; Point Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:point-specified? p)
   (and (m:specified? (m:point-x p))
        (m:specified? (m:point-y p))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Bar Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:bar-p1-specified? bar)
   (m:point-specified? (m:bar-p1 bar)))
@@ -463,7 +466,7 @@
   (and (m:bar-p1-specified? bar)
        (m:bar-p2-specified? bar)))
 
-;;; Joints
+;;;;;;;;;;;;;;;;;;;;;;;;;; Joint Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:joint-dir-1-specified? joint)
   (m:specified? (m:joint-dir-1 joint)))
@@ -485,7 +488,7 @@
    (m:joint-dir-1-specified? joint)
    (m:joint-dir-2-specified? joint)))
 
-;;;;;;;;;;; Specifying Values ;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;; Specifying Values ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:random-joint-theta)
   (internal-rand-range
@@ -552,3 +555,28 @@
  ;Value: (m:point 3 4)
 
 |#
+
+;;;;;;;;;;;;;;;;;;; Converstion to Figure Elements ;;;;;;;;;;;;;;;;;;;
+
+;;; TODO: Extract dependencies from TMS? or set names
+
+(define (m:point->figure-point m-point)
+  (if (not (m:point-specified? m-point))
+      (error "Cannot convert non-specified point to figure point"))
+  (let ((p (make-point (m:examine-cell (m:point-x m-point))
+                       (m:examine-cell (m:point-y m-point)))))
+    (set-element-name! p (m:element-name m-point))
+    p))
+
+(define (m:bar->figure-segment m-bar)
+  (if (not (m:bar-fully-specified? m-bar))
+      (error "Cannot convert non-fully specified bar to segment"))
+  (make-segment (m:point->figure-point (m:bar-p1 m-bar))
+                (m:point->figure-point (m:bar-p2 m-bar))))
+
+(define (m:joint->figure-angle m-joint)
+  (if (not (m:joint-fully-specified? m-joint))
+      (error "Cannot convert non-fully specified joint to angle"))
+  (make-angle (make-direction (m:examine-cell (m:joint-dir-2 m-joint)))
+              (m:point->figure-point (m:joint-vertex m-joint))
+              (make-direction (m:examine-cell (m:joint-dir-1 m-joint)))))
