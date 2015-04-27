@@ -61,8 +61,21 @@
       #f
       (let ((dir-start (direction-interval-start dir-interval))
             (dir-end (direction-interval-end dir-interval)))
-        (<= (subtract-directions dir dir-start)
-            (subtract-directions dir-end dir-start)))))
+        (or (direction-equal? dir dir-start)
+            (direction-equal? dir dir-end)
+            (<= (subtract-directions dir dir-start)
+                (subtract-directions dir-end dir-start))))))
+
+(define (within-direction-interval-non-inclusive? dir dir-interval)
+  (if (direction-interval-invalid? dir-interval)
+      #f
+      (let ((dir-start (direction-interval-start dir-interval))
+            (dir-end (direction-interval-end dir-interval)))
+        (and (not (direction-equal? dir dir-start))
+             (not (direction-equal? dir dir-end))
+            (<= (subtract-directions dir dir-start)
+                (subtract-directions dir-end dir-start))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -74,8 +87,8 @@
 ;;; Rotate CCW by radians
 (define (shift-direction-interval di radians)
   (make-direction-interval
-   (add-to-diretion (direction-interval-start di) radians)
-   (add-to-diretion (direction-interval-end di) radians)))
+   (add-to-direction (direction-interval-start di) radians)
+   (add-to-direction (direction-interval-end di) radians)))
 
 (define (intersect-dir-intervals di-1 di-2)
   (if (or (direction-interval-invalid? di-1)
