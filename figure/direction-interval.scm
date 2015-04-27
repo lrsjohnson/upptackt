@@ -8,6 +8,8 @@
 
 ;; Future:
 ;; - Multi-segment direction intervals
+;; - Full circle intervals
+;; - Deal with intervals where start == end
 
 ;;; Code:
 
@@ -62,6 +64,12 @@
    (reverse-direction (direction-interval-start di))
    (reverse-direction (direction-interval-end di))))
 
+;;; Rotate CCW by radians
+(define (shift-direction-interval di radians)
+  (make-direction-interval
+   (add-to-diretion (direction-interval-start di) radians)
+   (add-to-diretion (direction-interval-end di) radians)))
+
 (define (intersect-dir-intervals di-1 di-2)
   (if (or (direction-interval-invalid? di-1)
           (direction-interval-invalid? di-2))
@@ -84,6 +92,10 @@
               (make-direction-interval start-1 end-2))
              (else (make-invalid-direction-interval)))))))
 
+(define (intersect-direction-with-interval dir dir-interval)
+  (if (within-direction-interval? dir dir-interval)
+      dir
+      (make-invalid-direction-interval)))
 
 #|
  (define a (make-direction 0))
@@ -119,9 +131,44 @@
 
 (defhandler equivalent? direction-interval-equal?
   direction-interval? direction-interval?)
+(defhandler equivalent? (lambda (a b) #f)
+  direction-interval? direction?)
+(defhandler equivalent? (lambda (a b) #f)
+  direction? direction-interval?)
 
 (defhandler merge intersect-dir-intervals
   direction-interval? direction-interval?)
+(defhandler merge intersect-direction-with-interval
+  direction? direction-interval?)
+(defhandler merge
+  (lambda (di d)
+    (intersect-direction-with-interval d di))
+  direction-interval? direction?)
+(defhandler merge
+  (lambda (d1 d2)
+    (if (direction-equal? d1 d2)
+        d1
+        (make-invalid-direction-interval)))
+  direction? direction?)
 
 (defhandler contradictory? direction-interval-invalid?
+  direction-interval?)
+
+
+;;;;;; Propagator generic operations on directions / intervals ;;;;;;;
+
+(propagatify make-direction)
+
+(defhandler generic-cos
+  (lambda (d) (generic-cos (direction-theta d)))
+  direction?)
+(defhandler generic-cos
+  (lambda (d) nothing)
+  direction-interval?)
+
+(defhandler generic-sin
+  (lambda (d) (generic-sin (direction-theta d)))
+  direction?)
+(defhandler generic-sin
+  (lambda (d) nothing)
   direction-interval?)
