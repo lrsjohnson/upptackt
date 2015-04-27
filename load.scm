@@ -17,6 +17,7 @@
             "lib/ghelper"
             "lib/scmutils-basic"
             "lib/multimin"
+            "print"
             "macros"
             "analyzer"
             "animation"

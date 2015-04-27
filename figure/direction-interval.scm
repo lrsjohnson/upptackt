@@ -34,6 +34,13 @@
   (make-direction-interval start-dir
                            (add-to-direction start-dir pi)))
 
+(define (print-direction-interval di)
+  (if (direction-interval-invalid? di)
+      `(invalid-direction-interval)
+      `(direction-interval ,(direction-theta (direction-interval-start di))
+                           ,(direction-theta (direction-interval-end di)))))
+(defhandler print print-direction-interval direction-interval?)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (direction-interval-invalid? di)
@@ -84,8 +91,9 @@
             (cond
              ((within-direction-interval? start-2 di-1)
               (if (within-direction-interval? end-1 di-2)
-                  (if (within-direction-interval? end-2 di-1)
-                      (error "Can't handle duplicate Intersections")
+                  (if (within-direction-interval-non-inclusive? end-2 di-1)
+                      (error "Can't handle duplicate Intersections"
+                             (print di-1) (print di-2))
                       (make-direction-interval start-2 end-1))
                   (make-direction-interval start-2 end-2)))
              ((within-direction-interval? end-2 di-1)
@@ -113,12 +121,7 @@
   (make-direction-interval c f))
  ;Value: #f
 
- (define (print-interval di)
-   (list 'dir-interval
-         (direction-theta (direction-interval-start di))
-         (direction-theta (direction-interval-end di))))
-
- (print-interval
+ (print-direction-interval
   (intersect-dir-intervals
    (make-direction-interval b d)
    (make-direction-interval f c)))

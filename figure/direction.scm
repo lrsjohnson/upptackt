@@ -22,6 +22,10 @@
 (define (make-direction theta)
   (%direction (fix-angle-0-2pi theta)))
 
+(define (print-direction dir)
+  `(direction ,(direction-theta dir)))
+(defhandler print print-direction direction?)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Arithemtic ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (add-to-direction dir radians)
