@@ -48,22 +48,46 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Dealing with Angles ;;;;;;;;;;;;;;;;;;;;;;
 
-(propagatify fix-angle-0-2pi)
+(define m:reverse-direction
+  (make-generic-operation 1 'm:reverse-direction))
+(defhandler m:reverse-direction
+  reverse-direction direction?)
+(defhandler m:reverse-direction
+  reverse-direction-interval direction-interval?)
 
-(define (p:reverse-direction dir-cell output-cell)
-  (let-cells (pi-cell)
-    ((constant pi) pi-cell)
-    (p:conditional (e:< dir-cell pi-cell)
-                   (e:+ dir-cell pi-cell)
-                   (e:- dir-cell pi-cell)
-                   output-cell)
-    output-cell))
+(propagatify m:reverse-direction)
 
 (define (ce:reverse-direction input-cell)
   (let-cells (output-cell)
-    (p:reverse-direction input-cell output-cell)
-    (p:reverse-direction output-cell input-cell)
+    (p:m:reverse-direction input-cell output-cell)
+    (p:m:reverse-direction output-cell input-cell)
     output-cell))
+
+(define m:add-to-direction
+  (make-generic-operation 2 'm:add-to-direction))
+(defhandler m:add-to-direction
+   add-to-direction direction? number?)
+(defhandler m:add-to-direction
+   shift-direction-interval direction-interval? number?)
+
+(propagatify m:add-to-direction)
+
+(define m:subtract-directions
+  (make-generic-operation 2 'm:subtract-directions))
+(defhandler m:subtract-directions
+  subtract-directions direction? direction?)
+;;; TODO: Support Intervals for thetas
+(defhandler m:subtract-directions
+  (lambda (a b) nothing)
+  direction-interval? direction-interval?)
+(defhandler m:subtract-directions
+  (lambda (a b) nothing)
+  direction-interval? direction?)
+(defhandler m:subtract-directions
+  (lambda (a b) nothing)
+  direction? direction-interval?)
+
+(propagatify m:subtract-directions)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Vec ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-record-type <m:vec>
@@ -77,7 +101,7 @@
 ;;; Allocate and wire up the cells in a vec
 (define (m:make-vec)
   (let-cells (dx dy length direction)
-    (p:fix-angle-0-2pi
+    (p:make-direction
      (e:atan2 dy dx) direction)
     (p:sqrt (e:+ (e:square dx)
                  (e:square dy))
@@ -146,12 +170,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Bar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-record-type <m:bar>
-  (%m:make-bar p1 p2 vec min-dir)
+  (%m:make-bar p1 p2 vec)
   m:bar?
   (p1 m:bar-p1)
   (p2 m:bar-p2)
-  (vec m:bar-vec)
-  (min-dir m:bar-min-dir))
+  (vec m:bar-vec))
 
 (define (m:bar-direction bar)
   (m:vec-direction (m:bar-vec bar)))
@@ -161,20 +184,19 @@
 
 ;;; Allocate cells and wire up a bar
 (define (m:make-bar)
-  (let-cells (min-dir)
-   (let ((p1 (m:make-point))
-         (p2 (m:make-point)))
-     (let ((v (m:make-vec)))
-       (c:+ (m:point-x p1)
-            (m:vec-dx v)
-            (m:point-x p2))
-       (c:+ (m:point-y p1)
-            (m:vec-dy v)
-            (m:point-y p2))
-       (let ((bar (%m:make-bar p1 p2 v min-dir)))
-         (m:p1->p2-bar-propagator p1 p2 bar)
-         (m:p2->p1-bar-propagator p2 p1 bar)
-         bar)))))
+  (let ((p1 (m:make-point))
+        (p2 (m:make-point)))
+    (let ((v (m:make-vec)))
+      (c:+ (m:point-x p1)
+           (m:vec-dx v)
+           (m:point-x p2))
+      (c:+ (m:point-y p1)
+           (m:vec-dy v)
+           (m:point-y p2))
+      (let ((bar (%m:make-bar p1 p2 v)))
+        (m:p1->p2-bar-propagator p1 p2 bar)
+        (m:p2->p1-bar-propagator p2 p1 bar)
+        bar))))
 
 ;;; TODO: Combine p1->p2 / p2->p1
 (define (m:p1->p2-bar-propagator p1 p2 bar)
@@ -182,64 +204,64 @@
         (p1y (m:point-y p1))
         (p2r (m:point-region p2))
         (length (m:bar-length bar))
-        (dir (m:bar-direction bar))
-        (min-dir (m:bar-min-dir bar)))
-    (propagator (list p1x p1y length dir min-dir)
+        (dir (m:bar-direction bar)))
+    (propagator (list p1x p1y length dir)
       (lambda ()
         (let ((x-value (content p1x))
               (y-value (content p1y))
               (len-value (content length))
-              (dir-value (content dir))
-              (min-dir-value (content min-dir)))
+              (dir-value (content dir)))
           (if (or (nothing? x-value)
                   (nothing? y-value))
               'done
               (let ((vertex (make-point x-value y-value)))
                 (cond ((and (not (nothing? len-value))
-                            (not (nothing? min-dir-value)))
+                            (not (nothing? dir-value))
+                            (direction-interval? dir-value))
                        (add-content
                         p2r
                         (m:make-arc
                          vertex len-value
-                         min-dir-value)))
-                      ((not (nothing? dir-value))
+                         dir-value)))
+                      ((and (not (nothing? dir-value))
+                            (direction? dir-value))
                        (add-content
                         p2r
-                        (m:make-ray vertex (make-direction dir-value))))))))))))
-
-(define (m:p2->p1-bar-propagator p2 p1 bar)
-  (let ((p2x (m:point-x p2))
-        (p2y (m:point-y p2))
-        (p1r (m:point-region p1))
-        (length (m:bar-length bar))
-        (dir (m:bar-direction bar))
-        (min-dir (m:bar-min-dir bar)))
-    (propagator (list p2x p2y length dir min-dir)
-      (lambda ()
-        (let ((x-value (content p2x))
-              (y-value (content p2y))
-              (len-value (content length))
-              (dir-value (content dir))
-              (min-dir-value (content min-dir)))
-          (if (or (nothing? x-value)
-                  (nothing? y-value))
-              'done
-              (let ((vertex (make-point x-value y-value)))
-                (cond ((and (not (nothing? len-value))
-                            (not (nothing? min-dir-value)))
-                       (add-content
-                        p1r
-                        (m:make-arc
-                         vertex len-value
-                         (reverse-direction-interval
-                          min-dir-value))))
-                      ((not (nothing? dir-value))
-                       (add-content
-                        p1r
                         (m:make-ray
                          vertex
-                         (reverse-direction
-                          (make-direction dir-value)))))))))))))
+                         dir-value)))))))))))
+
+(define (m:p2->p1-bar-propagator p1 p2 bar)
+  (let ((p1x (m:point-x p1))
+        (p1y (m:point-y p1))
+        (p2r (m:point-region p2))
+        (length (m:bar-length bar))
+        (dir (m:bar-direction bar)))
+    (propagator (list p1x p1y length dir)
+      (lambda ()
+        (let ((x-value (content p1x))
+              (y-value (content p1y))
+              (len-value (content length))
+              (dir-value (content dir)))
+          (if (or (nothing? x-value)
+                  (nothing? y-value))
+              'done
+              (let ((vertex (make-point x-value y-value)))
+                (cond ((and (not (nothing? len-value))
+                            (not (nothing? dir-value))
+                            (direction-interval? dir-value))
+                       (add-content
+                        p2r
+                        (m:make-arc
+                         vertex len-value
+                         (reverse-direction-interval dir-value))))
+                      ((and (not (nothing? dir-value))
+                            (direction? dir-value))
+                       (add-content
+                        p2r
+                        (m:make-ray
+                         vertex
+                         (reverse-direction dir-value))))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Joint  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Direction-2 is counter-clockwise from direction-1 by theta
@@ -254,30 +276,29 @@
 (define (m:make-joint)
   (let ((vertex (m:make-point)))
     (let-cells (dir-1 dir-2 theta)
-      (p:fix-angle-0-2pi
-       (e:+ dir-1 theta)
-       dir-2)
-      (p:fix-angle-0-2pi
-       (e:- dir-2 theta)
-       dir-1)
-      (p:fix-angle-0-2pi
-       (e:- dir-2 dir-1)
+      (p:m:add-to-direction
+       dir-1 theta dir-2)
+      (p:m:add-to-direction
+       dir-2 (e:negate theta) dir-1)
+      (p:m:subtract-directions
+       dir-2 dir-1
        theta)
       (%m:make-joint vertex dir-1 dir-2 theta))))
 
 
-(define (m:propagate-to-min-dir
+(define (m:propagate-to-dir
          min-dir-value-cell
-         bar-min-dir-interval-cell)
+         bar-dir-cell)
   (propagator (list min-dir-value-cell)
     (lambda ()
       (let ((min-dir-value (content min-dir-value-cell)))
-        (if (nothing? min-dir-value)
-            'done
+        (if (and (not (nothing? min-dir-value))
+                 (direction? min-dir-value))
             (add-content
-             bar-min-dir-interval-cell
+             bar-dir-cell
              (make-semi-circle-direction-interval
-              (make-direction min-dir-value))))))))
+              min-dir-value))
+            'done)))))
 
 ;;; TOOD: Abstract?
 (define (m:identify-out-of-arm-1 joint bar)
@@ -285,36 +306,36 @@
                      (m:bar-p1 bar))
   (c:id (m:joint-dir-1 joint)
         (m:bar-direction bar))
-  (m:propagate-to-min-dir
+  (m:propagate-to-dir
    (ce:reverse-direction (m:joint-dir-2 joint))
-   (m:bar-min-dir bar)))
+   (m:bar-direction bar)))
 
 (define (m:identify-out-of-arm-2 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p1 bar))
   (c:id (m:joint-dir-2 joint)
         (m:bar-direction bar))
-  (m:propagate-to-min-dir
+  (m:propagate-to-dir
    (m:joint-dir-1 joint)
-   (m:bar-min-dir bar)))
+   (m:bar-direction bar)))
 
 (define (m:identify-into-arm-1 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
   (c:id (ce:reverse-direction (m:joint-dir-1 joint))
         (m:bar-direction bar))
-  (m:propagate-to-min-dir
+  (m:propagate-to-dir
    (m:joint-dir-2 joint)
-   (m:bar-min-dir bar)))
+   (m:bar-direction bar)))
 
 (define (m:identify-into-arm-2 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
   (c:id (ce:reverse-direction (m:joint-dir-2 joint))
         (m:bar-direction bar))
-  (m:propagate-to-min-dir
+  (m:propagate-to-dir
    (ce:reverse-direction (m:joint-dir-1 joint))
-   (m:bar-min-dir bar)))
+   (m:bar-direction bar)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -500,14 +521,14 @@
 
 (define (m:initialize-bar bar)
   (m:instantiate-point (m:bar-p1 bar) 0 0 'initialize)
-  (m:instantiate (m:bar-direction bar) 0 'initialize)
+  (m:instantiate (m:bar-direction bar) (make-direction 0) 'initialize)
   (let ((v (m:random-bar-length)))
     (pp `(initializing-bar ,(m:bar-name bar) ,v))
     (m:instantiate (m:bar-length bar) v 'initialize)))
 
 (define (m:initialize-joint joint)
   (m:instantiate-point (m:joint-vertex joint) 0 0 'initialize)
-  (m:instantiate (m:joint-dir-1 joint) 0 'initialize))
+  (m:instantiate (m:joint-dir-1 joint) (make-direction 0) 'initialize))
 
 ;;;;;;;;;; Assembling named joints into diagrams ;;;;;;;
 
@@ -577,6 +598,6 @@
 (define (m:joint->figure-angle m-joint)
   (if (not (m:joint-fully-specified? m-joint))
       (error "Cannot convert non-fully specified joint to angle"))
-  (make-angle (make-direction (m:examine-cell (m:joint-dir-2 m-joint)))
+  (make-angle (m:examine-cell (m:joint-dir-2 m-joint))
               (m:point->figure-point (m:joint-vertex m-joint))
-              (make-direction (m:examine-cell (m:joint-dir-1 m-joint)))))
+              (m:examine-cell (m:joint-dir-1 m-joint))))
