@@ -446,23 +446,28 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Degrees of Freedom  ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (m:specified? cell)
-  (not (nothing? (m:examine-cell cell))))
+(define (m:specified? cell #!optional predicate)
+  (let ((v (m:examine-cell cell)))
+    ;(and
+     (not (nothing? v))
+     ;(or (default-object? predicate)
+     ;(predicate v))))
+     ))
 
 (define (m:bar-length-specified? bar)
-  (m:specified? (m:bar-length bar)))
+  (m:specified? (m:bar-length bar)) number?)
 
 (define (m:bar-direction-specified? bar)
-  (m:specified? (m:bar-direction bar)))
+  (m:specified? (m:bar-direction bar)) direction?)
 
 (define (m:joint-theta-specified? joint)
-  (m:specified? (m:joint-theta joint)))
+  (m:specified? (m:joint-theta joint)) number?)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Point Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:point-specified? p)
-  (and (m:specified? (m:point-x p))
-       (m:specified? (m:point-y p))))
+  (and (m:specified? (m:point-x p) number?)
+       (m:specified? (m:point-y p) number?)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Bar Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -478,10 +483,10 @@
 
 (define (m:bar-directioned? bar)
   (and (m:bar-anchored? bar)
-       (m:specified? (m:bar-direction bar))))
+       (m:specified? (m:bar-direction bar) direction?)))
 
-(define (m:bar-specified? bar)
-  (and (m:specified? (m:bar-length bar))))
+(define (m:bar-length-specified? bar)
+  (and (m:specified? (m:bar-length bar) number?)))
 
 (define (m:bar-fully-specified? bar)
   (and (m:bar-p1-specified? bar)
@@ -490,18 +495,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Joint Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:joint-dir-1-specified? joint)
-  (m:specified? (m:joint-dir-1 joint)))
+  (m:specified? (m:joint-dir-1 joint) direction?))
 
 (define (m:joint-dir-2-specified? joint)
-  (m:specified? (m:joint-dir-2 joint)))
+  (m:specified? (m:joint-dir-2 joint) direction?))
 
 (define (m:joint-anchored? joint)
-  (and
-   (or (m:joint-dir-1-specified? joint)
-       (m:joint-dir-2-specified? joint))))
+  (or (m:joint-dir-1-specified? joint)
+      (m:joint-dir-2-specified? joint)))
 
 (define (m:joint-specified? joint)
-  (m:specified? (m:joint-theta joint)))
+  (m:specified? (m:joint-theta joint) number?))
 
 (define (m:joint-fully-specified? joint)
   (and

@@ -54,10 +54,10 @@
 
 (define (m:specify-something mechanism)
   ;; TODO: First try to specify a constraint
-  (let ((bars (filter (notp m:bar-specified?)
+  (let ((bars (filter (notp m:bar-length-specified?)
                         (m:mechanism-bars mechanism)))
         (joints (filter (notp m:joint-specified?)
-                          (m:mechanism-joints mechanism))))
+                        (m:mechanism-joints mechanism))))
     (let ((anchored-bars (filter m:bar-anchored? bars))
           (directioned-bars (filter m:bar-directioned? bars))
           (anchored-joints (filter m:joint-anchored? joints)))
@@ -114,12 +114,7 @@
   (initialize-scheduler)
   (let ((m (m:mechanism
             (m:establish-polygon-topology 'a 'b 'c 'd))))
-    (c:id (m:bar-length (car (m:mechanism-bars m)))
-          (m:bar-length (cadr (m:mechanism-bars m))))
-    (c:id (m:bar-length (car (m:mechanism-bars m)))
-          (m:bar-length (caddr (m:mechanism-bars m))))
-    (c:id (m:bar-length (car (m:mechanism-bars m)))
-          (m:bar-length (cadddr (m:mechanism-bars m))))
+    (pp (m:joint-anchored? (car (m:mechanism-joints m))))
     (m:build-mechanism m)
     (let ((f (m:mechanism->figure m)))
       (draw-figure f c)
