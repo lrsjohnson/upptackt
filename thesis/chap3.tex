@@ -1,0 +1,73 @@
+\chapter{Software Implementation}
+
+\section{Overview}
+
+My proposed MEng project involves building and analyzing a software
+implementation that can make such inductive observations and
+discoveries as described above.  Although there are many aspects
+involved in replicating the human-like reasoning discussed, I will
+initially focus on a core system that is able to model the inductive
+exploratory behavior.  Further abilities can be added as extensions or
+applications of the core system as described in section
+\ref{sec:extension}.
+
+This core system will provide an interpreter to accept input of
+construction instructions, an analytic geometry system that can create
+instances of such constructions, a pattern-finding process to discover
+``interesting properties'', and an interface for reporting findings.
+
+\subsection{Interpreting Construction Steps}
+
+The first step in such explorations is interpreting an input of the
+diagram to be explored.  To avoid the problems involved with solving
+constraint systems and the possibility of impossible diagrams, the
+core system will take as input an explicit list of construction steps
+that results in an instance of the desired diagram.  These
+instructions can still include arbitrary selections (let $P$ be some
+point on the line, or let $A$ be some acute angle), but otherwise will
+be restricted to basic construction operations using a compass and
+straight edge.
+
+To simplify the input of more complicated diagrams, some of these
+steps can be abstracted into a library of known construction
+procedures.  For example, although the underlying figures will be
+limited to very simple objects of points, lines, and angles, the steps
+of constructing a triangle (three points and three segments) or
+bisecting a line or angle can be encapsulated into single steps.
+
+\subsection{Creating Figures}
+
+Given a language for expressing the constructions, the second phase of
+the system will be to perform such constructions to yield an instance
+of the diagram.  This process will mimic ``imagining'' manipulations
+and will result in an analytic representation of the figure with
+coordinates for each point.  Arbitrary choices in the construction
+(``Let $Q$ be some point not on the line.'') will be chosen via an
+random process, but with an attempt to keep the figures within a
+reasonable scale to ease human inspection.
+
+\subsection{Noticing Interesting Properties}
+\label{sec:interest}
+
+Having constructed a particular figure, the system will need to be
+able to examine it to find interesting properties.  These properties
+involve facts that appear to be ``beyond coincidence''.  As mentioned
+in section \ref{sec:elem}, this generally involves relationships
+between measured values, but can also include ``unexpected''
+configurations of points, lines, and circles.  As the system discovers
+interesting properties, it will reconstruct the diagram using
+difference choices and observe if the observed properties hold true
+across many instances of a diagram.
+
+\subsection{Reporting Findings}
+
+Finally, once the system has discovered some interesting properties
+that appear repeatedly in instances of a given diagram, it will need a
+means of reporting its results to the user.  Although this could
+easily be a simple list of all simple relationships, some effort will
+be taken to avoid repeating observations that obvious in the
+construction.  For example, if a perpendicular bisector of segment
+$AB$ is requested, the fact that it bisects that segment in every
+instance is not informative.  To do so, the construction process will
+also maintain a list of facts that can be reasoned from construction
+assumptions so that these can be omitted in the final reporting.
