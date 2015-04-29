@@ -137,7 +137,7 @@
     (let ((seg (make-segment p1 p2)))
       (set-segment-dependency!
        seg
-       `(random-segment ,(make-external-dependency)))
+       `(random-segment ,(make-random-dependency)))
       seg)))
 
 (define (random-ray)
@@ -262,8 +262,8 @@
          (r2 (rotate-about (ray-endpoint r1)
                            (/ pi 2)
                            r1))
-         (p2 (point-on-ray r1))
-         (p4 (point-on-ray r2))
+         (p2 (random-point-on-ray r1))
+         (p4 (random-point-on-ray r2))
          (p3 (add-to-point
               p2
               (sub-points p4 p1))))
@@ -278,8 +278,8 @@
          (r2 (rotate-about (ray-endpoint r1)
                            (rand-angle-measure)
                            r1))
-         (p2 (point-on-ray r1))
-         (p4 (point-on-ray r2))
+         (p2 (random-point-on-ray r1))
+         (p4 (random-point-on-ray r2))
          (p3 (add-to-point
               p2
               (sub-points p4 p1))))
