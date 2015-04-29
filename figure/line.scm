@@ -46,7 +46,7 @@
 
 (define (make-auxiliary-segment p1 p2)
   (with-dependency
-   `(aux-segment p1 p2)
+   `(aux-segment ,p1 ,p2)
    (make-segment p1 p2)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Lines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
