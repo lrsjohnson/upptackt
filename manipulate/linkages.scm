@@ -714,7 +714,8 @@
 
 (define (m:initialize-joint joint)
   (m:instantiate-point (m:joint-vertex joint) 0 0 'initialize)
-  (m:instantiate (m:joint-dir-1 joint) (make-direction 0) 'initialize))
+  (m:instantiate (m:joint-dir-1 joint) (make-direction 0) 'initialize)
+  (pp `(initializing-joint ,(print (m:joint-name joint)))))
 
 ;;;;;;;;;; Assembling named joints into diagrams ;;;;;;;
 
