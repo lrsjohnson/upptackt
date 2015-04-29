@@ -6,13 +6,17 @@
     - [X] Regions for partial information
     - [X] Basic Linkages - Bar + Joint
     - [ ] TMS for linkages / region propagators?
-    - [ ] Picking/dealing with Error Values
+    - [ ] Picking/dealing with Error Values and contradictions
     - [X] Establishing topology first
-    - [ ] Combining Topologies
+    - [ ] Combining Topologies, Deduping points/lines
     - [X] Basic automatic instantiation
     - [ ] Ordering of value instantiation
     - [ ] Constraint language
-    - [ ] Draw mechanisms
+    - [-] Draw mechanisms [1/2]
+      - [X] Basic Conversion to figure elements
+      - [ ] Draw status of partially specified mechanisms.
+    - [X] Replace "bar min" with Direction intervals for bar directions.
+    - [X] Numeric Intervals for joint thetas
 *** Learning!
     - [ ] Generalize and learn from basic examples analysis results
     - [ ] Experiment with finding minimal properties (Rhombus: only opposite
@@ -37,11 +41,16 @@
     - [X] Random Point left of line
     - [ ] Improve random point between rays when rays intersect!
     - [ ] Improve Random Triangle
-** Core
+** Core / Infrastructure
 *** TODO Numeric Stuff [1/3]
     - [X] Improved close-enuf?
     - [ ] Move away from origin (0, 0)
     - [ ] Remap coordinates for drawing
+*** TODO Improved Pretty Printer [2/4]
+    - [X] Basic Generic print / pprint
+    - [X] Cells, Linkages, Regions
+    - [ ] Extend to other visual elements
+    - [ ] Change record types to structures -- built-in printers?
 ** Constructions
 *** DONE Basic Constructions [9/9]
     CLOSED: [2015-03-08 Sun 01:37]
@@ -107,13 +116,13 @@
     - [ ] Name before vs. name after vs. use symbolic names everywhere...
     - [ ] Multiple element return
 ** Analysis
-*** TODO Simple Analysis [7/10]
+*** TODO Simple Analysis [8/10]
     - [X] Angle Equality
     - [X] Complementary / Supplementary Angles
     - [X] Parallel / Perpendicular
     - [ ] General Angles which sum to same value
     - [X] Basic Segment Length Equality
-    - [ ] Gather all segments  with equal lengths
+    - [X] Gather all segments  with equal lengths
     - [X] Go beyond pairs
     - [X] Segments not actually present?
     - [ ] Concurrency of lines
