@@ -47,6 +47,7 @@
             "manipulate/constraints"
             "manipulate/topology"
             "manipulate/mechanism"
+            "manipulate/main"
             "main"))
 (initialize-scheduler)
 
