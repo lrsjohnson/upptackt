@@ -5,11 +5,15 @@
 ;; Ideas:
 ;; - Structure for representing ranges of directions
 ;; - Also interface for propagating partial information about angles
+;; - Full circle intervals
 
 ;; Future:
 ;; - Multi-segment direction intervals
-;; - Full circle intervals
-;; - Deal with intervals where start == end
+;; - Include direction? as direction-interval?
+;; - Migrate additional direction/interval code from linkages.scm
+;; - Deal with adding intervals to directions
+;; - Clean up direction-interval intersection
+;;   (subtract to start-1, e.g.)
 
 ;;; Code:
 
@@ -18,100 +22,245 @@
 ;;; "arc" of the circle from start-dir CCW to end-dir
 ;;; "invalid" allows for "impossible" intervals
 (define-record-type <direction-interval>
-  (%make-direction-interval start-dir end-dir valid)
-  direction-interval?
-  (valid direction-interval-valid?)
+  (%make-standard-direction-interval start-dir end-dir)
+  standard-direction-interval?
   (start-dir direction-interval-start)
   (end-dir direction-interval-end))
 
 (define (make-direction-interval start-dir end-dir)
-  (%make-direction-interval start-dir end-dir #t))
+  (if (direction-equal? start-dir end-dir)
+      (error "Cannot make direction-interval with no range:
+ use direction or full interval"))
+  (%make-standard-direction-interval start-dir end-dir))
+
+(define (print-direction-interval di)
+  `(direction-interval ,(direction-theta (direction-interval-start di))
+                       ,(direction-theta (direction-interval-end di))))
+
+(defhandler print print-direction-interval standard-direction-interval?)
+
+;;;;;;;;;;;;;;;;;;;; Invalid Direction Intervals ;;;;;;;;;;;;;;;;;;;;;
+
+(define-record-type <invalid-direction-interval>
+  (%make-invalid-direction-interval)
+  invalid-direction-interval?)
 
 (define (make-invalid-direction-interval)
-  (%make-direction-interval 0 0 #f))
+  (%make-invalid-direction-interval))
+
+(define (print-invalid-direction-interval di)
+  `(invalid-direction-interval))
+(defhandler print print-direction-interval invalid-direction-interval?)
+
+;;;;;;;;;;;;;;;;;;;;;; Full Direction Intervals ;;;;;;;;;;;;;;;;;;;;;;
+
+(define-record-type <full-circle-direction-interval>
+  (%make-full-circle-direction-interval)
+  full-circle-direction-interval?)
+
+(define (make-full-circle-direction-interval)
+  (%make-full-circle-direction-interval))
+
+(define (print-full-circle-direction-interval di)
+  `(full-circle-direction-interval))
+(defhandler print print-full-circle-direction-interval
+  full-circle-direction-interval?)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; All Types ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (direction-interval? x)
+  (or (standard-direction-interval? x)
+      (invalid-direction-interval? x)
+      (full-circle-direction-interval? x)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;; More Constructors ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (make-semi-circle-direction-interval start-dir)
   (make-direction-interval start-dir
                            (add-to-direction start-dir pi)))
 
-(define (print-direction-interval di)
-  (if (direction-interval-invalid? di)
-      `(invalid-direction-interval)
-      `(direction-interval ,(direction-theta (direction-interval-start di))
-                           ,(direction-theta (direction-interval-end di)))))
-(defhandler print print-direction-interval direction-interval?)
+(define (make-direction-interval-from-start-dir-and-size start-dir radians)
+  (cond  ((>= radians (* 2 pi))
+          (make-full-circle-direction-interval))
+         ((< radians 0)
+          (make-invalid-direction-interval))
+         ((= radians 0)
+          (error "cannot have interval of size 0: use direction"))
+         (else
+          (make-direction-interval
+           start-dir
+           (add-to-direction start-dir pi)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Equality ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (direction-interval-invalid? di)
-  (not (direction-interval-valid? di)))
+(define direction-interval-equal?
+  (make-generic-operation 2 'direction-interval-equal?))
 
-(define (direction-interval-equal? di1 di2)
-  (and (eq? (direction-interval-valid? di1)
-            (direction-interval-valid? di2))
-       (direction-equal?
+(define (standard-direction-interval-equal? di1 di2)
+  (and (direction-equal?
         (direction-interval-start di1)
         (direction-interval-start di2))
        (direction-equal?
         (direction-interval-end di1)
         (direction-interval-end di2))))
 
-(define (within-direction-interval? dir dir-interval)
-  (if (direction-interval-invalid? dir-interval)
-      #f
-      (let ((dir-start (direction-interval-start dir-interval))
-            (dir-end (direction-interval-end dir-interval)))
-        (or (direction-equal? dir dir-start)
-            (direction-equal? dir dir-end)
-            (<= (subtract-directions dir dir-start)
-                (subtract-directions dir-end dir-start))))))
+(defhandler direction-interval-equal?
+  false-proc direction-interval? direction-interval?)
 
-(define (within-direction-interval-non-inclusive? dir dir-interval)
-  (if (direction-interval-invalid? dir-interval)
-      #f
-      (let ((dir-start (direction-interval-start dir-interval))
-            (dir-end (direction-interval-end dir-interval)))
-        (and (not (direction-equal? dir dir-start))
-             (not (direction-equal? dir dir-end))
-            (<= (subtract-directions dir dir-start)
-                (subtract-directions dir-end dir-start))))))
+(defhandler direction-interval-equal?
+  true-proc full-circle-direction-interval? full-circle-direction-interval?)
 
+(defhandler direction-interval-equal?
+  true-proc invalid-direction-interval? invalid-direction-interval?)
+
+(defhandler direction-interval-equal?
+  standard-direction-interval-equal?
+  standard-direction-interval?
+  standard-direction-interval?)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Inclusion ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define within-direction-interval?
+  (make-generic-operation 2 'within-direction-interval?))
+
+(define (within-standard-direction-interval? dir dir-interval)
+  (let ((dir-start (direction-interval-start dir-interval))
+        (dir-end (direction-interval-end dir-interval)))
+    (or (direction-equal? dir dir-start)
+        (direction-equal? dir dir-end)
+        (< (subtract-directions dir dir-start)
+           (subtract-directions dir-end dir-start)))))
+
+(defhandler within-direction-interval?
+  within-standard-direction-interval?
+  direction?
+  standard-direction-interval?)
+
+(defhandler within-direction-interval?
+  true-proc direction? full-circle-direction-interval?)
+
+(defhandler within-direction-interval?
+  false-proc direction? invalid-direction-interval?)
+
+(define within-direction-interval-non-inclusive?
+  (make-generic-operation 2 'within-direction-interval-non-inclusive?))
+
+(define (within-standard-direction-interval-non-inclusive? dir dir-interval)
+  (let ((dir-start (direction-interval-start dir-interval))
+        (dir-end (direction-interval-end dir-interval)))
+    (and (not (direction-equal? dir dir-start))
+         (not (direction-equal? dir dir-end))
+         (< (subtract-directions dir dir-start)
+            (subtract-directions dir-end dir-start)))))
+
+(defhandler within-direction-interval-non-inclusive?
+  within-standard-direction-interval-non-inclusive?
+  direction?
+  standard-direction-interval?)
+
+(defhandler within-direction-interval-non-inclusive?
+  true-proc direction? full-circle-direction-interval?)
+
+(defhandler within-direction-interval-non-inclusive?
+  false-proc direction? invalid-direction-interval?)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (reverse-direction-interval di)
+(define reverse-direction-interval
+  (make-generic-operation 1 'reverse-direction-interval))
+
+(define (reverse-standard-direction-interval di)
   (make-direction-interval
    (reverse-direction (direction-interval-start di))
    (reverse-direction (direction-interval-end di))))
 
+(defhandler reverse-direction-interval
+  reverse-standard-direction-interval
+  standard-direction-interval?)
+
+(defhandler reverse-direction-interval identity
+  full-circle-direction-interval?)
+
+(define direction-interval-size
+  (make-generic-operation 1 'direction-interval-size))
+
+(define (standard-direction-interval-size di)
+  (subtract-directions (direction-interval-end di)
+                       (direction-interval-start di)))
+
+(defhandler direction-interval-size
+  standard-direction-interval-size
+  standard-direction-interval?)
+
+(defhandler direction-interval-size
+  (lambda (di) (* 2 pi))
+  full-circle-direction-interval?)
+
 ;;; Rotate CCW by radians
-(define (shift-direction-interval di radians)
+(define shift-direction-interval
+  (make-generic-operation 2 'shift-direction-interval))
+
+(define (shift-standard-direction-interval di radians)
   (make-direction-interval
    (add-to-direction (direction-interval-start di) radians)
    (add-to-direction (direction-interval-end di) radians)))
 
-(define (intersect-dir-intervals di-1 di-2)
-  (if (or (direction-interval-invalid? di-1)
-          (direction-interval-invalid? di-2))
-      (make-invalid-direction-interval)
-      (let ((start-1 (direction-interval-start di-1))
-            (end-1 (direction-interval-end di-1))
-            (start-2 (direction-interval-start di-2))
-            (end-2 (direction-interval-end di-2)))
-        (if (> (direction-theta start-1)
-               (direction-theta start-2))
-            (intersect-dir-intervals di-2 di-1)
-            (cond
-             ((within-direction-interval? start-2 di-1)
-              (if (within-direction-interval? end-1 di-2)
-                  (if (within-direction-interval-non-inclusive? end-2 di-1)
-                      (error "Can't handle duplicate Intersections"
-                             (print di-1) (print di-2))
-                      (make-direction-interval start-2 end-1))
-                  (make-direction-interval start-2 end-2)))
-             ((within-direction-interval? end-2 di-1)
-              (make-direction-interval start-1 end-2))
-             (else (make-invalid-direction-interval)))))))
+(defhandler shift-direction-interval
+  shift-standard-direction-interval
+  standard-direction-interval? number?)
+
+(defhandler shift-direction-interval
+  (lambda (fcdi r) fcdi) full-circle-direction-interval? number?)
+
+;;;;;;;;;;;;;;;;;; Direction interval intersection ;;;;;;;;;;;;;;;;;;;
+
+(define intersect-direction-intervals
+  (make-generic-operation 2 'intersect-direction-intervals))
+
+(define (intersect-standard-dir-intervals di-1 di-2)
+  (let ((start-1 (direction-interval-start di-1))
+        (end-1 (direction-interval-end di-1))
+        (start-2 (direction-interval-start di-2))
+        (end-2 (direction-interval-end di-2)))
+    (if (> (direction-theta start-1)
+           (direction-theta start-2))
+        (intersect-standard-dir-intervals di-2 di-1)
+        (cond
+         ;; end-2 past end-1
+         ((within-direction-interval? start-2 di-1)
+          (if (within-direction-interval? end-1 di-2)
+              (cond ((direction-equal? end-1 end-2)
+                     (make-direction-interval start-2 end-2))
+                    ((within-direction-interval? end-2 di-1)
+                     (error "Can't handle duplicate Intersections"
+                            (print di-1) (print di-2)))
+                    (else
+                     (make-direction-interval start-2 end-1)))
+              (make-direction-interval start-2 end-2)))
+         ((within-direction-interval? end-2 di-1)
+          (make-direction-interval start-1 end-2))
+         (else (make-invalid-direction-interval))))))
+
+(defhandler intersect-direction-intervals
+  (lambda (di idi) idi)
+  direction-interval? invalid-direction-interval?)
+
+(defhandler intersect-direction-intervals
+  (lambda (idi di) idi)
+  invalid-direction-interval? direction-interval?)
+
+(defhandler intersect-direction-intervals
+  (lambda (fcdi di) di)
+  full-circle-direction-interval? direction-interval?)
+
+(defhandler intersect-direction-intervals
+  (lambda (di fcdi) di)
+  direction-interval? full-circle-direction-interval?)
+
+(defhandler intersect-direction-intervals
+  intersect-standard-dir-intervals
+  standard-direction-interval? standard-direction-interval?)
+
 
 (define (intersect-direction-with-interval dir dir-interval)
   (if (within-direction-interval? dir dir-interval)
@@ -135,7 +284,7 @@
  ;Value: #f
 
  (print-direction-interval
-  (intersect-dir-intervals
+  (intersect-direction-intervals
    (make-direction-interval b d)
    (make-direction-interval f c)))
  ;Value: (dir-interval .7853981633974483 1.5707963267948966)
@@ -152,7 +301,7 @@
 (defhandler equivalent? (lambda (a b) #f)
   direction? direction-interval?)
 
-(defhandler merge intersect-dir-intervals
+(defhandler merge intersect-direction-intervals
   direction-interval? direction-interval?)
 (defhandler merge intersect-direction-with-interval
   direction? direction-interval?)
@@ -167,24 +316,33 @@
         (make-invalid-direction-interval)))
   direction? direction?)
 
-(defhandler contradictory? direction-interval-invalid?
+(defhandler contradictory? invalid-direction-interval?
   direction-interval?)
-
 
 ;;;;;; Propagator generic operations on directions / intervals ;;;;;;;
 
 (propagatify make-direction)
 
-(defhandler generic-cos
-  (lambda (d) (generic-cos (direction-theta d)))
-  direction?)
-(defhandler generic-cos
+(define direction-sin (make-generic-operator 1 'direction-sin))
+
+(defhandler direction-sin
   (lambda (d) nothing)
   direction-interval?)
 
-(defhandler generic-sin
-  (lambda (d) (generic-sin (direction-theta d)))
+(defhandler direction-sin
+  (lambda (d) (sin (direction-theta d)))
   direction?)
-(defhandler generic-sin
+
+(define direction-cos (make-generic-operator 1 'direction-cos))
+
+(defhandler direction-cos
   (lambda (d) nothing)
   direction-interval?)
+
+(defhandler direction-cos
+  (lambda (d) (cos (direction-theta d)))
+  direction?)
+
+(propagatify direction-sin)
+
+(propagatify direction-cos)

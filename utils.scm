@@ -40,3 +40,8 @@
 
 (define ((notp predicate) x)
   (not (predicate x)))
+
+(define (true-proc . args) #t)
+(define (false-proc . args) #f)
+
+(define (identity x) x)
