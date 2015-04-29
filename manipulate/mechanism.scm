@@ -138,10 +138,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Build ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 (define (m:build-mechanism m)
+  (m:identify-vertices m)
   (m:assemble-linkages (m:mechanism-bars m)
                        (m:mechanism-joints m))
-  (m:apply-mechanism-constraints m)
+  (m:apply-mechanism-constraints m))
+
+(define (m:solve-mechanism m)
   (let lp ()
     (run)
     (if (not (m:mechanism-fully-specified? m))
