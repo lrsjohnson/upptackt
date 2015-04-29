@@ -28,7 +28,7 @@
           (joints
            (map (lambda (p1-name vertex-name p2-name)
                   (m:make-named-joint p1-name vertex-name p2-name))
-                point-names
+                (cddr extended-point-names)
                 (cdr extended-point-names)
-                (cddr extended-point-names))))
+                point-names)))
       (append bars joints))))
