@@ -15,21 +15,52 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Mechanism Structure ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <m:mechanism>
-    (%m:make-mechanism bars joints constraints)
+    (%m:make-mechanism bars joints constraints
+                       bar-table joint-table joint-by-vertex-table)
     m:mechanism?
     (bars m:mechanism-bars)
     (joints m:mechanism-joints)
-    (constraints m:mechanism-constraints))
+    (constraints m:mechanism-constraints)
+    (bar-table %m:mechanism-bar-table)
+    (joint-table %m:mechanism-joint-table)
+    (joint-by-vertex-table %m:mechanism-joint-by-vertex-table))
 
 (define (m:make-mechanism bars joints constraints)
-  (%m:make-mechanism bars joints constraints))
+  (let ((bar-table (m:make-bars-by-name-table bars))
+        (joint-table (m:make-joints-by-name-table joints))
+        (joint-by-vertex-table (m:make-joints-by-vertex-name-table joints)))
+    (%m:make-mechanism bars joints constraints
+                       bar-table joint-table joint-by-vertex-table)))
 
-(define (m:mechanism args)
+(define (m:mechanism . args)
   (let ((elements (flatten args)))
     (let ((bars (filter m:bar? elements))
           (joints (filter m:joint? elements))
           (constraints (filter m:constraint? elements)))
       (m:make-mechanism bars joints constraints))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Accessors ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:mechanism-joint-by-vertex-name m vertex-name)
+  (m:find-joint-by-vertex-name
+   (%m:mechanism-joint-by-vertex-table m)
+   vertex-name))
+
+(define (m:mechanism-joint-by-names m dir-1-name vertex-name dir-2-name)
+  (m:find-joint-by-names
+   (%m:mechanism-joint-table m)
+   dir-1-name vertex-name dir-2-name))
+
+(define (m:lookup m id)
+  (cond ((m:bar-id? id) (m:find-bar-by-id
+                         (%m:mechanism-bar-table m)
+                         id))
+        ((m:joint-id? id) (m:find-joint-by-id
+                           (%m:mechanism-joint-table m)
+                           id))
+        ((m:joint-vertex-id? id) (m:find-joint-by-vertex-name
+                                  (%m:mechanism-joint-by-vertex-table m)
+                                  (m:joint-vertex-id-name id)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Specified ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -43,12 +74,12 @@
 
 (define (m:specify-bar bar)
   (let ((v (m:random-bar-length)))
-    (pp `(specifying-bar ,(m:bar-name bar) ,v))
+    (pp `(specifying-bar ,(print (m:bar-name bar)) ,v))
     (m:instantiate (m:bar-length bar) v 'specify-bar)))
 
 (define (m:specify-joint joint)
   (let ((v (m:random-theta-for-joint joint)))
-    (pp `(specifying-joint ,(m:joint-name joint) ,v))
+    (pp `(specifying-joint ,(print (m:joint-name joint)) ,v))
     (m:instantiate (m:joint-theta joint) v 'specify-joint)))
 
 (define (m:specify-something mechanism)
@@ -73,16 +104,23 @@
        (else
         (m:initialize-bar (car bars))
         #t)))))
+;;;;;;;;;;;;;;;;;;;;;;;; Applying constraints ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:apply-mechanism-constraints m)
+  (for-each (lambda (c)
+              (m:apply-constraint m c))
+            (m:mechanism-constraints m)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Build ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (m:build-mechanism mechanism)
-  (m:assemble-linkages (m:mechanism-bars mechanism)
-                       (m:mechanism-joints mechanism))
+(define (m:build-mechanism m)
+  (m:assemble-linkages (m:mechanism-bars m)
+                       (m:mechanism-joints m))
+  (m:apply-mechanism-constraints m)
   (let lp ()
     (run)
-    (if (not (m:mechanism-fully-specified? mechanism))
-        (if (m:specify-something mechanism)
+    (if (not (m:mechanism-fully-specified? m))
+        (if (m:specify-something m)
             (lp)
             (error "Couldn't find anything to specify."))
         'mechanism-built)))
@@ -107,6 +145,9 @@
         (segments (map m:bar->figure-segment (m:mechanism-bars m)))
         (angles (map m:joint->figure-angle (m:mechanism-joints m))))
     (apply figure (append points segments angles))))
+
+(define (m:draw-mechanism m c)
+  (draw-figure (m:mechanism->figure m) c))
 
 #|
 (let lp ()

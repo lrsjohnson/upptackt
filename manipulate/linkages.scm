@@ -289,7 +289,7 @@
 
 (define (m:print-bar b)
   `(m:bar
-    ,(m:bar-name b)
+    ,(print (m:bar-name b))
     ,(print (m:bar-p1 b))
     ,(print (m:bar-p2 b))
     ,(print (m:bar-vec b))))
@@ -404,7 +404,7 @@
 
 (define (m:print-joint j)
   `(m:joint
-    ,(m:joint-name j)
+    ,(print (m:joint-name j))
     ,(print (m:joint-dir-1 j))
     ,(print (m:joint-vertex j))
     ,(print (m:joint-dir-2 j))
@@ -439,6 +439,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define (m:make-bar-name-key bar-id)
+  (symbol 'm:bar:
+          (m:bar-id-p1-name bar-id) ':
+          (m:bar-id-p2-name bar-id)))
+
+(define (m:make-joint-name-key joint-id)
+  (symbol 'm:joint:
+          (m:joint-id-dir-1-name joint-id) ':
+          (m:joint-id-vertex-name joint-id) ':
+          (m:joint-id-dir-2-name joint-id)))
+
 (define (m:name-element! element name)
   (eq-put! element 'm:name name))
 
@@ -453,7 +464,7 @@
     bar))
 
 (define (m:bar-name bar)
-  (m:make-bar-name-key
+  (m:bar
    (m:element-name (m:bar-p1 bar))
    (m:element-name (m:bar-p2 bar))))
 
@@ -471,7 +482,7 @@
     joint))
 
 (define (m:joint-name joint)
-  (m:make-joint-name-key
+  (m:joint
    (m:joint-dir-1-name joint)
    (m:joint-vertex-name joint)
    (m:joint-dir-2-name joint)))
@@ -485,15 +496,111 @@
 (define (m:joint-dir-2-name joint)
   (m:element-name (m:joint-dir-2 joint)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;; Keys for Names ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;; Symbolic Bar / Joint Identifiers ;;;;;;;;;;;;;;;;;;
 
-(define (m:make-bar-name-key p1-name p2-name)
-  (symbol 'm:bar: p1-name ': p2-name))
+;;; Maybe Move?
 
-(define (m:make-joint-name-key dir-1-name vertex-name dir-2-name)
-  (symbol 'm:joint: dir-1-name ': vertex-name ': dir-2-name))
+(define-record-type <m:bar-id>
+  (%m:make-bar-id p1-name p2-name)
+  m:bar-id?
+  (p1-name m:bar-id-p1-name)
+  (p2-name m:bar-id-p2-name))
 
-;;;;;;;;;;;;;;;;;; Table and operations using names ;;;;;;;;;;;;;;;;;;
+(define (m:bar p1-name p2-name)
+  (%m:make-bar-id p1-name p2-name))
+
+(defhandler print m:make-bar-name-key m:bar-id?)
+
+(define (m:reverse-bar-id bar-id)
+  (%m:make-bar-id (m:bar-id-p2-name bar-id)
+                  (m:bar-id-p1-name bar-id)))
+
+;;; Joints:
+
+(define-record-type <m:joint-vertex-id>
+  (%m:make-joint-verex-id vertex-name)
+  m:joint-vertex-id?
+  (vertex-name m:joint-vertex-id-name))
+
+(define-record-type <m:joint-id>
+  (%m:make-joint-id dir-1-name vertex-name dir-2-name)
+  m:joint-id?
+  (dir-1-name m:joint-id-dir-1-name)
+  (vertex-name m:joint-id-vertex-name)
+  (dir-2-name m:joint-id-dir-2-name))
+
+(defhandler print m:make-joint-name-key m:joint-id?)
+
+(define (m:joint arg1 . rest)
+  (cond ((null? rest)
+         (%m:make-joint-verex-id arg1))
+        ((= 2 (length rest))
+         (%m:make-joint-id arg1 (car rest) (cadr rest)))
+        (else
+         (error "m:joint was called with the wrong number of arguments."))))
+
+;;;;;;;;;;;;;; Tables and Accessors for named linkages ;;;;;;;;;;;;;;;
+(define (m:make-bars-by-name-table bars)
+  (let ((table (make-key-weak-eqv-hash-table)))
+    (for-each (lambda (bar)
+                (hash-table/put! table
+                                 (m:make-bar-name-key (m:bar-name bar))
+                                 bar))
+              bars)
+    table))
+
+;;; Unordered
+(define (m:find-bar-by-id table bar-id)
+  (or (hash-table/get table
+                      (m:make-bar-name-key bar-id)
+                      #f)
+      (hash-table/get table
+                      (m:make-bar-name-key (m:reverse-bar-id bar-id))
+                      #f)))
+
+;;; Joints:
+
+(define (m:make-joints-by-vertex-name-table joints)
+  (let ((table (make-key-weak-eq-hash-table)))
+    (for-each
+     (lambda (joint)
+       (let ((key (m:joint-vertex-name joint)))
+         (hash-table/put!
+          table key
+          (cons
+           joint (hash-table/get table
+                                 key
+                                 '())))))
+     joints)
+    table))
+
+(define (m:find-joint-by-vertex-name table vertex-name)
+  (let ((joints (hash-table/get table
+                                vertex-name
+                                #f)))
+    (cond ((null? joints) #f)
+          ((= (length joints) 1)
+           (car joints))
+          (else (error "Vertex name not unique among joints"
+                       (map m:joint-name joints))))))
+
+(define (m:make-joints-by-name-table joints)
+  (let ((table (make-key-weak-eq-hash-table)))
+    (for-each (lambda (joint)
+                (hash-table/put! table
+                                 (m:make-joint-name-key (m:joint-name joint))
+                                 joint))
+              joints)
+    table))
+
+;;; dir-2 is CCW from dir-1
+(define (m:find-joint-by-id table joint-id)
+  (hash-table/get
+   table
+   (m:make-joint-name-key joint-id)
+   #f))
+
+;;;;;;;;;;;;;;;;;;;;;;; Operations using Names ;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:identify-joint-bar-by-name joint bar)
   (let ((vertex-name (m:joint-vertex-name joint))
@@ -517,32 +624,6 @@
                               bar-p1-name))))
           (else (error "Bar can't be identified with joint - no vertex"
                        vertex-name)))))
-
-(define (m:make-bars-by-name-table bars)
-  (let ((table (make-key-weak-eqv-hash-table)))
-    (for-each (lambda (bar)
-                (hash-table/put! table
-                                 (m:bar-name bar)
-                                 bar))
-              bars)
-    table))
-
-(define (m:find-bar-by-unordered-endpoint-names table p1-name p2-name)
-  (or (hash-table/get table
-                      (m:make-bar-name-key p1-name p2-name)
-                      #f)
-      (hash-table/get table
-                      (m:make-bar-name-key p2-name p1-name)
-                      #f)))
-
-(define (m:make-joints-by-vertex-name-table joints)
-  (let ((table (make-key-weak-eq-hash-table)))
-    (for-each (lambda (joint)
-                (hash-table/put! table
-                                 (m:joint-vertex-name joint)
-                                 joint))
-              joints)
-    table))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Degrees of Freedom  ;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -624,14 +705,12 @@
         (error "Attempting to specify theta for joint"))))
 
 (define (m:random-bar-length)
-  (internal-rand-range 0.1 1.9))
+  (internal-rand-range 0.1 0.9))
 
 (define (m:initialize-bar bar)
   (m:instantiate-point (m:bar-p1 bar) 0 0 'initialize)
   (m:instantiate (m:bar-direction bar) (make-direction 0) 'initialize)
-  (let ((v (m:random-bar-length)))
-    (pp `(initializing-bar ,(m:bar-name bar) ,v))
-    (m:instantiate (m:bar-length bar) v 'initialize)))
+  (pp `(initializing-bar ,(print (m:bar-name bar)))))
 
 (define (m:initialize-joint joint)
   (m:instantiate-point (m:joint-vertex joint) 0 0 'initialize)
@@ -648,14 +727,14 @@
              (dir-2-name (m:joint-dir-2-name joint)))
          (for-each
           (lambda (dir-name)
-            (let ((bar (m:find-bar-by-unordered-endpoint-names
+            (let ((bar (m:find-bar-by-id
                         bar-table
-                        vertex-name
-                        dir-name)))
+                        (m:bar vertex-name
+                               dir-name))))
               (if (eq? bar #f)
                   (error "Could not find bar for" vertex-name dir-name))
               (m:identify-joint-bar-by-name joint bar)))
-                   (list dir-1-name dir-2-name))))
+          (list dir-1-name dir-2-name))))
      joints)))
 
 #|
