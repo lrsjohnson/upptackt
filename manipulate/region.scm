@@ -69,6 +69,10 @@
 
 (define m:make-ray %m:make-ray)
 
+(define (m:ray->figure-ray m-ray)
+  (make-ray (m:ray-endpoint m-ray)
+            (m:ray-direction m-ray)))
+
 (define (m:on-ray? p ray)
   (let ((endpoint (m:ray-endpoint ray)))
     (or (point-equal? p endpoint)
@@ -337,3 +341,11 @@
                                  '(a))))
        (pp (tms-query (content cell)))))
 |#
+;;;;;;;;;;;;;;;;;;;;;;;;; To Figure elements ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define m:region->figure-element
+  (make-generic-operation 1 'm:region->figure-element (lambda (r) #f )))
+
+(defhandler m:region->figure-element
+  m:ray->figure-ray
+  m:ray?)
