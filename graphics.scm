@@ -121,7 +121,6 @@
 (add-to-draw-element! polygon? draw-polygon)
 
 (add-to-draw-label! point? draw-point-label)
-(add-to-draw-label! segment? draw-segment-label)
 
 ;;; Canvas for x-graphics
 
