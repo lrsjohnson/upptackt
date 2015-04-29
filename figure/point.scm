@@ -19,6 +19,12 @@
   (x point-x)
   (y point-y))
 
+(define (print-point p)
+  `(point ,(point-x p) ,(point-y p)))
+
+(defhandler print
+  print-point point?)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (point-equal? p1 p2)

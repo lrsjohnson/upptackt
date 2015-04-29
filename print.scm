@@ -10,5 +10,10 @@
 (define print
   (make-generic-operation 1 'print (lambda (x) x)))
 
+(defhandler print
+  (lambda (l) (map print l))
+  list?)
+
 (define (pprint x)
+  (display "\n")
   (pp (print x)))

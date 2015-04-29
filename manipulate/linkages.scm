@@ -46,7 +46,11 @@
            (contingent-info (tms-query v)))
           (else v))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;; Dealing with Angles ;;;;;;;;;;;;;;;;;;;;;;
+(defhandler print
+  (lambda (cell) (print (m:examine-cell cell)))
+  cell?)
+
+;;;;;;;;;;;;;;;;;;;;;;;; Reversing directions ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define m:reverse-direction
   (make-generic-operation 1 'm:reverse-direction))
@@ -110,6 +114,14 @@
     (p:* length (e:sin direction) dy)
     (%m:make-vec dx dy length direction)))
 
+(define (m:print-vec v)
+  `(m:vec (,(print (m:vec-dx v))
+           ,(print (m:vec-dy v)))
+          ,(print (m:vec-length v))
+          ,(print (m:vec-direction v))))
+
+(defhandler print m:print-vec m:vec?)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Point ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-record-type <m:point>
   (%m:make-point x y region)
@@ -161,6 +173,13 @@
         (m:examine-cell (m:point-x p))
         (m:examine-cell (m:point-y p))))
 
+(define (m:print-point p)
+  `(m:point ,(print (m:point-x p))
+            ,(print (m:point-y p))
+            ,(print (m:point-region p))))
+
+(defhandler print m:print-point m:point?)
+
 ;;; Set p1 and p2 to be equal
 (define (m:identify-points p1 p2)
   (for-each (lambda (getter)
@@ -181,6 +200,15 @@
 
 (define (m:bar-length bar)
   (m:vec-length (m:bar-vec bar)))
+
+(define (m:print-bar b)
+  `(m:bar
+    ,(m:bar-name b)
+    ,(print (m:bar-p1 b))
+    ,(print (m:bar-p2 b))
+    ,(print (m:bar-vec b))))
+
+(defhandler print m:print-bar m:bar?)
 
 ;;; Allocate cells and wire up a bar
 (define (m:make-bar)
@@ -285,6 +313,15 @@
        theta)
       (%m:make-joint vertex dir-1 dir-2 theta))))
 
+(define (m:print-joint j)
+  `(m:joint
+    ,(m:joint-name j)
+    ,(print (m:joint-dir-1 j))
+    ,(print (m:joint-vertex j))
+    ,(print (m:joint-dir-2 j))
+    ,(print (m:joint-theta j))))
+
+(defhandler print m:print-joint m:joint?)
 
 (define (m:propagate-to-dir
          min-dir-value-cell

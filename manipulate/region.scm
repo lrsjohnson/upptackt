@@ -56,6 +56,9 @@
         (map (lambda (p) (list 'point (point-x p) (point-y p)))
              (m:point-set-points ps))))
 
+(defhandler print
+  m:print-point-set m:point-set?)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Rays ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <m:ray>
@@ -88,7 +91,10 @@
              ,(point-y endpoint))
             ,(direction-theta (m:ray-direction ray)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;; Semi Circle ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defhandler print
+  m:print-ray m:ray?)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Arcs ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <m:arc>
   (m:make-arc center-point radius dir-interval)
@@ -131,6 +137,10 @@
             (,(direction-theta (direction-interval-start dir-interval))
              ,(direction-theta (direction-interval-end dir-interval))))))
 
+(defhandler print
+  m:print-arc
+  m:arc?)
+
 ;;;;;;;;;;;;;;;;;;;;;;; Contradiction Objects ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <m:region-contradiction>
@@ -172,7 +182,7 @@
     (if (point-equal? c1 c2)
         (if (close-enuf? r1 r2)
             (m:make-arc c1 r1
-                        (intersect-dir-intervals
+                        (intersect-direction-intervals
                          (m:arc-dir-interval arc1)
                          (m:arc-dir-interval arc2)))
             (m:make-region-contradiction 0))
