@@ -24,7 +24,6 @@
 (define (m:make-mechanism bars joints constraints)
   (%m:make-mechanism bars joints constraints))
 
-
 (define (m:mechanism args)
   (let ((elements (flatten args)))
     (let ((bars (filter m:bar? elements))
@@ -48,7 +47,7 @@
     (m:instantiate (m:bar-length bar) v 'specify-bar)))
 
 (define (m:specify-joint joint)
-  (let ((v (m:random-joint-theta)))
+  (let ((v (m:random-theta-for-joint joint)))
     (pp `(specifying-joint ,(m:joint-name joint) ,v))
     (m:instantiate (m:joint-theta joint) v 'specify-joint)))
 

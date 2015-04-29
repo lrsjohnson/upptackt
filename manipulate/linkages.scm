@@ -67,29 +67,114 @@
     (p:m:reverse-direction output-cell input-cell)
     output-cell))
 
+;;;;;;;;;;;;;;;;;;;;;;;; Adding to directions ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:add-interval-to-direction d i)
+  (if (empty-interval? i)
+      (error "Cannot add empty interval to direction"))
+  (make-direction-interval-from-start-dir-and-size
+   (add-to-direction d (interval-low i))
+   (- (interval-high i)
+      (interval-low i))))
+
+(define (m:add-interval-to-standard-direction-interval di i)
+  (if (empty-interval? i)
+      (error "Cannot add empty interval to direction"))
+  (let ((di-size (direction-interval-size di))
+        (i-size (- (interval-high i)
+                   (interval-low i)))
+        (di-start (direction-interval-start di)))
+    (make-direction-interval-from-start-dir-and-size
+     (add-to-direction di-start (interval-low i))
+     (+ di-size i-size))))
+
+(define (m:add-interval-to-full-circle-direction-interval fcdi i)
+  (if (empty-interval? i)
+      (error "Cannot add empty interval to direction"))
+  fcdi)
+
+(define (m:add-interval-to-invalid-direction-interval fcdi i)
+  (if (empty-interval? i)
+      (error "Cannot add empty interval to direction"))
+  (error "Cannot add to invalid direction in"))
+
+
 (define m:add-to-direction
   (make-generic-operation 2 'm:add-to-direction))
+
 (defhandler m:add-to-direction
-   add-to-direction direction? number?)
+  m:add-interval-to-direction direction? interval?)
+
 (defhandler m:add-to-direction
-   shift-direction-interval direction-interval? number?)
+  add-to-direction direction? number?)
+
+(defhandler m:add-to-direction
+  m:add-interval-to-standard-direction-interval
+  standard-direction-interval? interval?)
+
+(defhandler m:add-to-direction
+  m:add-interval-to-full-circle-direction-interval
+  full-circle-direction-interval? interval?)
+
+(defhandler m:add-to-direction
+  m:add-interval-to-invalid-direction-interval
+  invalid-direction-interval? interval?)
+
+(defhandler m:add-to-direction
+  shift-direction-interval direction-interval? number?)
 
 (propagatify m:add-to-direction)
 
+;;;;;;;;;;;;;;;;;;;;;;; Subtracting directions ;;;;;;;;;;;;;;;;;;;;;;;
+
+(defhandler generic-negate
+  (lambda (i) (mul-interval i -1)) %interval?)
+
+(define (m:standard-direction-interval-minus-direction di d)
+  (make-interval
+   (subtract-directions (direction-interval-start di) d)
+   (subtract-directions (direction-interval-end di) d)))
+
+(define (m:full-circle-direction-interval-minus-direction di d)
+  (make-interval
+   0 (* 2 pi)))
+
+(define (m:direction-minus-standard-direction-interval d di)
+  (make-interval
+   (subtract-directions d (direction-interval-end di))
+   (subtract-directions d (direction-interval-start di))))
+
+(define (m:direction-minus-full-circle-direction-interval d di)
+  (make-interval
+   0 (* 2 pi)))
+
 (define m:subtract-directions
   (make-generic-operation 2 'm:subtract-directions))
+
 (defhandler m:subtract-directions
   subtract-directions direction? direction?)
-;;; TODO: Support Intervals for thetas
+
+;;; TODO: Support Intervals for thetas?
 (defhandler m:subtract-directions
-  (lambda (a b) nothing)
+  (lambda (di1 di2)
+    nothing)
   direction-interval? direction-interval?)
+
 (defhandler m:subtract-directions
-  (lambda (a b) nothing)
-  direction-interval? direction?)
+  m:standard-direction-interval-minus-direction
+  standard-direction-interval? direction?)
+
 (defhandler m:subtract-directions
-  (lambda (a b) nothing)
-  direction? direction-interval?)
+  m:full-circle-direction-interval-minus-direction
+  full-circle-direction-interval? direction?)
+
+(defhandler m:subtract-directions
+  m:direction-minus-standard-direction-interval
+  direction? standard-direction-interval?)
+
+(defhandler m:subtract-directions
+  m:direction-minus-full-circle-direction-interval
+  direction? full-circle-direction-interval?)
 
 (propagatify m:subtract-directions)
 
@@ -102,6 +187,7 @@
   (length m:vec-length)
   (direction m:vec-direction))
 
+
 ;;; Allocate and wire up the cells in a vec
 (define (m:make-vec)
   (let-cells (dx dy length direction)
@@ -110,8 +196,8 @@
     (p:sqrt (e:+ (e:square dx)
                  (e:square dy))
             length)
-    (p:* length (e:cos direction) dx)
-    (p:* length (e:sin direction) dy)
+    (p:* length (e:direction-cos direction) dx)
+    (p:* length (e:direction-sin direction) dy)
     (%m:make-vec dx dy length direction)))
 
 (define (m:print-vec v)
@@ -301,6 +387,8 @@
   (dir-2 m:joint-dir-2)
   (theta m:joint-theta))
 
+(define *max-joint-swing* pi)
+
 (define (m:make-joint)
   (let ((vertex (m:make-point)))
     (let-cells (dir-1 dir-2 theta)
@@ -311,6 +399,7 @@
       (p:m:subtract-directions
        dir-2 dir-1
        theta)
+      (m:instantiate theta (make-interval 0 *max-joint-swing*) 'theta)
       (%m:make-joint vertex dir-1 dir-2 theta))))
 
 (define (m:print-joint j)
@@ -323,56 +412,30 @@
 
 (defhandler print m:print-joint m:joint?)
 
-(define (m:propagate-to-dir
-         min-dir-value-cell
-         bar-dir-cell)
-  (propagator (list min-dir-value-cell)
-    (lambda ()
-      (let ((min-dir-value (content min-dir-value-cell)))
-        (if (and (not (nothing? min-dir-value))
-                 (direction? min-dir-value))
-            (add-content
-             bar-dir-cell
-             (make-semi-circle-direction-interval
-              min-dir-value))
-            'done)))))
-
 ;;; TOOD: Abstract?
 (define (m:identify-out-of-arm-1 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p1 bar))
   (c:id (m:joint-dir-1 joint)
-        (m:bar-direction bar))
-  (m:propagate-to-dir
-   (ce:reverse-direction (m:joint-dir-2 joint))
-   (m:bar-direction bar)))
+        (m:bar-direction bar)))
 
 (define (m:identify-out-of-arm-2 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p1 bar))
   (c:id (m:joint-dir-2 joint)
-        (m:bar-direction bar))
-  (m:propagate-to-dir
-   (m:joint-dir-1 joint)
-   (m:bar-direction bar)))
+        (m:bar-direction bar)))
 
 (define (m:identify-into-arm-1 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
   (c:id (ce:reverse-direction (m:joint-dir-1 joint))
-        (m:bar-direction bar))
-  (m:propagate-to-dir
-   (m:joint-dir-2 joint)
-   (m:bar-direction bar)))
+        (m:bar-direction bar)))
 
 (define (m:identify-into-arm-2 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
   (c:id (ce:reverse-direction (m:joint-dir-2 joint))
-        (m:bar-direction bar))
-  (m:propagate-to-dir
-   (ce:reverse-direction (m:joint-dir-1 joint))
-   (m:bar-direction bar)))
+        (m:bar-direction bar)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -485,11 +548,10 @@
 
 (define (m:specified? cell #!optional predicate)
   (let ((v (m:examine-cell cell)))
-    ;(and
+    (and
      (not (nothing? v))
-     ;(or (default-object? predicate)
-     ;(predicate v))))
-     ))
+     (or (default-object? predicate)
+         (predicate v)))))
 
 (define (m:bar-length-specified? bar)
   (m:specified? (m:bar-length bar)) number?)
@@ -552,10 +614,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Specifying Values ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (m:random-joint-theta)
-  (internal-rand-range
-   (* 1 (/ pi 10))
-   (* 4 (/ pi 10))))
+(define (m:random-theta-for-joint joint)
+  (let ((theta-range (m:examine-cell (m:joint-theta joint))))
+    (if (interval? theta-range)
+        (begin
+          (internal-rand-range
+           (interval-low theta-range)
+           (interval-high theta-range)))
+        (error "Attempting to specify theta for joint"))))
 
 (define (m:random-bar-length)
   (internal-rand-range 0.1 1.9))
