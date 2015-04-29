@@ -21,9 +21,9 @@
     (bars m:mechanism-bars)
     (joints m:mechanism-joints)
     (constraints m:mechanism-constraints)
-    (bar-table %m:mechanism-bar-table)
-    (joint-table %m:mechanism-joint-table)
-    (joint-by-vertex-table %m:mechanism-joint-by-vertex-table))
+    (bar-table m:mechanism-bar-table)
+    (joint-table m:mechanism-joint-table)
+    (joint-by-vertex-table m:mechanism-joint-by-vertex-table))
 
 (define (m:make-mechanism bars joints constraints)
   (let ((bar-table (m:make-bars-by-name-table bars))
@@ -34,32 +34,47 @@
 
 (define (m:mechanism . args)
   (let ((elements (flatten args)))
-    (let ((bars (filter m:bar? elements))
+    (let ((bars (m:dedupe-bars (filter m:bar? elements)))
           (joints (filter m:joint? elements))
           (constraints (filter m:constraint? elements)))
       (m:make-mechanism bars joints constraints))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Deduplication ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(define (m:dedupe member-predicate elements)
+  (cond ((null? elements) '())
+        (else
+         (let ((b1 (car elements)))
+           (if (member-predicate b1 (cdr elements))
+               (m:dedupe member-predicate (cdr elements))
+               (cons b1 (m:dedupe member-predicate (cdr elements))))))))
+
+(define (m:dedupe-bars bars)
+  (m:dedupe (member-procedure m:bars-name-equivalent?) bars))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Accessors ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:mechanism-joint-by-vertex-name m vertex-name)
   (m:find-joint-by-vertex-name
-   (%m:mechanism-joint-by-vertex-table m)
+   (m:mechanism-joint-by-vertex-table m)
    vertex-name))
 
 (define (m:mechanism-joint-by-names m dir-1-name vertex-name dir-2-name)
   (m:find-joint-by-names
-   (%m:mechanism-joint-table m)
+   (m:mechanism-joint-table m)
    dir-1-name vertex-name dir-2-name))
 
 (define (m:lookup m id)
   (cond ((m:bar-id? id) (m:find-bar-by-id
-                         (%m:mechanism-bar-table m)
+                         (m:mechanism-bar-table m)
                          id))
         ((m:joint-id? id) (m:find-joint-by-id
-                           (%m:mechanism-joint-table m)
+                           (m:mechanism-joint-table m)
                            id))
         ((m:joint-vertex-id? id) (m:find-joint-by-vertex-name
-                                  (%m:mechanism-joint-by-vertex-table m)
+                                  (m:mechanism-joint-by-vertex-table m)
                                   (m:joint-vertex-id-name id)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Specified ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -138,6 +153,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Build ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define (m:identify-vertices m)
+  (for-each (lambda (joints)
+              (let ((first-vertex (m:joint-vertex (car joints))))
+                (for-each (lambda (joint)
+                            (m:identify-points first-vertex
+                                               (m:joint-vertex joint)))
+                          (cdr joints))))
+            (hash-table/datum-list (m:mechanism-joint-by-vertex-table m))))
 
 (define (m:build-mechanism m)
   (m:identify-vertices m)
@@ -185,6 +208,7 @@
             (m:establish-polygon-topology 'a 'b 'c 'd))))
     (pp (m:joint-anchored? (car (m:mechanism-joints m))))
     (m:build-mechanism m)
+    (m:solve-mechanism m)
     (let ((f (m:mechanism->figure m)))
       (draw-figure f c)
       (pp (analyze-figure f)))))
