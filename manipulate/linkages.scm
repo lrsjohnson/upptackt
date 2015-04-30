@@ -414,28 +414,47 @@
 
 ;;; TOOD: Abstract?
 (define (m:identify-out-of-arm-1 joint bar)
+  (m:set-endpoint-1 bar joint)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p1 bar))
   (c:id (m:joint-dir-1 joint)
         (m:bar-direction bar)))
 
 (define (m:identify-out-of-arm-2 joint bar)
+  (m:set-endpoint-1 bar joint)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p1 bar))
   (c:id (m:joint-dir-2 joint)
         (m:bar-direction bar)))
 
 (define (m:identify-into-arm-1 joint bar)
+  (m:set-endpoint-2 bar joint)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
   (c:id (ce:reverse-direction (m:joint-dir-1 joint))
         (m:bar-direction bar)))
 
 (define (m:identify-into-arm-2 joint bar)
+  (m:set-endpoint-2 bar joint)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
   (c:id (ce:reverse-direction (m:joint-dir-2 joint))
         (m:bar-direction bar)))
+
+;;;;;;;;;;;;;;;;;;;;;;;; Storing Adjacencies ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:set-endpoint-1 bar joint)
+  (eq-put! bar 'm:bar-endpoint-1 joint))
+
+(define (m:bar-endpoint-1 bar)
+  (eq-get bar 'm:bar-endpoint-1))
+
+(define (m:set-endpoint-2 bar joint)
+  (eq-put! bar 'm:bar-endpoint-2 joint))
+
+(define (m:bar-endpoint-2 bar)
+  (eq-get bar 'm:bar-endpoint-2))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -467,6 +486,14 @@
   (m:bar
    (m:element-name (m:bar-p1 bar))
    (m:element-name (m:bar-p2 bar))))
+
+(define (m:bars-name-equivalent? bar-1 bar-2)
+  (or (m:bar-id-equal?
+       (m:bar-name bar-1)
+       (m:bar-name bar-2))
+      (m:bar-id-equal?
+       (m:bar-name bar-1)
+       (m:reverse-bar-id (m:bar-name bar-2)))))
 
 (define (m:bar-p1-name bar)
   (m:element-name (m:bar-p1 bar)))
@@ -506,6 +533,12 @@
   (p1-name m:bar-id-p1-name)
   (p2-name m:bar-id-p2-name))
 
+(define (m:bar-id-equal? bar-id-1 bar-id-2)
+  (and (eq? (m:bar-id-p1-name bar-id-1)
+            (m:bar-id-p1-name bar-id-2))
+       (eq? (m:bar-id-p2-name bar-id-1)
+            (m:bar-id-p2-name bar-id-2))))
+
 (define (m:bar p1-name p2-name)
   (%m:make-bar-id p1-name p2-name))
 
@@ -543,9 +576,10 @@
 (define (m:make-bars-by-name-table bars)
   (let ((table (make-key-weak-eqv-hash-table)))
     (for-each (lambda (bar)
-                (hash-table/put! table
-                                 (m:make-bar-name-key (m:bar-name bar))
-                                 bar))
+                (let ((key (m:make-bar-name-key (m:bar-name bar))))
+                  (if (hash-table/get table key #f)
+                      (error "Bar key already in bar name table" key))
+                  (hash-table/put! table key bar)))
               bars)
     table))
 
