@@ -1,0 +1,63 @@
+#+TITLE: Thesis Ideas
+#+OPTIONS: toc:nil
+* Overview
+** Visualizing "In the Mind's Eye"
+
+
+* Prior Work
+
+* Imperative Geometry Construction System
+** Basic Structures
+*** Points
+*** Segments, Lines, Rays
+*** Angles
+    - Initially three points, now vertext + two direction
+    - CCW orientation
+    - Methods to determine from elements
+    - "Arms" of an angle: "Directions"
+    - [Future:] Possibly automatically extract angles from diagrams
+      (e.g. from a pile of points and segments)
+*** Circles, Arcs
+*** Math Support (Directions, Vectors)
+
+** Construction Operations
+*** Traditional
+*** Measurement-based
+*** Transformations
+
+** Randomness
+*** Remembering choices
+*** Avoiding Almost-degenerate points
+*** Animating
+
+** Dependencies
+*** Naming
+*** Dependencies
+*** Forcing higher-level random dependencies
+
+** Construction Language
+*** Macros
+*** Multiple Assignment
+
+** Analysis
+*** What is Interesting
+*** Removing obvious properties
+
+* Declarative Geometry Constraint Solver
+** Mechanical Analogies
+*** Bars, Joint Linkages
+*** Mechanism
+*** Propagators
+
+** Partial Information
+*** Regions
+*** Direction Intervals
+
+** Propagator Constraints
+*** Basic Constraints for Bar, Joint
+*** Higher-level constraints
+
+** Specification Ordering
+*** Constraints First
+
+* Learning
