@@ -1,13 +1,24 @@
-;;; Analysis tools
+;;; analyzer.scm --- Tools for analyzing Diagram
+
+;;; Commentary
+
+;; Ideas:
+;; - Analyze figrue to dermine properties "beyond coincidence"
+;; - Use dependency structure to eliminate some obvious examples.
+
+;; Future:
+;; - Add More "interesting properties"
+;; - Create storage for learned properties.
+;; - Output format, add names
+;; - Separate "discovered" from old properties.
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Main Interface ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (analyze-figure figure)
   (analyze figure))
 
-
-(define (results-with-names result-type elements)
-  (map (lambda (p-pair)
-         (cons result-type (map element-dependency p-pair)))
-       elements))
 
 ;;; Given a figure, report what's interesting
 (define (analyze figure)
@@ -34,6 +45,12 @@
                                 (report-perpendicular-elements linear-elements))
             (results-with-names 'equal-length
                                 (report-equal-segments segments)))))
+
+(define (results-with-names result-type elements)
+  (map (lambda (p-pair)
+         (cons result-type (map element-dependency p-pair)))
+       elements))
+
 
 ;;; General proceudres for generating pairs
 (define (all-pairs elements)

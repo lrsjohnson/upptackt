@@ -1,9 +1,25 @@
+;;; animation.scm --- Animating and persisting values in figure constructions
+
+;;; Commentary:
+
+;; Ideas:
+;; - Animate a range
+;; - persist randomly chosen values across frames
+
+;; Future:
+;; - Backtracking, etc.
+;; - Save continuations?
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Configurations ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define *animation-steps* 15)
 
-;; 30 Frames per second:
+;; ~30 Frames per second:
 (define *animation-sleep* 30)
 
-;;;; Internals:
+;;;;;;;;;;;;;;;;;;;;;;;;; Internal Constants ;;;;;;;;;;;;;;;;;;;;;;;;;
 (define *is-animating?* #f)
 (define *animation-value* 0)
 (define *next-animation-index* 0)
@@ -27,6 +43,9 @@
                (if (< *animating-index* (- *next-animation-index* 1))
                    (lp (+ animate-index 1))))))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;; Animating Functions ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; f should be a function of one float argument in [0, 1]
 (define (animate f)
   (let ((my-index *next-animation-index*))
     (set! *next-animation-index* (+ *next-animation-index* 1))
@@ -34,7 +53,13 @@
              ((= *animating-index* my-index) *animation-value*)
              ((> *animating-index* my-index) 1)))))
 
-;;; Persistence
+(define (animate-range min max)
+  (animate (lambda (v)
+             (+ min
+                (* v (- max min))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Persistence ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define *persistent-values-table* #f)
 (define *next-value-index* 0)
 
@@ -53,23 +78,3 @@
                                my-index
                                v)
               v)))))
-
-;;; Example Animations
-
-;;; 1   -1
-;;; 0    1
-
-(define (remap-v v)
-  (* 2 (- 0.5 (abs (- v 0.5)))))
-
-(define (animate-range min max)
-  (animate (lambda (v)
-             (+ min
-                (* v (- max min))))))
-
-;;; Test
-(define (test-function)
-  (pp (animate-range 0 1)))
-
-(define (r-animation-test)
-  (run-animation test-function))

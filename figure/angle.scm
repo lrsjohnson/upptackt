@@ -12,7 +12,6 @@
 ;; - Automatically discover angles from diagrams (e.g. from a pile of
 ;;     points and segments)
 ;; - Angle intersections
-;; - Angles from "joints"
 
 ;;; Code:
 

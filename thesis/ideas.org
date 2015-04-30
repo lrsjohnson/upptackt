@@ -2,62 +2,123 @@
 #+OPTIONS: toc:nil
 * Overview
 ** Visualizing "In the Mind's Eye"
-
-
 * Prior Work
-
 * Imperative Geometry Construction System
 ** Basic Structures
 *** Points
-*** Segments, Lines, Rays
+    - Basis of most elements, always named.
+    - Only coordinates, primary component that need to be translated
+*** Linear Elements: Segments, Lines, Rays
+    - Linear
 *** Angles
     - Initially three points, now vertext + two direction
     - CCW orientation
     - Methods to determine from elements
     - "Arms" of an angle: "Directions"
-    - [Future:] Possibly automatically extract angles from diagrams
-      (e.g. from a pile of points and segments)
+    - [Future:]
+      - Possibly automatically extract angles from diagrams
+        (e.g. from a pile of points and segments)
 *** Circles, Arcs
+    - Currently, very limited support
+    - Future: Arcs, Tangents
 *** Math Support (Directions, Vectors)
-
+    - Direction: [0, 2pi]. Quasi "type-checking", direction
+      optimizations
+    - Separates from "angle measures", for instance.
+    - Could generalize/genericize to dx, dy or theta for numerical precision.
+    - Various utils, determinants, fix-angle-0-2pi, radians/degrees
+** Higher-level structures:
+*** Polygons:
+    - Group of points (and derived segments).
+    - Dependencies
+    - Other Accessors?
+*** Figures:
+    - Currently just groups of elements, could abstract / extract
+      more information.
+*** Adjacency, Graph
+    - ? Store the adjacencies.
 ** Construction Operations
 *** Traditional
+    - Midpoint, perpendicular line, perp. bisector, angle bisector
+*** Intersections
+    - Generic intersection, based on line/line and line/circle at
+      core + checks that final result is on the elements.
+    - Handling multiple intersections
 *** Measurement-based
+    - "Ruler/protractor" not standard geometry tools, but effective
+      in practice.
+    - Distance, angle measures => creating measured points
 *** Transformations
-
+    - Rotate about a point
+    - Translate by vector
 ** Randomness
+*** Random Choices
+    - At basis is a "random range".
 *** Remembering choices
+    - Persisting values across random choices, repeated instances / frames.
+*** Backtracking?
+    - TODO? Continuations
 *** Avoiding Almost-degenerate points
+    - TODO? Requires backtracking.
 *** Animating
-
+    - Animate over a small range within the specified random range
+    - Infrastructure for determining frames, sleeping, etc.
+    - Constructions can request to animate functions of one arg [0, 1]
 ** Dependencies
+*** Implementation
+    - Eq-properties, etc.
 *** Naming
+    - Specified by the user upon creation
+    - Sometimes derived if unnamed (e.g. segments)
+    - [Future]: do
+      - [ ] more of this?
 *** Dependencies
+    - Unknown dependencies
+    - Numbered random dependencies
 *** Forcing higher-level random dependencies
-
+    - "Inverts" the dependency tree that would otherwise usually go
+      down to points. set-dependency! as random-square, e.g.
 ** Construction Language
 *** Macros
 *** Multiple Assignment
-
+** Graphics
+*** XScheme Graphics
+    - MIT Scheme Graphics system
+    - Basic primitives, colors, text, etc.
+    - Labels for elements.
+*** Bounds
+    - Restrict lines/rays to graphics bounds so they can be drawn.
+    - [Future]:
+      - Logical bounds vs. graphic bounds
 ** Analysis
 *** What is Interesting
+    - Concurrent points
+    - Equal Angles
+    - Supplementary Angles
+    - Complementary Angles
+    - Perpendicular Elements
+    - Equal Segments
 *** Removing obvious properties
-
+    - Traverse dependencies (and adjacency?) graphs
+*** Representing discoveries
+    - TODO
+*** Output to users
+    - Currently prints dependencies
 * Declarative Geometry Constraint Solver
 ** Mechanical Analogies
 *** Bars, Joint Linkages
 *** Mechanism
+    - Analogous to "figure" in imperative system.
 *** Propagators
-
 ** Partial Information
 *** Regions
 *** Direction Intervals
-
+    - Ranges of intervals
+    - Full Circle + Invalid intervals
+    - Challenges with intersection, multiple segments.
 ** Propagator Constraints
 *** Basic Constraints for Bar, Joint
 *** Higher-level constraints
-
 ** Specification Ordering
 *** Constraints First
-
 * Learning

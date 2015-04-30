@@ -7,7 +7,7 @@
 ;; - Separation of core computations
 
 ;; Future:
-;; - Amb-like selection of multiple intersections
+;; - Amb-like selection of multiple intersections, or list?
 
 ;;; Code:
 

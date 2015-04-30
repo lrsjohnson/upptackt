@@ -1,20 +1,23 @@
 * Task List
 ** Priorities / Short-term goals
+*** Cleanup
+    - [ ] Annotate Analyzer, Animate
 *** Construction from Constraints
-    - [ ] Play with generating an isoceles triangle or Kite from its given
+    - [ ] Ordering of value instantiation <------
+    - [ ] TMS for linkages / region propagators?
+    - [ ] Picking/dealing with Error Values and contradictions
+    - [ ] Combining Topologies, Deduping points/lines
+    - [ ] Draw status of partially specified mechanisms.
+*** Complete:
+    - [X] Play with generating an isoceles triangle or Kite from its given
       properties
     - [X] Regions for partial information
     - [X] Basic Linkages - Bar + Joint
-    - [ ] TMS for linkages / region propagators?
-    - [ ] Picking/dealing with Error Values and contradictions
     - [X] Establishing topology first
-    - [ ] Combining Topologies, Deduping points/lines
     - [X] Basic automatic instantiation
-    - [ ] Ordering of value instantiation
-    - [ ] Constraint language
-    - [-] Draw mechanisms [1/2]
+    - [X] Constraint language
+    - [X] Draw mechanisms [1/1]
       - [X] Basic Conversion to figure elements
-      - [ ] Draw status of partially specified mechanisms.
     - [X] Replace "bar min" with Direction intervals for bar directions.
     - [X] Numeric Intervals for joint thetas
 *** Learning!
@@ -76,25 +79,28 @@
 *** TODO More Constructions
     - [ ] Dealing with ordering of segments (a->b vs. b->a)? Standardize?
     - [ ] Intersections of segments, rays, etc.
+    - [ ] Returning multiple intersections
 *** TODO Circle-related constructions
     - [ ] Representing / Measuring Arcs
     - [ ] Circles, Radii, Diameter
     - [ ] Tangents, etc.
     - [X] Direction Intervals
-*** TODO Element Representations [4/4]
+*** TODO Element Representations [4/5]
     - [X] Consider point+direction for line vs. two points
     - [X] Angles as vertex point + two vecs
     - [X] Change to using Record structures
     - [X] Refactor files
+    - [ ] Points always named
 *** TODO Coordinates
     - [ ] Bounds / specifying coordinate ranges (randomness)
-*** TODO Compound Constructions [2/6]
+*** TODO Compound Constructions [2/7]
     - [X] Better Triangle Creator
     - [X] Triangle Segments
     - [ ] Triangle Angles
     - [ ] Perpendicular-to (point-to-line)
     - [ ] "Construct Altitudes"
     - [ ] "Construct Parallelogram ABCD"
+    - [ ] Polygons, angles/segments/diagonals.
 *** TODO Transformations [5/8]
     - [ ] Mutate vs. move?
     - [ ] Duplicate angles
@@ -104,12 +110,13 @@
     - [ ] Multiple rotation about point
     - [X] Translate Randomly along Line
     - [X] Rotate Randomly about Point
-*** TODO Randomness [3/7]
+*** TODO Randomness [3/8]
     - [X] Random direction
     - [X] Random Line
     - [ ] Make first random choices nicely WLOG
     - [ ] Handling errors / special cases of circles
     - [ ] Backtracking -> "Animation"?
+    - [ ] Means to discard problems.
     - [X] Basic "wiggling" animation
     - [ ] Improve wiggling
 *** TODO Construction Language [0/2]
