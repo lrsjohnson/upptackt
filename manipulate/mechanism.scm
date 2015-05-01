@@ -39,6 +39,13 @@
           (constraints (filter m:constraint? elements)))
       (m:make-mechanism bars joints constraints))))
 
+(define (m:print-mechanism m)
+  `((bars ,(map print (m:mechanism-bars m)))
+    (joints ,(map print (m:mechanism-joints m)))
+    (constraints ,(map print (m:mechanism-constraints m)))))
+
+(defhandler print m:print-mechanism m:mechanism?)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Deduplication ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -172,14 +179,18 @@
                        (m:mechanism-joints m))
   (m:apply-mechanism-constraints m))
 
+(define *m* #f)
 (define (m:solve-mechanism m)
   (let lp ()
     (run)
-    (if (not (m:mechanism-fully-specified? m))
-        (if (m:specify-something m)
-            (lp)
-            (error "Couldn't find anything to specify."))
-        'mechanism-built)))
+    (set! *m* m)
+    (cond ((m:mechanism-contradictory? m)
+           (pp "Contradictory mechanism built"))
+          ((not (m:mechanism-fully-specified? m))
+           (if (m:specify-something m)
+               (lp)
+               (error "Couldn't find anything to specify.")))
+          (else 'mechanism-built))))
 
 #|
  (begin
