@@ -744,13 +744,18 @@
   (internal-rand-range 0.1 0.9))
 
 (define (m:initialize-bar bar)
-  (m:instantiate-point (m:bar-p1 bar) 0 0 'initialize)
-  (m:instantiate (m:bar-direction bar) (make-direction 0) 'initialize)
-  (pp `(initializing-bar ,(print (m:bar-name bar)))))
+  (if (not (m:bar-anchored? bar))
+      (m:instantiate-point (m:bar-p1 bar) 0 0 'initialize))
+  (let ((random-dir (random-direction)))
+    (m:instantiate (m:bar-direction bar)
+                   random-dir 'initialize)
+    (pp `(initializing-bar ,(print (m:bar-name bar))
+                           ,(print random-dir)))))
 
 (define (m:initialize-joint joint)
   (m:instantiate-point (m:joint-vertex joint) 0 0 'initialize)
-  (m:instantiate (m:joint-dir-1 joint) (make-direction 0) 'initialize)
+  (m:instantiate (m:joint-dir-1 joint)
+                 (random-direction) 'initialize)
   (pp `(initializing-joint ,(print (m:joint-name joint)))))
 
 ;;;;;;;;;; Assembling named joints into diagrams ;;;;;;;
