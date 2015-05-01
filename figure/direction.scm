@@ -33,8 +33,10 @@
                      radians)))
 ;;; D2 - D1
 (define (subtract-directions d2 d1)
-  (fix-angle-0-2pi (- (direction-theta d2)
-                      (direction-theta d1))))
+  (if (direction-equal? d1 d2)
+      0
+      (fix-angle-0-2pi (- (direction-theta d2)
+                          (direction-theta d1)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -98,7 +98,6 @@
       (error "Cannot add empty interval to direction"))
   (error "Cannot add to invalid direction in"))
 
-
 (define m:add-to-direction
   (make-generic-operation 2 'm:add-to-direction))
 
@@ -274,6 +273,7 @@
             (list m:point-x m:point-y m:point-region)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Bar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define-record-type <m:bar>
   (%m:make-bar p1 p2 vec)
   m:bar?
@@ -454,7 +454,6 @@
 
 (define (m:bar-endpoint-2 bar)
   (eq-get bar 'm:bar-endpoint-2))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -733,7 +732,7 @@
   (let ((theta-range (m:examine-cell (m:joint-theta joint))))
     (if (interval? theta-range)
         (begin
-          (internal-rand-range
+          (safe-internal-rand-range
            (interval-low theta-range)
            (interval-high theta-range)))
         (error "Attempting to specify theta for joint"))))
