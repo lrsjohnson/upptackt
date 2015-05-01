@@ -21,7 +21,7 @@
 
 ;;; "arc" of the circle from start-dir CCW to end-dir
 ;;; "invalid" allows for "impossible" intervals
-(define-record-type <direction-interval>
+(define-record-type <standard-direction-interval>
   (%make-standard-direction-interval start-dir end-dir)
   standard-direction-interval?
   (start-dir direction-interval-start)
@@ -37,6 +37,11 @@
   `(direction-interval ,(direction-theta (direction-interval-start di))
                        ,(direction-theta (direction-interval-end di))))
 
+(define (direction-interval-center di)
+  (add-to-direction
+   (direction-interval-start di)
+   (/ (direction-interval-size di) 2.0)))
+
 (defhandler print print-direction-interval standard-direction-interval?)
 
 ;;;;;;;;;;;;;;;;;;;; Invalid Direction Intervals ;;;;;;;;;;;;;;;;;;;;;
@@ -50,7 +55,7 @@
 
 (define (print-invalid-direction-interval di)
   `(invalid-direction-interval))
-(defhandler print print-direction-interval invalid-direction-interval?)
+(defhandler print print-invalid-direction-interval invalid-direction-interval?)
 
 ;;;;;;;;;;;;;;;;;;;;;; Full Direction Intervals ;;;;;;;;;;;;;;;;;;;;;;
 
@@ -80,16 +85,17 @@
                            (add-to-direction start-dir pi)))
 
 (define (make-direction-interval-from-start-dir-and-size start-dir radians)
-  (cond  ((>= radians (* 2 pi))
+  (cond  ((or (close-enuf? radians (* 2 pi))
+              (>= radians (* 2 pi)))
           (make-full-circle-direction-interval))
+         ((close-enuf? radians 0)
+          (error "cannot have interval of size 0: use direction"))
          ((< radians 0)
           (make-invalid-direction-interval))
-         ((= radians 0)
-          (error "cannot have interval of size 0: use direction"))
          (else
           (make-direction-interval
            start-dir
-           (add-to-direction start-dir pi)))))
+           (add-to-direction start-dir radians)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Equality ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -217,6 +223,20 @@
 (define intersect-direction-intervals
   (make-generic-operation 2 'intersect-direction-intervals))
 
+(define (test-intersect-standard-dir-intervals di-1 di-2)
+  (let ((result (internal-intersect-standard-dir-intervals di-1 di-2)))
+    (let ((r-start (direction-interval-start result))
+          (r-center (direction-interval-center result))
+          (r-end (direction-interval-start result)))
+      (assert (and (within-direction-interval? r-start di-1)
+                   (within-direction-interval? r-end di-1)
+                   (within-direction-interval? r-center di-1)
+                   (within-direction-interval? r-start di-2)
+                   (within-direction-interval? r-center di-2)
+                   (within-direction-interval? r-end di-2))
+              "Dir Intersection fail!")
+      result)))
+
 (define (intersect-standard-dir-intervals di-1 di-2)
   (let ((start-1 (direction-interval-start di-1))
         (end-1 (direction-interval-end di-1))
@@ -232,14 +252,36 @@
               (cond ((direction-equal? end-1 end-2)
                      (make-direction-interval start-2 end-2))
                     ((within-direction-interval? end-2 di-1)
-                     (error "Can't handle duplicate Intersections"
-                            (print di-1) (print di-2)))
+                     (pp "Error: Can't handle duplicate Intersections")
+                     (make-invalid-direction-interval)
+                     ;; (error "Can't handle duplicate Intersections"
+                     ;; (print di-1) (print di-2))
+                     )
                     (else
                      (make-direction-interval start-2 end-1)))
               (make-direction-interval start-2 end-2)))
          ((within-direction-interval? end-2 di-1)
           (make-direction-interval start-1 end-2))
          (else (make-invalid-direction-interval))))))
+
+#|
+;; Test cases
+(define d0 (make-direction 0.))
+(define d1 (make-direction 1.))
+(define d2 (make-direction 2.))
+(define d3 (make-direction 3.))
+(define d4 (make-direction 4.))
+(define d5 (make-direction 5.))
+(define d6 (make-direction 6.))         ; almost all the way around
+
+(define (test s1 e1 s2 e2)
+  (intersect-standard-dir-intervals
+   (make-direction-interval s1 e1)
+   (make-direction-interval s2 e2)))
+
+(test d0 d1 d0 d1)
+
+|#
 
 (defhandler intersect-direction-intervals
   (lambda (di idi) idi)
