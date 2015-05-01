@@ -83,6 +83,10 @@
   (every m:bar-fully-specified? (m:mechanism-bars mechanism))
   (every m:joint-fully-specified? (m:mechanism-joints mechanism)))
 
+(define (m:mechanism-contradictory? mechanism)
+  (or (any m:bar-contradictory? (m:mechanism-bars mechanism))
+      (any m:joint-contradictory? (m:mechanism-joints mechanism))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Specify ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Should these be in Linkages?

@@ -36,8 +36,7 @@
 
 (define (m:instantiate cell value premise)
   (add-content cell
-               ;;(make-tms (contingent value (list premise)))
-               value))
+               (make-tms (contingent value (list premise)))))
 
 (define (m:examine-cell cell)
   (let ((v (content cell)))
@@ -49,6 +48,9 @@
 (defhandler print
   (lambda (cell) (print (m:examine-cell cell)))
   cell?)
+
+(define (m:contradictory? cell)
+  (contradictory? (m:examine-cell cell)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reversing directions ;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -218,31 +220,28 @@
 ;;; Allocate cells for a point
 (define (m:make-point)
   (let-cells (x y region)
-    (m:x-y->region-propagator x y region)
-    (m:region->x-y-propagator region x y)
+    (p:m:x-y->region x y region)
+    (p:m:region->x region x)
+    (p:m:region->y region y)
     (%m:make-point x y region)))
 
-(define (m:x-y->region-propagator x y region)
-  (propagator (list x y)
-    (lambda ()
-      (let ((x-value (content x))
-            (y-value (content y)))
-        (if (and (not (nothing? x-value))
-                 (not (nothing? y-value)))
-            (add-content
-             region
-             (m:make-singular-point-set (make-point x-value y-value)))
-            'done)))))
+(define (m:x-y->region x y)
+  (m:make-singular-point-set (make-point x y)))
 
-(define (m:region->x-y-propagator region x y)
-  (propagator (list region)
-    (lambda ()
-      (let ((region-value (content region)))
-        (if (m:singular-point-set? region-value)
-            (let ((p (m:singular-point-set-point region-value)))
-              (add-content x (point-x p))
-              (add-content y (point-y p)))
-            'done)))))
+(propagatify m:x-y->region)
+
+(define (m:region->x region)
+  (if (m:singular-point-set? region)
+      (point-x (m:singular-point-set-point region))
+      nothing))
+
+(define (m:region->y region)
+  (if (m:singular-point-set? region)
+      (point-y (m:singular-point-set-point region))
+      nothing))
+
+(propagatify m:region->x)
+(propagatify m:region->y)
 
 (define (m:instantiate-point p x y premise)
   (m:instantiate (m:point-x p)
@@ -313,69 +312,39 @@
         bar))))
 
 ;;; TODO: Combine p1->p2 / p2->p1
+(define (m:x-y-direction->region px py direction)
+  (if (direction? direction)
+      (let ((vertex (make-point px py)))
+        (m:make-ray vertex direction))
+      nothing))
+
+(propagatify m:x-y-direction->region)
+
+(define (m:x-y-length-di->region px py length dir-interval)
+  (if (direction-interval? dir-interval)
+      (let ((vertex (make-point px py)))
+        (m:make-arc vertex length dir-interval))
+      nothing))
+
+(propagatify m:x-y-length-di->region)
+
 (define (m:p1->p2-bar-propagator p1 p2 bar)
   (let ((p1x (m:point-x p1))
         (p1y (m:point-y p1))
         (p2r (m:point-region p2))
         (length (m:bar-length bar))
         (dir (m:bar-direction bar)))
-    (propagator (list p1x p1y length dir)
-      (lambda ()
-        (let ((x-value (content p1x))
-              (y-value (content p1y))
-              (len-value (content length))
-              (dir-value (content dir)))
-          (if (or (nothing? x-value)
-                  (nothing? y-value))
-              'done
-              (let ((vertex (make-point x-value y-value)))
-                (cond ((and (not (nothing? len-value))
-                            (not (nothing? dir-value))
-                            (direction-interval? dir-value))
-                       (add-content
-                        p2r
-                        (m:make-arc
-                         vertex len-value
-                         dir-value)))
-                      ((and (not (nothing? dir-value))
-                            (direction? dir-value))
-                       (add-content
-                        p2r
-                        (m:make-ray
-                         vertex
-                         dir-value)))))))))))
+    (p:m:x-y-direction->region p1x p1y dir p2r)
+    (p:m:x-y-length-di->region p1x p1y length dir p2r)))
 
-(define (m:p2->p1-bar-propagator p1 p2 bar)
-  (let ((p1x (m:point-x p1))
-        (p1y (m:point-y p1))
-        (p2r (m:point-region p2))
+(define (m:p2->p1-bar-propagator p2 p1 bar)
+  (let ((p2x (m:point-x p2))
+        (p2y (m:point-y p2))
+        (p1r (m:point-region p1))
         (length (m:bar-length bar))
         (dir (m:bar-direction bar)))
-    (propagator (list p1x p1y length dir)
-      (lambda ()
-        (let ((x-value (content p1x))
-              (y-value (content p1y))
-              (len-value (content length))
-              (dir-value (content dir)))
-          (if (or (nothing? x-value)
-                  (nothing? y-value))
-              'done
-              (let ((vertex (make-point x-value y-value)))
-                (cond ((and (not (nothing? len-value))
-                            (not (nothing? dir-value))
-                            (direction-interval? dir-value))
-                       (add-content
-                        p2r
-                        (m:make-arc
-                         vertex len-value
-                         (reverse-direction-interval dir-value))))
-                      ((and (not (nothing? dir-value))
-                            (direction? dir-value))
-                       (add-content
-                        p2r
-                        (m:make-ray
-                         vertex
-                         (reverse-direction dir-value))))))))))))
+    (p:m:x-y-direction->region p2x p2y (ce:reverse-direction dir) p1r)
+    (p:m:x-y-length-di->region p2x p2y length (ce:reverse-direction dir) p1r)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Joint  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Direction-2 is counter-clockwise from direction-1 by theta
@@ -682,6 +651,10 @@
   (and (m:specified? (m:point-x p) number?)
        (m:specified? (m:point-y p) number?)))
 
+(define (m:point-contradictory? p)
+  (or (m:contradictory? (m:point-x p))
+      (m:contradictory? (m:point-y p))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Bar Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:bar-p1-specified? bar)
@@ -689,6 +662,12 @@
 
 (define (m:bar-p2-specified? bar)
   (m:point-specified? (m:bar-p2 bar)))
+
+(define (m:bar-p1-contradictory? bar)
+  (m:point-contradictory? (m:bar-p1 bar)))
+
+(define (m:bar-p2-contradictory? bar)
+  (m:point-contradictory? (m:bar-p2 bar)))
 
 (define (m:bar-anchored? bar)
   (or (m:bar-p1-specified? bar)
@@ -698,20 +677,38 @@
   (and (m:bar-anchored? bar)
        (m:specified? (m:bar-direction bar) direction?)))
 
+(define (m:bar-direction-contradictory? bar)
+  (m:contradictory? (m:bar-direction bar)))
+
 (define (m:bar-length-specified? bar)
   (and (m:specified? (m:bar-length bar) number?)))
+
+(define (m:bar-length-contradictory? bar)
+  (m:contradictory? (m:bar-length bar)))
 
 (define (m:bar-fully-specified? bar)
   (and (m:bar-p1-specified? bar)
        (m:bar-p2-specified? bar)))
+
+(define (m:bar-contradictory? bar)
+  (or (m:bar-p1-contradictory? bar)
+      (m:bar-p2-contradictory? bar)
+      (m:bar-direction-contradictory? bar)
+      (m:bar-length-contradictory? bar)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Joint Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:joint-dir-1-specified? joint)
   (m:specified? (m:joint-dir-1 joint) direction?))
 
+(define (m:joint-dir-1-contradictory? joint)
+  (m:contradictory? (m:joint-dir-1 joint)))
+
 (define (m:joint-dir-2-specified? joint)
   (m:specified? (m:joint-dir-2 joint) direction?))
+
+(define (m:joint-dir-2-contradictory? joint)
+  (m:contradictory? (m:joint-dir-2 joint)))
 
 (define (m:joint-anchored? joint)
   (or (m:joint-dir-1-specified? joint)
@@ -725,6 +722,12 @@
    (m:point-specified? (m:joint-vertex joint))
    (m:joint-dir-1-specified? joint)
    (m:joint-dir-2-specified? joint)))
+
+(define (m:joint-contradictory? joint)
+  (or
+   (m:point-contradictory? (m:joint-vertex joint))
+   (m:joint-dir-1-contradictory? joint)
+   (m:joint-dir-2-contradictory? joint)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Specifying Values ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
