@@ -65,6 +65,7 @@
 
 (define (ce:reverse-direction input-cell)
   (let-cells (output-cell)
+    (name! output-cell (symbol 'reverse- (name input-cell)))
     (p:m:reverse-direction input-cell output-cell)
     (p:m:reverse-direction output-cell input-cell)
     output-cell))
@@ -190,8 +191,13 @@
 
 
 ;;; Allocate and wire up the cells in a vec
-(define (m:make-vec)
+(define (m:make-vec vec-id)
   (let-cells (dx dy length direction)
+    (name! dx (symbol vec-id '-dx))
+    (name! dy (symbol vec-id '-dy))
+    (name! length (symbol vec-id '-len))
+    (name! direction (symbol vec-id '-dir))
+
     (p:make-direction
      (e:atan2 dy dx) direction)
     (p:sqrt (e:+ (e:square dx)
@@ -296,20 +302,21 @@
 (defhandler print m:print-bar m:bar?)
 
 ;;; Allocate cells and wire up a bar
-(define (m:make-bar)
-  (let ((p1 (m:make-point))
-        (p2 (m:make-point)))
-    (let ((v (m:make-vec)))
-      (c:+ (m:point-x p1)
-           (m:vec-dx v)
-           (m:point-x p2))
-      (c:+ (m:point-y p1)
-           (m:vec-dy v)
-           (m:point-y p2))
-      (let ((bar (%m:make-bar p1 p2 v)))
-        (m:p1->p2-bar-propagator p1 p2 bar)
-        (m:p2->p1-bar-propagator p2 p1 bar)
-        bar))))
+(define (m:make-bar bar-id)
+  (let ((bar-key (m:make-bar-name-key bar-id)))
+    (let ((p1 (m:make-point))
+          (p2 (m:make-point)))
+      (let ((v (m:make-vec bar-key)))
+        (c:+ (m:point-x p1)
+             (m:vec-dx v)
+             (m:point-x p2))
+        (c:+ (m:point-y p1)
+             (m:vec-dy v)
+             (m:point-y p2))
+        (let ((bar (%m:make-bar p1 p2 v)))
+          (m:p1->p2-bar-propagator p1 p2 bar)
+          (m:p2->p1-bar-propagator p2 p1 bar)
+          bar)))))
 
 ;;; TODO: Combine p1->p2 / p2->p1
 (define (m:x-y-direction->region px py direction)
@@ -449,7 +456,7 @@
       '*unnamed*))
 
 (define (m:make-named-bar p1-name p2-name)
-  (let ((bar (m:make-bar)))
+  (let ((bar (m:make-bar (m:bar p1-name p2-name))))
     (m:name-element! (m:bar-p1 bar) p1-name)
     (m:name-element! (m:bar-p2 bar) p2-name)
     bar))
