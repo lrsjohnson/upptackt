@@ -395,6 +395,7 @@
 ;;; TOOD: Abstract?
 (define (m:identify-out-of-arm-1 joint bar)
   (m:set-endpoint-1 bar joint)
+  (m:set-joint-arm-1 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p1 bar))
   (c:id (m:joint-dir-1 joint)
@@ -402,6 +403,7 @@
 
 (define (m:identify-out-of-arm-2 joint bar)
   (m:set-endpoint-1 bar joint)
+  (m:set-joint-arm-2 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p1 bar))
   (c:id (m:joint-dir-2 joint)
@@ -409,6 +411,7 @@
 
 (define (m:identify-into-arm-1 joint bar)
   (m:set-endpoint-2 bar joint)
+  (m:set-joint-arm-1 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
   (c:id (ce:reverse-direction (m:joint-dir-1 joint))
@@ -416,6 +419,7 @@
 
 (define (m:identify-into-arm-2 joint bar)
   (m:set-endpoint-2 bar joint)
+  (m:set-joint-arm-2 joint bar)
   (m:identify-points (m:joint-vertex joint)
                      (m:bar-p2 bar))
   (c:id (ce:reverse-direction (m:joint-dir-2 joint))
@@ -434,6 +438,19 @@
 
 (define (m:bar-endpoint-2 bar)
   (eq-get bar 'm:bar-endpoint-2))
+
+(define (m:set-joint-arm-1 joint bar)
+  (eq-put! joint 'm:joint-arm-1 bar))
+
+(define (m:joint-arm-1 joint)
+  (eq-get joint 'm:joint-arm-1))
+
+(define (m:set-joint-arm-2 joint bar)
+  (eq-put! joint 'm:joint-arm-2 bar))
+
+(define (m:joint-arm-2 joint)
+  (eq-get joint 'm:joint-arm-2))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -697,8 +714,15 @@
 (define (m:bar-length-specified? bar)
   (and (m:specified? (m:bar-length bar) number?)))
 
+(define (m:bar-direction-specified? bar)
+  (and (m:specified? (m:bar-direction bar) number?)))
+
 (define (m:bar-length-contradictory? bar)
   (m:contradictory? (m:bar-length bar)))
+
+(define (m:bar-length-dir-specified? bar)
+  (and (m:bar-length-specified? bar)
+       (m:bar-direction-specified? bar)))
 
 (define (m:bar-fully-specified? bar)
   (and (m:bar-p1-specified? bar)
@@ -728,8 +752,18 @@
   (or (m:joint-dir-1-specified? joint)
       (m:joint-dir-2-specified? joint)))
 
+(define (m:joint-anchored-and-arm-lengths-specified? joint)
+  (and (m:joint-anchored? joint)
+       (m:bar-length-specified? (m:joint-arm-1 joint))
+       (m:bar-length-specified? (m:joint-arm-2 joint))))
+
 (define (m:joint-specified? joint)
   (m:specified? (m:joint-theta joint) number?))
+
+(define (m:joint-dirs-specified? joint)
+  (and
+   (m:joint-dir-1-specified? joint)
+   (m:joint-dir-2-specified? joint)))
 
 (define (m:joint-fully-specified? joint)
   (and
@@ -768,8 +802,6 @@
 
 (define (m:initialize-joint joint)
   (m:instantiate-point (m:joint-vertex joint) 0 0 'initialize)
-  (m:instantiate (m:joint-dir-1 joint)
-                 (random-direction) 'initialize)
   (pp `(initializing-joint ,(print (m:joint-name joint)))))
 
 ;;;;;;;;;; Assembling named joints into diagrams ;;;;;;;

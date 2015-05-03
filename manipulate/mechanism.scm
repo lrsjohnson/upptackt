@@ -87,8 +87,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Specified ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:mechanism-fully-specified? mechanism)
-  (every m:bar-fully-specified? (m:mechanism-bars mechanism))
-  (every m:joint-fully-specified? (m:mechanism-joints mechanism)))
+  (and (every m:bar-fully-specified? (m:mechanism-bars mechanism))
+       (every m:joint-fully-specified? (m:mechanism-joints mechanism))))
 
 (define (m:mechanism-contradictory? mechanism)
   (or (any m:bar-contradictory? (m:mechanism-bars mechanism))
@@ -98,20 +98,84 @@
 
 ;;; Should these be in Linkages?
 
+(define *any-dir-specified* #f)
+(define *any-point-specified* #f)
+
+(define (m:specify-angle-if-first-time cell)
+  (if (not *any-dir-specified*)
+      (let ((dir (random-direction)))
+        (set! *any-dir-specified* #t)
+        (m:instantiate cell dir 'first-time-angle))))
+
+(define (m:specify-point-if-first-time point)
+  (if (not *any-point-specified*)
+      (begin
+        (set! *any-point-specified* #t)
+        (m:instantiate-point point 0 0 'first-time-point))))
+
 (define (m:specify-bar bar)
   (let ((v (m:random-bar-length)))
     (pp `(specifying-bar ,(print (m:bar-name bar)) ,v))
-    (m:instantiate (m:bar-length bar) v 'specify-bar)))
+    (m:instantiate (m:bar-length bar) v 'specify-bar)
+    (m:specify-angle-if-first-time (m:bar-direction bar))
+    (m:specify-point-if-first-time (m:bar-p1 bar))))
 
 (define (m:specify-joint joint)
   (let ((v (m:random-theta-for-joint joint)))
     (pp `(specifying-joint ,(print (m:joint-name joint)) ,v))
-    (m:instantiate (m:joint-theta joint) v 'specify-joint)))
+    (m:instantiate (m:joint-theta joint) v 'specify-joint)
+    (m:specify-angle-if-first-time (m:joint-dir-1 joint))
+    (m:specify-point-if-first-time (m:joint-vertex joint))))
+
+(define (m:initialize-joint-vertex joint)
+  (m:specify-point-if-first-time (m:joint-vertex joint)))
+
+(define (m:initialize-bar-p1 bar)
+  (m:specify-point-if-first-time (m:bar-p1 bar)))
+
+(define (m:specify-joint-if m predicate)
+  (let ((joints (filter (andp predicate (notp m:joint-specified?))
+                        (m:mechanism-joints m))))
+    (and (not (null? joints))
+         (m:specify-joint (car joints)))))
+
+(define (m:initialize-joint-if m predicate)
+  (let ((joints (filter (andp predicate (notp m:joint-specified?))
+                        (m:mechanism-joints m))))
+    (and (not (null? joints))
+         (m:initialize-joint-vertex (car joints)))))
+
+(define (m:specify-bar-if m predicate)
+  (let ((bars (filter (andp predicate (notp m:bar-length-specified?))
+                      (m:mechanism-bars m))))
+    (and (not (null? bars))
+         (m:specify-bar (car bars)))))
+
+(define (m:initialize-bar-if m predicate)
+  (let ((bars (filter (andp predicate (notp m:bar-length-specified?))
+                      (m:mechanism-bars m))))
+    (and (not (null? bars))
+         (m:initialize-bar-p1 (car bars)))))
 
 (define (m:specify-something m)
-  ;; TODO: First try to specify a constraint
+  (or
+   (m:specify-bar-if m m:constrained?)
+   (m:specify-joint-if m m:constrained?)
+   (m:specify-joint-if m m:joint-anchored-and-arm-lengths-specified?)
+   (m:specify-joint-if m m:joint-anchored?)
+   (m:specify-bar-if m m:bar-directioned?)
+   (m:specify-bar-if m m:bar-anchored?)
+   (m:initialize-joint-if m m:joint-dirs-specified?)
+   (m:initialize-bar-if m m:bar-length-dir-specified?)
+   (m:initialize-bar-if m m:bar-direction-specified?)
+   (m:initialize-bar-if m m:bar-length-specified?)
+   (m:initialize-joint-if m m:joint-anchored?)
+   (m:initialize-joint-if m true-proc)
+   (m:initialize-bar-if m true-proc)))
+
+(define (m:specify-something-old m)
   (let ((bars (filter (notp m:bar-length-specified?)
-                        (m:mechanism-bars m)))
+                          (m:mechanism-bars m)))
         (joints (filter (notp m:joint-specified?)
                         (m:mechanism-joints m))))
     (let ((anchored-bars (filter m:bar-anchored? bars))
@@ -138,20 +202,24 @@
          (else
           (let ((constrained-bars (filter m:constrained?
                                           bars))
+                (anchored-bars (filter m:bar-anchored?
+                                        (filter (notp m:bar-fully-specified?)
+                                                (m:mechanism-bars m))))
                 (specified-unanchored (filter m:joint-specified?
-                                                (filter (notp m:joint-anchored?)
-                                                        (m:mechanism-joints m))))
+                                              (filter (notp m:joint-anchored?)
+                                                      (m:mechanism-joints m))))
                 (constrained-joints (filter m:constrained?
                                             joints)))
-            (pprint specified-unanchored)
             (cond ((not (null? specified-unanchored))
                    (m:initialize-joint (car specified-unanchored)))
                   ((not (null? constrained-joints))
                    (m:initialize-joint (car constrained-joints)))
                   ((not (null? constrained-bars))
                    (m:initialize-bar (car constrained-bars)))
+                  ((not (null? anchored-bars))
+                   (m:initialize-bar (car anchored-bars)))
                   (else (m:initialize-bar (car bars))
-                        ;(m:specify-bar (car bars))
+                        ;; (m:specify-bar (car bars))
                         )))
           #t))))))
 
@@ -179,13 +247,18 @@
                        (m:mechanism-joints m))
   (m:apply-mechanism-constraints m))
 
+(define (m:initialize-solve)
+  (set! *any-dir-specified* #f)
+  (set! *any-point-specified* #f))
+
 (define *m* #f)
 (define (m:solve-mechanism m)
+  (m:initialize-solve)
   (let lp ()
     (run)
     (set! *m* m)
     (cond ((m:mechanism-contradictory? m)
-           (pp "Contradictory mechanism built"))
+           (error "Contradictory mechanism built"))
           ((not (m:mechanism-fully-specified? m))
            (if (m:specify-something m)
                (lp)

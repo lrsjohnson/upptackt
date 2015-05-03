@@ -41,6 +41,10 @@
 (define ((notp predicate) x)
   (not (predicate x)))
 
+(define ((andp p1 p2) x)
+  (and (p1 x)
+       (p2 x)))
+
 (define (true-proc . args) #t)
 (define (false-proc . args) #f)
 
