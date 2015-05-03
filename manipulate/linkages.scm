@@ -358,18 +358,22 @@
 
 (define *max-joint-swing* pi)
 
-(define (m:make-joint)
-  (let ((vertex (m:make-point)))
-    (let-cells (dir-1 dir-2 theta)
-      (p:m:add-to-direction
-       dir-1 theta dir-2)
-      (p:m:add-to-direction
-       dir-2 (e:negate theta) dir-1)
-      (p:m:subtract-directions
-       dir-2 dir-1
-       theta)
-      (m:instantiate theta (make-interval 0 *max-joint-swing*) 'theta)
-      (%m:make-joint vertex dir-1 dir-2 theta))))
+(define (m:make-joint joint-id)
+  (let ((joint-key (m:make-joint-name-key joint-id)))
+   (let ((vertex (m:make-point)))
+     (let-cells (dir-1 dir-2 theta)
+       (name! dir-1 (symbol joint-key '-dir-1))
+       (name! dir-2 (symbol joint-key '-dir-2))
+       (name! theta (symbol joint-key '-theta))
+       (p:m:add-to-direction
+        dir-1 theta dir-2)
+       (p:m:add-to-direction
+        dir-2 (e:negate theta) dir-1)
+       (p:m:subtract-directions
+        dir-2 dir-1
+        theta)
+       (m:instantiate theta (make-interval 0 *max-joint-swing*) 'theta)
+       (%m:make-joint vertex dir-1 dir-2 theta)))))
 
 (define (m:print-joint j)
   `(m:joint
@@ -470,11 +474,14 @@
   (m:element-name (m:bar-p2 bar)))
 
 (define (m:make-named-joint arm-1-name vertex-name arm-2-name)
-  (let ((joint (m:make-joint)))
-    (m:name-element! (m:joint-dir-1 joint) arm-1-name)
-    (m:name-element! (m:joint-vertex joint) vertex-name)
-    (m:name-element! (m:joint-dir-2 joint) arm-2-name)
-    joint))
+  (let ((joint-id (m:joint arm-1-name
+                           vertex-name
+                           arm-2-name)))
+   (let ((joint (m:make-joint joint-id)))
+     (m:name-element! (m:joint-dir-1 joint) arm-1-name)
+     (m:name-element! (m:joint-vertex joint) vertex-name)
+     (m:name-element! (m:joint-dir-2 joint) arm-2-name)
+     joint)))
 
 (define (m:joint-name joint)
   (m:joint
