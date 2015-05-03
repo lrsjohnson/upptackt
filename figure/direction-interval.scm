@@ -228,13 +228,14 @@
     (let ((r-start (direction-interval-start result))
           (r-center (direction-interval-center result))
           (r-end (direction-interval-start result)))
-      (assert (and (within-direction-interval? r-start di-1)
-                   (within-direction-interval? r-end di-1)
-                   (within-direction-interval? r-center di-1)
-                   (within-direction-interval? r-start di-2)
-                   (within-direction-interval? r-center di-2)
-                   (within-direction-interval? r-end di-2))
-              "Dir Intersection fail!")
+      (if (not (and (within-direction-interval? r-start di-1)
+                    (within-direction-interval? r-end di-1)
+                    (within-direction-interval? r-center di-1)
+                    (within-direction-interval? r-start di-2)
+                    (within-direction-interval? r-center di-2)
+                    (within-direction-interval? r-end di-2)))
+          (error "Dir Intersection fail!"
+                 (print (list di-1 di-2 result))))
       result)))
 
 (define (intersect-standard-dir-intervals di-1 di-2)
@@ -262,7 +263,10 @@
               (make-direction-interval start-2 end-2)))
          ((within-direction-interval? end-2 di-1)
           (make-direction-interval start-1 end-2))
-         (else (make-invalid-direction-interval))))))
+         (else
+          (pp "No intersection")
+          (pp (print (list di-1 di-2)))
+          (make-invalid-direction-interval))))))
 
 #|
 ;; Test cases
@@ -275,9 +279,9 @@
 (define d6 (make-direction 6.))         ; almost all the way around
 
 (define (test s1 e1 s2 e2)
-  (intersect-standard-dir-intervals
-   (make-direction-interval s1 e1)
-   (make-direction-interval s2 e2)))
+  (print (intersect-standard-dir-intervals
+    (make-direction-interval s1 e1)
+    (make-direction-interval s2 e2))))
 
 (test d0 d1 d0 d1)
 
