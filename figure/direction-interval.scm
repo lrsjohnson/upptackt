@@ -247,25 +247,30 @@
            (direction-theta start-2))
         (intersect-standard-dir-intervals di-2 di-1)
         (cond
-         ;; end-2 past end-1
-         ((within-direction-interval? start-2 di-1)
+         ((or (direction-equal? start-2 start-1)
+              (within-direction-interval-non-inclusive? start-2 di-1))
+          ;; case 1: di-2 starts within di-1
           (if (within-direction-interval? end-1 di-2)
               (cond ((direction-equal? end-1 end-2)
                      (make-direction-interval start-2 end-2))
-                    ((within-direction-interval? end-2 di-1)
-                     (pp "Error: Can't handle duplicate Intersections")
-                     (make-invalid-direction-interval)
-                     ;; (error "Can't handle duplicate Intersections"
-                     ;; (print di-1) (print di-2))
-                     )
+                    ;; Exclude the case where it loops around end ends
+                    ;; within the start of di-1 again
+                    ((within-direction-interval-non-inclusive? end-2 di-1)
+                     nothing)
                     (else
                      (make-direction-interval start-2 end-1)))
               (make-direction-interval start-2 end-2)))
+         ;; case 2: di-2 starts after di-1 and ends within di-1
          ((within-direction-interval? end-2 di-1)
           (make-direction-interval start-1 end-2))
+         ;; case 3: di-2 starts after di-1 and ends beyond di-1
+         ((or (within-direction-interval? end-1 di-2)
+              (direction-equal? end-1 end-2))
+          (make-direction-interval start-1 end-1))
+         ;; Case 4: di-2 starts after di-1 and ends before di-1 starts again
          (else
-          (pp "No intersection")
           (pp (print (list di-1 di-2)))
+          (error "No intersection")
           (make-invalid-direction-interval))))))
 
 #|
