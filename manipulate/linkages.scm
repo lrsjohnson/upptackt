@@ -133,18 +133,26 @@
   (lambda (i) (mul-interval i -1)) %interval?)
 
 (define (m:standard-direction-interval-minus-direction di d)
-  (make-interval
-   (subtract-directions (direction-interval-start di) d)
-   (subtract-directions (direction-interval-end di) d)))
+  (if (within-direction-interval? d di)
+      (make-interval
+       0
+       (subtract-directions (direction-interval-end di) d))
+      (make-interval
+       (subtract-directions (direction-interval-start di) d)
+       (subtract-directions (direction-interval-end di) d))))
 
 (define (m:full-circle-direction-interval-minus-direction di d)
   (make-interval
    0 (* 2 pi)))
 
 (define (m:direction-minus-standard-direction-interval d di)
-  (make-interval
-   (subtract-directions d (direction-interval-end di))
-   (subtract-directions d (direction-interval-start di))))
+  (if (within-direction-interval? d di)
+      (make-interval
+       0
+       (subtract-directions d (direction-interval-start di)))
+      (make-interval
+       (subtract-directions d (direction-interval-end di))
+       (subtract-directions d (direction-interval-start di)))))
 
 (define (m:direction-minus-full-circle-direction-interval d di)
   (make-interval
@@ -751,6 +759,9 @@
 (define (m:joint-dir-2-contradictory? joint)
   (m:contradictory? (m:joint-dir-2 joint)))
 
+(define (m:joint-theta-contradictory? joint)
+  (m:contradictory? (m:joint-theta joint)))
+
 (define (m:joint-anchored? joint)
   (or (m:joint-dir-1-specified? joint)
       (m:joint-dir-2-specified? joint)))
@@ -778,7 +789,8 @@
   (or
    (m:point-contradictory? (m:joint-vertex joint))
    (m:joint-dir-1-contradictory? joint)
-   (m:joint-dir-2-contradictory? joint)))
+   (m:joint-dir-2-contradictory? joint)
+   (m:joint-theta-contradictory? joint)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Specifying Values ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
