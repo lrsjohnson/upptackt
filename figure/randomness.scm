@@ -16,12 +16,13 @@
 
 (define (internal-rand-range min-v max-v)
   (if (close-enuf? min-v max-v)
-      (error "range is too close for rand-range"))
-  (let ((interval-size (max *machine-epsilon* (- max-v min-v))))
-    (persist-value (+ min-v (random (* 1.0 interval-size))))))
+      (error "range is too close for rand-range"
+             (list min-v max-v))
+      (let ((interval-size (max *machine-epsilon* (- max-v min-v))))
+        (persist-value (+ min-v (random (* 1.0 interval-size)))))))
 
 (define (safe-internal-rand-range min-v max-v)
-  (let ((interval-size (max *machine-epsilon* (- max-v min-v))))
+  (let ((interval-size (max 0 (- max-v min-v))))
     (internal-rand-range
      (+ min-v (* 0.1 interval-size))
      (+ min-v (* 0.9 interval-size)))))
