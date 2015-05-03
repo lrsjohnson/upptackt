@@ -54,6 +54,41 @@
         (m:joint-theta joint)
         (/ pi 2))))))
 
+;;; p2 between p1 p3 in a line
+(define (m:c-line-order p1-id p2-id p3-id)
+  (list
+   (m:make-named-bar p1-id p2-id)
+   (m:make-named-bar p2-id p3-id)
+   (m:make-named-joint p1-id p2-id p3-id)
+   (m:c-full-angle (m:joint p1-id p2-id p3-id))))
+
+(define (m:c-full-angle joint-id)
+  (m:make-constraint
+   'm:full-angle
+   (list joint-id)
+   (lambda (m)
+     (let ((joint (m:lookup m joint-id)))
+       (c:id
+        (m:joint-theta joint)
+        pi)))))
+
+(define (m:equal-joints-in-sum equal-joint-ids
+                               all-joint-ids
+                               total-sum)
+  (m:make-constraint
+   'm:equal-joints-in-sum
+   all-joint-ids
+   (lambda (m)
+     (let ((all-joints (m:multi-lookup m all-joint-ids))
+           (equal-joints (m:multi-lookup m equal-joint-ids)))
+       (let ((other-joints
+              (set-difference all-joints equal-joints eq?)))
+         (c:id (m:joint-theta (car equal-joints))
+               (ce:/
+                (ce:- total-sum
+                      (ce:multi+ (map m:joint-theta other-joints)))
+                (length equal-joints))))))))
+
 ;;;;;;;;;;;;; Applying and Marking Constrained Elements ;;;;;;;;;;;;;;
 
 (define (m:constrained? element)
@@ -79,3 +114,12 @@
                constraint))
             (m:constraint-args constraint))
   ((m:constraint-procedure constraint) m))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; Propagator Utils ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (ce:multi+ cells)
+  (cond ((null? cells) (error "Cannot perform ce:multi+ on nothing"))
+        ((null? (cdr cells)) (car cells))
+        (else
+         (ce:+ (car cells)
+               (ce:multi+ (cdr cells))))))

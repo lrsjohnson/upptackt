@@ -49,3 +49,14 @@
 (define (false-proc . args) #f)
 
 (define (identity x) x)
+
+;;; ps1 \ ps2
+(define (set-difference set1 set2 member-predicate)
+  (define delp (delete-member-procedure list-deletor member-predicate))
+  (let lp ((set1 set1)
+           (set2 set2))
+    (if (null? set2)
+        set1
+        (let ((e (car set2)))
+          (lp (delp e set1)
+              (cdr set2))))))

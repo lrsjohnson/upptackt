@@ -73,6 +73,9 @@
    (m:mechanism-joint-table m)
    dir-1-name vertex-name dir-2-name))
 
+(define (m:multi-lookup m ids)
+  (map (lambda (id) (m:lookup m id)) ids))
+
 (define (m:lookup m id)
   (cond ((m:bar-id? id) (m:find-bar-by-id
                          (m:mechanism-bar-table m)
