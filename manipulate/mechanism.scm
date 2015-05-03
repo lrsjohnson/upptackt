@@ -101,16 +101,25 @@
 (define *any-dir-specified* #f)
 (define *any-point-specified* #f)
 
+(define (any-one l)
+  (let ((i (random (length l))))
+    (list-ref l i)))
+
+(define m:pick-bar any-one)
+(define m:pick-joint any-one)
+
 (define (m:specify-angle-if-first-time cell)
   (if (not *any-dir-specified*)
       (let ((dir (random-direction)))
         (set! *any-dir-specified* #t)
+        (pp `(initializing-angle ,(name cell) ,(print dir)))
         (m:instantiate cell dir 'first-time-angle))))
 
 (define (m:specify-point-if-first-time point)
   (if (not *any-point-specified*)
       (begin
         (set! *any-point-specified* #t)
+        (pp `(initializing-point ,(name point) (0 0)))
         (m:instantiate-point point 0 0 'first-time-point))))
 
 (define (m:specify-bar bar)
@@ -137,25 +146,25 @@
   (let ((joints (filter (andp predicate (notp m:joint-specified?))
                         (m:mechanism-joints m))))
     (and (not (null? joints))
-         (m:specify-joint (car joints)))))
+         (m:specify-joint (m:pick-joint joints)))))
 
 (define (m:initialize-joint-if m predicate)
   (let ((joints (filter (andp predicate (notp m:joint-specified?))
                         (m:mechanism-joints m))))
     (and (not (null? joints))
-         (m:initialize-joint-vertex (car joints)))))
+         (m:initialize-joint-vertex (m:pick-joint joints)))))
 
 (define (m:specify-bar-if m predicate)
   (let ((bars (filter (andp predicate (notp m:bar-length-specified?))
                       (m:mechanism-bars m))))
     (and (not (null? bars))
-         (m:specify-bar (car bars)))))
+         (m:specify-bar (m:pick-bar bars)))))
 
 (define (m:initialize-bar-if m predicate)
   (let ((bars (filter (andp predicate (notp m:bar-length-specified?))
                       (m:mechanism-bars m))))
     (and (not (null? bars))
-         (m:initialize-bar-p1 (car bars)))))
+         (m:initialize-bar-p1 (m:pick-bar bars)))))
 
 (define (m:specify-something m)
   (or
@@ -172,56 +181,6 @@
    (m:initialize-joint-if m m:joint-anchored?)
    (m:initialize-joint-if m true-proc)
    (m:initialize-bar-if m true-proc)))
-
-(define (m:specify-something-old m)
-  (let ((bars (filter (notp m:bar-length-specified?)
-                          (m:mechanism-bars m)))
-        (joints (filter (notp m:joint-specified?)
-                        (m:mechanism-joints m))))
-    (let ((anchored-bars (filter m:bar-anchored? bars))
-          (directioned-bars (filter m:bar-directioned? bars))
-          (anchored-joints (filter m:joint-anchored? joints)))
-      (let ((constrained-bars (filter m:constrained? anchored-bars))
-            (constrained-joints (filter m:constrained? anchored-joints)))
-        (cond
-         ((not (null? constrained-joints))
-          (m:specify-joint (car constrained-joints))
-          #t)
-         ((not (null? constrained-bars))
-          (m:specify-bar (car constrained-bars))
-          #t)
-         ((not (null? anchored-joints))
-          (m:specify-joint (car anchored-joints))
-          #t)
-         ((not (null? directioned-bars))
-          (m:specify-bar (car directioned-bars))
-          #t)
-         ((not (null? anchored-bars))
-          (m:specify-bar (car anchored-bars))
-          #t)
-         (else
-          (let ((constrained-bars (filter m:constrained?
-                                          bars))
-                (anchored-bars (filter m:bar-anchored?
-                                        (filter (notp m:bar-fully-specified?)
-                                                (m:mechanism-bars m))))
-                (specified-unanchored (filter m:joint-specified?
-                                              (filter (notp m:joint-anchored?)
-                                                      (m:mechanism-joints m))))
-                (constrained-joints (filter m:constrained?
-                                            joints)))
-            (cond ((not (null? specified-unanchored))
-                   (m:initialize-joint (car specified-unanchored)))
-                  ((not (null? constrained-joints))
-                   (m:initialize-joint (car constrained-joints)))
-                  ((not (null? constrained-bars))
-                   (m:initialize-bar (car constrained-bars)))
-                  ((not (null? anchored-bars))
-                   (m:initialize-bar (car anchored-bars)))
-                  (else (m:initialize-bar (car bars))
-                        ;; (m:specify-bar (car bars))
-                        )))
-          #t))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Applying constraints ;;;;;;;;;;;;;;;;;;;;;;;;
 

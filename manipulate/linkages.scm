@@ -306,6 +306,8 @@
   (let ((bar-key (m:make-bar-name-key bar-id)))
     (let ((p1 (m:make-point))
           (p2 (m:make-point)))
+      (name! p1 (symbol bar-key '-p1))
+      (name! p2 (symbol bar-key '-p2))
       (let ((v (m:make-vec bar-key)))
         (c:+ (m:point-x p1)
              (m:vec-dx v)
@@ -372,6 +374,7 @@
        (name! dir-1 (symbol joint-key '-dir-1))
        (name! dir-2 (symbol joint-key '-dir-2))
        (name! theta (symbol joint-key '-theta))
+       (name! vertex (symbol joint-key '-vertex))
        (p:m:add-to-direction
         dir-1 theta dir-2)
        (p:m:add-to-direction
