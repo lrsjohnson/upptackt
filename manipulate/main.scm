@@ -8,65 +8,69 @@
    (m:establish-polygon-topology 'a 'b 'c)))
 
 (define (arbitrary-right-triangle)
- (m:mechanism
-  (m:establish-polygon-topology 'a 'b 'c)
-  (m:c-right-angle (m:joint 'a))))
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c)
+   (m:c-right-angle (m:joint 'a))))
 
 (define (arbitrary-right-triangle-2)
- (m:mechanism
-  (m:establish-polygon-topology 'a 'b 'c)
-  (m:c-right-angle (m:joint 'c))))
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c)
+   (m:c-right-angle (m:joint 'c))))
 
 (define (quad-diagonals)
- (m:mechanism
-  (m:establish-polygon-topology 'a 'b 'c 'd)
-  (m:establish-polygon-topology 'a 'b 'e)
-  (m:establish-polygon-topology 'b 'c 'e)
-  (m:establish-polygon-topology 'c 'd 'e)
-  (m:establish-polygon-topology 'd 'a 'e)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:establish-polygon-topology 'a 'b 'e)
+   (m:establish-polygon-topology 'b 'c 'e)
+   (m:establish-polygon-topology 'c 'd 'e)
+   (m:establish-polygon-topology 'd 'a 'e)
 
-  ;(m:make-named-joint 'c 'e 'a)
-  ;(m:c-full-angle (m:joint 'c 'e 'a))
+   ;;(m:make-named-joint 'c 'e 'a)
+   ;;(m:c-full-angle (m:joint 'c 'e 'a))
 
-  (m:c-line-order 'c 'e 'a)
-  (m:c-line-order 'b 'e 'd)
+   (m:c-line-order 'c 'e 'a)
+   (m:c-line-order 'b 'e 'd)
 
-  ;(m:c-right-angle (m:joint 'b 'e 'c))
-  ;(m:c-right-angle (m:joint 'd 'e 'a))
-  ;(m:c-right-angle (m:joint 'c 'e 'd))
-  ;(m:c-right-angle (m:joint 'a 'e 'b))
-  (m:c-length-equal (m:bar 'c 'e)
-                    (m:bar 'a 'e))
-  ;(m:c-length-equal (m:bar 'c 'e) (m:bar 'b 'e))
-  (m:c-length-equal (m:bar 'b 'e)
-                    (m:bar 'd 'e))))
+   (m:c-right-angle (m:joint 'b 'e 'c))
+   (m:c-right-angle (m:joint 'd 'e 'a))
+   (m:c-right-angle (m:joint 'c 'e 'd))
+   (m:c-right-angle (m:joint 'a 'e 'b))
+   ;;(m:c-length-equal (m:bar 'c 'e) (m:bar 'a 'e))
+   ;;(m:c-length-equal (m:bar 'c 'e) (m:bar 'b 'e))
+   (m:c-length-equal (m:bar 'b 'e)
+                     (m:bar 'd 'e))))
 
 ;;; Works:
 (define (isoceles-triangle)
- (m:mechanism
-  (m:establish-polygon-topology 'a 'b 'c)
-  (m:c-length-equal (m:bar 'a 'b)
-                    (m:bar 'b 'c))))
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c)
+   (m:c-length-equal (m:bar 'a 'b)
+                     (m:bar 'b 'c))))
 
 (define (isoceles-triangle-by-angles)
- (m:mechanism
-  (m:establish-polygon-topology 'a 'b 'c)
-  (m:c-angle-equal (m:joint 'a)
-                   (m:joint 'b))))
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c)
+   (m:c-angle-equal (m:joint 'a)
+                    (m:joint 'b))
+   (m:equal-joints-in-sum
+    (list (m:joint 'a) (m:joint 'b))
+    (list (m:joint 'a) (m:joint 'b) (m:joint 'c))
+    pi)
+   ))
 
 ;;; Often works:
 (define (arbitrary-quadrilateral)
- (m:mechanism
-  (m:establish-polygon-topology 'a 'b 'c 'd)))
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)))
 
 ;;; Always works:
 (define (parallelogram-by-sides)
- (m:mechanism
-  (m:establish-polygon-topology 'a 'b 'c 'd)
-  (m:c-length-equal (m:bar 'a 'b)
-                    (m:bar 'c 'd))
-  (m:c-length-equal (m:bar 'b 'c)
-                    (m:bar 'd 'a))))
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-length-equal (m:bar 'a 'b)
+                     (m:bar 'c 'd))
+   (m:c-length-equal (m:bar 'b 'c)
+                     (m:bar 'd 'a))))
 
 (define (kite-by-sides)
   (m:mechanism
@@ -112,7 +116,7 @@
     (m:solve-mechanism m)
     (let ((f (m:mechanism->figure m)))
       (draw-figure f c)
-      ;(pp (analyze-figure f))
+      ;;(pp (analyze-figure f))
       )))
 
 #|
@@ -122,7 +126,7 @@
   (m:run-mechanism
    (lambda ()
      (m:mechanism
-      ;(m:establish-polygon-topology 'a 'b 'c)
+      ;;(m:establish-polygon-topology 'a 'b 'c)
       (m:make-named-bar 'a 'b)
       (m:make-named-bar 'b 'c)
       (m:make-named-bar 'c 'a)
