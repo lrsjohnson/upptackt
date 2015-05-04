@@ -70,8 +70,9 @@
 (define m:make-ray %m:make-ray)
 
 (define (m:ray->figure-ray m-ray)
-  (make-ray (m:ray-endpoint m-ray)
-            (m:ray-direction m-ray)))
+  (with-color "red"
+              (make-ray (m:ray-endpoint m-ray)
+                        (m:ray-direction m-ray))))
 
 (define (m:on-ray? p ray)
   (let ((endpoint (m:ray-endpoint ray)))
@@ -148,12 +149,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;; Contradiction Objects ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <m:region-contradiction>
-  (m:make-region-contradiction error-size)
+  (m:make-region-contradiction error-regions)
   m:region-contradiction?
-  (error-size m:region-contradiction-error))
+  (error-regions m:contradiction-error-regions))
 
 ;;; TODO: Maybe differeniate by error values
 (define (m:region-contradictions-equivalent? rc1 rc2) #t)
+
+(define (m:region-contradiction->figure-elements rc)
+  (map m:region->figure-elements (m:contradiction-error-regions rc)))
 
 ;;;;;;;;;;;;;;;;;;;;;;; Specific Intersections ;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -166,7 +170,7 @@
         (cond ((m:on-ray? endpoint-1 ray2) ray1)
               ((m:on-ray? endpoint-2 ray1) ray2)
               ;; TODO: Determine error value
-              (else (m:make-region-contradiction 0)))
+              (else (m:make-region-contradiction (list ray1 ray2))))
         (let ((ray1-p2 (m:p2-on-ray ray1))
               (ray2-p2 (m:p2-on-ray ray2)))
           (let ((intersection
@@ -176,7 +180,7 @@
                      (m:on-ray? intersection ray2))
                 (m:make-point-set (list intersection))
                 ;; TODO: Determine error value
-                (m:make-region-contradiction 0)))))))
+                (m:make-region-contradiction (list ray1 ray2))))))))
 
 (define (m:intersect-arcs arc1 arc2)
   (let ((c1 (m:arc-center arc1))
@@ -189,7 +193,7 @@
                         (intersect-direction-intervals
                          (m:arc-dir-interval arc1)
                          (m:arc-dir-interval arc2)))
-            (m:make-region-contradiction 0))
+            (m:make-region-contradiction (list arc1 arc2)))
         (let ((intersections
                (intersect-circles-by-centers-radii
                 c1 r1 c2 r2)))
@@ -201,7 +205,7 @@
             (if (> (length points) 0)
                 (m:make-point-set points)
                 ;; TODO: Determine error value
-                (m:make-region-contradiction 0)))))))
+                (m:make-region-contradiction (list arc1 arc2))))))))
 
 (define (m:intersect-ray-arc ray arc)
   (let ((center (m:arc-center arc))
@@ -219,7 +223,7 @@
         (if (> (length points) 0)
             (m:make-point-set points)
             ;; TODO: Determine error value
-            (m:make-region-contradiction 0))))))
+            (m:make-region-contradiction (list ray arc)))))))
 
 (define (m:intersect-arc-ray arc ray)
   (m:intersect-ray-arc ray arc))
@@ -248,7 +252,7 @@
     (if (> (length results) 0)
         (m:make-point-set results)
         ;;; TODO: Determine error value
-        (m:make-region-contradiction 0))))
+        (m:make-region-contradiction (list ps1 region)))))
 
 (define (m:intersect-region-with-point-set region ps)
   (m:intersect-point-set-with-region ps region))
@@ -343,9 +347,13 @@
 |#
 ;;;;;;;;;;;;;;;;;;;;;;;;; To Figure elements ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define m:region->figure-element
-  (make-generic-operation 1 'm:region->figure-element (lambda (r) #f )))
+(define m:region->figure-elements
+  (make-generic-operation 1 'm:region->figure-elements (lambda (r) #f )))
 
-(defhandler m:region->figure-element
+(defhandler m:region->figure-elements
   m:ray->figure-ray
   m:ray?)
+
+(defhandler m:region->figure-elements
+  m:region-contradiction->figure-elements
+  m:region-contradiction?)
