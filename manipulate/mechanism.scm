@@ -108,8 +108,18 @@
   (let ((i (random (length l))))
     (list-ref l i)))
 
-(define m:pick-bar any-one)
-(define m:pick-joint any-one)
+(define (m:pick-bar bars)
+  (car (sort-by-key bars (negatep m:bar-max-inner-angle-sum))))
+
+(define m:pick-joint-1 any-one)
+
+(define (m:pick-joint joints)
+  (car
+   (append
+    (sort-by-key
+     (filter m:joint-bar-sums joints)
+     m:joint-bar-sums)
+    (filter (notp m:joint-bar-sums) joints))))
 
 (define (m:specify-angle-if-first-time cell)
   (if (not *any-dir-specified*)
@@ -136,11 +146,13 @@
   (let ((v (m:random-theta-for-joint joint)))
     (pp `(specifying-joint ,(print (m:joint-name joint)) ,v))
     (m:instantiate (m:joint-theta joint) v 'specify-joint)
-    (m:specify-angle-if-first-time (m:joint-dir-1 joint))
-    (m:specify-point-if-first-time (m:joint-vertex joint))))
+    (m:specify-angle-if-first-time (m:joint-dir-1 joint))))
 
 (define (m:initialize-joint-vertex joint)
   (m:specify-point-if-first-time (m:joint-vertex joint)))
+
+(define (m:initialize-joint-direction joint)
+  (m:specify-angle-if-first-time (m:joint-dir-1 joint)))
 
 (define (m:initialize-bar-p1 bar)
   (m:specify-point-if-first-time (m:bar-p1 bar)))
@@ -155,7 +167,8 @@
   (let ((joints (filter (andp predicate (notp m:joint-specified?))
                         (m:mechanism-joints m))))
     (and (not (null? joints))
-         (m:initialize-joint-vertex (m:pick-joint joints)))))
+         (let ((j (m:pick-joint joints)))
+           (m:initialize-joint-direction j)))))
 
 (define (m:specify-bar-if m predicate)
   (let ((bars (filter (andp predicate (notp m:bar-length-specified?))
@@ -215,11 +228,12 @@
 
 (define *m* #f)
 (define (m:solve-mechanism m)
+  (set! *m* m)
   (m:initialize-solve)
   (let lp ()
     (run)
-    (set! *m* m)
     (cond ((m:mechanism-contradictory? m)
+           (m:draw-mechanism m c)
            (error "Contradictory mechanism built"))
           ((not (m:mechanism-fully-specified? m))
            (if (m:specify-something m)
@@ -244,8 +258,8 @@
               (m:mechanism-joints m)))
         (segments (map m:bar->figure-segment (m:mechanism-bars m)))
         (angles (map m:joint->figure-angle (m:mechanism-joints m))))
-    (apply figure (filter (lambda (x) (or x))
-                          (append points segments angles)))))
+    (apply figure (flatten (filter (lambda (x) (or x))
+                           (append points segments angles))))))
 
 (define (m:draw-mechanism m c)
   (draw-figure (m:mechanism->figure m) c))

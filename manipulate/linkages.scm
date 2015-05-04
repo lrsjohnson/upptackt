@@ -232,8 +232,11 @@
   (region m:point-region))
 
 ;;; Allocate cells for a point
-(define (m:make-point)
+(define (m:make-point id)
   (let-cells (x y region)
+    (name! x (symbol id '-x))
+    (name! y (symbol id '-y))
+    (name! region (symbol id '-region))
     (p:m:x-y->region x y region)
     (p:m:region->x region x)
     (p:m:region->y region y)
@@ -312,8 +315,8 @@
 ;;; Allocate cells and wire up a bar
 (define (m:make-bar bar-id)
   (let ((bar-key (m:make-bar-name-key bar-id)))
-    (let ((p1 (m:make-point))
-          (p2 (m:make-point)))
+    (let ((p1 (m:make-point (symbol bar-key '-p1)))
+          (p2 (m:make-point (symbol bar-key '-p2))))
       (name! p1 (symbol bar-key '-p1))
       (name! p2 (symbol bar-key '-p2))
       (let ((v (m:make-vec bar-key)))
@@ -377,7 +380,7 @@
 
 (define (m:make-joint joint-id)
   (let ((joint-key (m:make-joint-name-key joint-id)))
-   (let ((vertex (m:make-point)))
+   (let ((vertex (m:make-point (symbol joint-key '-vertex))))
      (let-cells (dir-1 dir-2 theta)
        (name! dir-1 (symbol joint-key '-dir-1))
        (name! dir-2 (symbol joint-key '-dir-2))
@@ -439,16 +442,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Storing Adjacencies ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:set-endpoint-1 bar joint)
-  (eq-put! bar 'm:bar-endpoint-1 joint))
+  (eq-append! bar 'm:bar-endpoints-1 joint))
 
-(define (m:bar-endpoint-1 bar)
-  (eq-get bar 'm:bar-endpoint-1))
+(define (m:bar-endpoints-1 bar)
+  (or (eq-get bar 'm:bar-endpoints-1)
+      '()))
 
 (define (m:set-endpoint-2 bar joint)
-  (eq-put! bar 'm:bar-endpoint-2 joint))
+  (eq-append! bar 'm:bar-endpoints-2 joint))
 
-(define (m:bar-endpoint-2 bar)
-  (eq-get bar 'm:bar-endpoint-2))
+(define (m:bar-endpoints-2 bar)
+  (or (eq-get bar 'm:bar-endpoints-2)
+      '()))
 
 (define (m:set-joint-arm-1 joint bar)
   (eq-put! joint 'm:joint-arm-1 bar))
@@ -461,7 +466,6 @@
 
 (define (m:joint-arm-2 joint)
   (eq-get joint 'm:joint-arm-2))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Named Linkages  ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -695,7 +699,8 @@
 
 (define (m:point-contradictory? p)
   (or (m:contradictory? (m:point-x p))
-      (m:contradictory? (m:point-y p))))
+      (m:contradictory? (m:point-y p))
+      (m:contradictory? (m:point-region p))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Bar Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -720,7 +725,9 @@
        (m:specified? (m:bar-direction bar) direction?)))
 
 (define (m:bar-direction-contradictory? bar)
-  (m:contradictory? (m:bar-direction bar)))
+  (or (m:contradictory? (m:bar-direction bar))
+      (m:contradictory? (m:vec-dx (m:bar-vec bar)))
+      (m:contradictory? (m:vec-dy (m:bar-vec bar)))))
 
 (define (m:bar-length-specified? bar)
   (and (m:specified? (m:bar-length bar) number?)))
@@ -793,6 +800,29 @@
    (m:joint-theta-contradictory? joint)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Specifying Values ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:joint-theta-if-specified joint)
+  (let ((theta-v (m:examine-cell
+                  (m:joint-theta joint))))
+    (if (number? theta-v) theta-v
+        0)))
+
+(define (m:bar-max-inner-angle-sum bar)
+  (let ((e1 (m:bar-endpoints-1 bar))
+        (e2 (m:bar-endpoints-2 bar)))
+    (if (or (null? e1)
+            (null? e2))
+        0
+        (+ (apply max (map m:joint-theta-if-specified e1))
+           (apply max (map m:joint-theta-if-specified e2))))))
+
+(define (m:joint-bar-sums joint)
+  (let ((b1 (m:joint-arm-1 joint))
+        (b2 (m:joint-arm-2 joint)))
+    (and (m:bar-length-specified? b1)
+         (m:bar-length-specified? b2)
+         (+ (m:examine-cell (m:bar-length b1))
+            (m:examine-cell (m:bar-length b2))))))
 
 (define (m:random-theta-for-joint joint)
   (let ((theta-range (m:examine-cell (m:joint-theta joint))))
@@ -873,7 +903,7 @@
 (define (m:point->figure-point m-point)
   (if (not (m:point-specified? m-point))
       (let ((r (m:examine-cell (m:point-region m-point))))
-        (m:region->figure-element r))
+        (m:region->figure-elements r))
       (let ((p (make-point (m:examine-cell (m:point-x m-point))
                            (m:examine-cell (m:point-y m-point)))))
         (set-element-name! p (m:element-name m-point))

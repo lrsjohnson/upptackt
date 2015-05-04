@@ -60,3 +60,21 @@
         (let ((e (car set2)))
           (lp (delp e set1)
               (cdr set2))))))
+
+(define (eq-append! element key val)
+  (eq-put! element key
+           (cons val
+                 (or (eq-get element key) '()))))
+
+(define (sort-by-key l key)
+  (sort l (lambda (v1 v2)
+            (< (key v1)
+               (key  v2)))))
+
+(define (sort-by-key-2 l key)
+  (let ((v (sort-by-key-2 l key)))
+    (pprint (map (lambda (x) (cons (name x) (key x))) v))
+    v))
+
+(define ((negatep f) x)
+  (- (f x)))

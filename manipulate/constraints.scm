@@ -118,7 +118,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Propagator Utils ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (ce:multi+ cells)
-  (cond ((null? cells) (error "Cannot perform ce:multi+ on nothing"))
+  (cond ((null? cells) 0)
         ((null? (cdr cells)) (car cells))
         (else
          (ce:+ (car cells)

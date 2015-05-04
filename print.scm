@@ -1,3 +1,4 @@
+
 ;;; print.scm --- Print things nicely
 
 ;;; Commentary:
@@ -9,6 +10,11 @@
 
 (define print
   (make-generic-operation 1 'print (lambda (x) x)))
+
+(defhandler print
+  (lambda (p) (cons (print (car p))
+                    (print (cdr p))))
+  pair?)
 
 (defhandler print
   (lambda (l) (map print l))
