@@ -19,26 +19,26 @@
 
 (define (quad-diagonals)
   (m:mechanism
+   ;; Setup abcd with e in the middle:
    (m:establish-polygon-topology 'a 'b 'c 'd)
    (m:establish-polygon-topology 'a 'b 'e)
    (m:establish-polygon-topology 'b 'c 'e)
    (m:establish-polygon-topology 'c 'd 'e)
    (m:establish-polygon-topology 'd 'a 'e)
 
-   ;;(m:make-named-joint 'c 'e 'a)
-   ;;(m:c-full-angle (m:joint 'c 'e 'a))
-
    (m:c-line-order 'c 'e 'a)
    (m:c-line-order 'b 'e 'd)
 
+   ;; Right Angle in Center:
    (m:c-right-angle (m:joint 'b 'e 'c))
-   (m:c-right-angle (m:joint 'd 'e 'a))
-   (m:c-right-angle (m:joint 'c 'e 'd))
-   (m:c-right-angle (m:joint 'a 'e 'b))
-   ;;(m:c-length-equal (m:bar 'c 'e) (m:bar 'a 'e))
+
+   ;; Diagonals Equal
+   (m:c-length-equal (m:bar 'c 'e) (m:bar 'a 'e))
+   ;;(m:c-length-equal (m:bar 'b 'e) (m:bar 'd 'e))
+
+   ;; Make it a square:
    ;;(m:c-length-equal (m:bar 'c 'e) (m:bar 'b 'e))
-   (m:c-length-equal (m:bar 'b 'e)
-                     (m:bar 'd 'e))))
+   ))
 
 ;;; Works:
 (define (isoceles-triangle)
@@ -55,8 +55,7 @@
    (m:equal-joints-in-sum
     (list (m:joint 'a) (m:joint 'b))
     (list (m:joint 'a) (m:joint 'b) (m:joint 'c))
-    pi)
-   ))
+    pi)))
 
 ;;; Often works:
 (define (arbitrary-quadrilateral)
@@ -98,6 +97,7 @@
                     (m:joint 'c))
    (m:c-angle-equal (m:joint 'b)
                     (m:joint 'd))
+
    (m:equal-joints-in-sum
     (list (m:joint 'a) (m:joint 'c))
     (list (m:joint 'a) (m:joint 'b) (m:joint 'c) (m:joint 'd))
