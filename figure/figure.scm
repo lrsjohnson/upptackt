@@ -31,7 +31,11 @@
 (define (figure-points figure)
   (append (figure-filter point? figure)
           (append-map (lambda (polygon) (polygon-points polygon))
-                      (figure-filter polygon? figure))))
+                      (figure-filter polygon? figure))
+          (append-map (lambda (s)
+                        (list (segment-endpoint-1 s)
+                              (segment-endpoint-2 s)))
+                      (figure-filter segment? figure))))
 
 (define (figure-segments figure)
   (append (figure-filter segment? figure)

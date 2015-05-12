@@ -61,7 +61,7 @@
         (d-theta (animate-range 0 (* 2 pi))))
     (let ((dir (make-direction (+ theta d-theta))))
       (with-dependency
-       `(random-point ,(make-random-dependency))
+       (make-random-dependency 'random-point)
        (add-to-point
         (make-point x y)
         (vec-from-direction-distance dir *point-wiggle-radius*))))))
@@ -137,7 +137,7 @@
 (define (random-line)
   (let ((p (random-point)))
     (with-dependency
-     `(random-line ,(make-random-dependency))
+     (make-random-dependency 'random-line)
      (random-line-through-point p))))
 
 (define (random-segment)
@@ -146,7 +146,7 @@
     (let ((seg (make-segment p1 p2)))
       (set-segment-dependency!
        seg
-       `(random-segment ,(make-random-dependency)))
+       (make-random-dependency 'random-segment))
       seg)))
 
 (define (random-ray)
@@ -221,7 +221,7 @@
          (p2 (random-point))
          (p3 (random-point-left-of-line (line-from-points p1 p2))))
     (with-dependency
-     `(random-triangle ,(make-random-dependency))
+     (make-random-dependency 'random-triangle)
      (polygon-from-points p1 p2 p3))))
 
 (define (random-equilateral-triangle)
@@ -230,7 +230,7 @@
                            (/ pi 3)
                            s1)))
     (with-dependency
-     `(random-equilateral-triangle ,(make-random-dependency))
+     (make-random-dependency 'random-equilateral-triangle)
      (polygon-from-points
       (segment-endpoint-1 s1)
       (segment-endpoint-2 s1)
@@ -243,7 +243,7 @@
                            base-angle
                            s1)))
     (with-dependency
-     `(random-isoceles-triangle ,(make-random-dependency))
+     (make-random-dependency 'random-isoceles-triangle)
      (polygon-from-points
       (segment-endpoint-1 s1)
       (segment-endpoint-2 s1)
@@ -262,7 +262,7 @@
                            (/ pi 2)
                            p2)))
     (with-dependency
-     `(random-square ,(make-random-dependency))
+     (make-random-dependency 'random-square)
      (polygon-from-points p1 p2 p3 p4))))
 
 (define (random-rectangle)
@@ -277,7 +277,7 @@
               p2
               (sub-points p4 p1))))
     (with-dependency
-     '(random-rectangle)
+     (make-random-dependency 'random-rectangle)
      (polygon-from-points
       p1 p2 p3 p4))))
 
@@ -293,7 +293,7 @@
               p2
               (sub-points p4 p1))))
     (with-dependency
-     '(random-parallelogram)
+     (make-random-dependency 'random-parallelogram)
      (polygon-from-points p1 p2 p3 p4))))
 
 (define (random-rhombus)
@@ -307,5 +307,5 @@
               p2
               (sub-points p4 p1))))
     (with-dependency
-     '(random-rhombus)
+     (make-random-dependency 'random-rhombus)
      (polygon-from-points p1 p2 p3 p4))))

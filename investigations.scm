@@ -4,22 +4,22 @@
 ;;; Goal: m(a-1) + m(a-2) = 180 degrees
 (define (linear-pair)
   (let-geo* ((a (random-point))
-             (l1 (line-through-point a))
+             (l1 (random-line-through-point a))
              (r (random-ray-from-point a))
              (a-1 (smallest-angle-from l1 r))
              (a-2 (smallest-angle-from r (flip l1))))
-            (figure a l1 r a-1 a-2)))
+    (figure a l1 r a-1 a-2)))
 
 ;;; [2] Vertical Angles Conjecture
 ;;; Givens: Angles a-1 and a-2 are vertical angles
 ;;; Goal: m(a-1) = m(a-2)
 (define (vertical-angles)
   (let-geo* ((l1 (random-line))
-             (c (point-on-line l1))
+             (c (random-point-on-line l1))
              (l2 (rotate-randomly-about c l1))
              (a-1 (smallest-angle-from l1 l2))
              (a-2 (smallest-angle-from (flip l1) (flip l2))))
-            (figure l1 c l2 a-1 a-2)))
+    (figure l1 c l2 a-1 a-2)))
 
 ;;; [3a] Corresponding Angles Conjecture
 ;;; Givens: - Lines l1 and l2 are parallel
@@ -29,8 +29,8 @@
 (define (corresponding-angles)
   (let-geo* ((l1 (random-line))
              (l2 (translate-randomly l1))
-             (a (point-on-line l1))
-             (b (point-on-line l2))
+             (a (random-point-on-line l1))
+             (b (random-point-on-line l2))
              (l3 (line-from-points a b))
              (a-1 (smallest-angle-from l3 l2))
              (a-2 (smallest-angle-from l3 l1)))
@@ -50,7 +50,7 @@
              (a-2 (translate-randomly-along-line l3 a-1))
              (l1 (line-from-arm-2 a-1))
              (l2 (line-from-arm-2 a-2)))
-            (figure a-1 a-2 l1 l2 l3)))
+    (figure a-1 a-2 l1 l2 l3)))
 
 ;;; [5] Perpendicular bisector conjecture
 ;;; Givens: - p is a point on perpendicular bisector of segment (a, b)
@@ -60,7 +60,7 @@
              (a (segment-endpoint-1 s))
              (b (segment-endpoint-2 s))
              (l1 (perpendicular-bisector s))
-             (p (point-on-line l1)))
+             (p (random-point-on-line l1)))
             (figure a b s l1 p)))
 ;;; TODO: Analyze equal segments not actually there...
 
@@ -76,61 +76,58 @@
             (figure p a b s pb)))
 ;;; TODO: aux-segment
 
-#|
 ;;; [7] Shortest distance conjecture
 ;;; Givens: arbitrary point p, point a on line l
 ;;; Goal: Discover that shortest distance to line is along perpendicular
- (define (shortest-distance)
-   (let-geo* ((p (random-point))
-              (l (random-line))
-              (a (point-on-line l)))
-             (figure p l a (aux-segment p a))))
+(define (shortest-distance)
+  (let-geo* ((p (random-point))
+             (l (random-line))
+             (a (random-point-on-line l)))
+    (figure p l a (make-auxiliary-segment p a))))
 ;;; TODO: Tricky, figure out how to minimize value, specify "minimize" property?
-|#
 
-#|
 ;;; [8] Angle bisector conjecture
 ;;; Given: angle a-1 of rays r-1, r-2, point a on angle-bisector l1
 ;;; Goal: Distnace from a to r-1 = distance a to r-2
 
- (define (angle-bisector-distance)
+(define (angle-bisector-distance)
    (let-geo* ((a (random-angle))
               (r-1 (make-ray (angle-vertex a) (angle-arm-1 a)))
               (r-2 (make-ray (angle-vertex a) (angle-arm-2 a)))
               (l-1 (angle-bisector a))
-              (p (point-on-ray l-1))
+              (p (random-point-on-ray l-1))
               (s-1 (perpendicular-to r-1 p))
               (s-2 (perpendicular-to r-2 p)))
-             (figure a r-1 r-2 l-1 p s-1 s-2)))
+     (figure a r-1 r-2 l-1 p s-1 s-2)))
 ;;; Interesting, dependent on "shortest distance" from prior conjecture
 ;;; TODO: perpendicular-to => Segment
-|#
-#|
+
 
 ;;; [9] Angle bisector concurrency
 ;;; Given: Triangle abc with angle-bisectors l1, l2, l3
 ;;; Goal: l1, l2, l3 are concurrent
-(define (angle-bisector-concurrency)
- (let-geo* (((a b c) (random-triangle))
-            ((a-1 a-2 a-3) (triangle-angles a b c))
-            (l1 (angle-bisector a-1))
-            (l2 (angle-bisector a-2))
-            (l3 (angle-bisector a-3)))
-           (figure a b c a-1 a-2 a-3 l1 l2 l3)))
+#|(define (angle-bisector-concurrency)
+  (let-geo* ((t1 (random-triangle))
+             ((a-1 a-2 a-3) (triangle-angles a b c))
+             (l1 (angle-bisector a-1))
+             (l2 (angle-bisector a-2))
+             (l3 (angle-bisector a-3)))
+    (figure a b c a-1 a-2 a-3 l1 l2 l3)))|#
 ;;; TODO: Angles from Triangle
 ;;; TODO: Concurrency of lines
 ;;; TODO: Draw markings for angle bisector
 
 ;;; [10] Perpendicular Bisector Concurrency
-;;; Given: Triangle ABC with sides s1, s2, s3, perpendicular bisectors l1, l2, l3
+;;; Given: Triangle ABC with sides s1, s2, s3, perpendicular bisectors
+;;; l1, l2, l3
 ;;; Goal: l1, l2, l3 are concurrent
-(define (perpendicular-bisector-concurrency)
+#|(define (perpendicular-bisector-concurrency)
   (let-geo* (((a b c) (random-triangle))
              ((s-1 s-2 s-3) (traingle-sides a b c))
              (l1 (perpendicular-bisector s-1))
              (l2 (perpendicular-bisector s-2))
              (l3 (perpendicular-bisector s-3)))
-            (figure a b c s-1 s-2 s-3 l1 l2 l3)))
+    (figure a b c s-1 s-2 s-3 l1 l2 l3)))|#
 ;;; TODO: Sides from triangle
 ;;; TODO: Redundant with original sides in (a, b, c)
 ;;; TODO: Concurrent, but not at vertex points...
@@ -138,20 +135,20 @@
 ;;; [11] Altitude Concurrency
 ;;; Given: Triangle ABC with altituds alt-1, alt2, alt-3
 ;;; Goal: alt-1, alt-2, alt-3 are concurrent
-(define (perpendicular-bisector-concurrency)
+#|(define (perpendicular-bisector-concurrency)
   (let-geo* (((a b c) (random-triangle))
              (alt-1 (perpendicular-to a (make-segment b c)))
              (alt-2 (perpendicular-to b (make-segment a c)))
              (alt-3 (perpendicular-to c (make-segment a b))))
-            (figure a b c s-1 s-2 alt-1 alt-2 alt-3)))
+            (figure a b c s-1 s-2 alt-1 alt-2 alt-3)))|#
 ;;; TODO: Altitudes: Segment a, b, c
 ;;; TODO: Resist redundant concurrencies
 ;;; TODO: See if it can provide/learn a name for this point?
 
 ;;;  [12] Circumcenter Conjecture
-(define (circumcenter-properties)
+#|(define (circumcenter-properties)
   (let-geo* (((a b c) (random-triangle))
-             (c-center (circumcenter a b c)))))
+             (c-center (circumcenter a b c)))))|#
 ;;; TODO: Circumcenter macro
 ;;; TODO: Handle >2 equal segment sizes...
 
@@ -192,6 +189,12 @@
 ;;; [42] Triangle Midsegment Conjecture
 ;;; [43] Trapezoid Midsegment Conjecture
 ;;; [44] Parallelogram Opposite Angles Conjecture
+
+(define (parallelogram-opposite-angles)
+  (let-geo*
+      ((p (random-parallelogram)))
+    (figure p)))
+#|
 ;;; [45] Parallelogram Consecutive Angles Conjecture
 ;;; [46] Parallelogram Opposite Sides Conjecture
 ;;; [47] Parallelogram Diagonals Conjecture

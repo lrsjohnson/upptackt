@@ -14,7 +14,8 @@
   )
 
 (define draw-element
-  (make-generic-operation 1 'draw-element))
+  (make-generic-operation 1 'draw-element
+                          (lambda (e) (lambda (c) 'done))))
 
 (define draw-label
   (make-generic-operation 1 'draw-label (lambda (e) (lambda (c)'done))))
