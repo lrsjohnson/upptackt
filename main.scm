@@ -1,3 +1,14 @@
+(define (midpoint-figure)
+  (let-geo* ((s (random-segment))
+             (m (segment-midpoint s)))
+    (figure s m)))
+
+(define (random-rhombus-figure)
+  (let-geo* ((r (random-rhombus)))
+    (figure r)))
+
+;;; Other Examples:
+
 (define (debug-figure)
   (let-geo* ((r (random-parallelogram))
              (a (polygon-point r 0))
@@ -7,8 +18,6 @@
              (m1 (segment-midpoint (make-segment a b)))
              (m2 (segment-midpoint (make-segment c d))))
     (figure r m1 m2)))
-
-
 
 (define (debug-figure-2)
   (let-geo* ((s (random-segment))
