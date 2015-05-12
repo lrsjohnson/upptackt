@@ -1,0 +1,153 @@
+\chapter{Imperative Construction System}
+\label{chap:imperative}
+
+\section{Overview}
+
+The first module is an imperative system for performing geometry
+constructions. This is the typical input method for generating
+coordinate-backed instances of figures and thus declares
+
+\section{Basic Structures}
+
+\subsection{Points}
+
+Points form the basis of most elements. Throughout the system, points
+are
+
+\section{Linear Elements}
+
+The linear elements of Segments, Lines, and Rays are built upon
+points. Initially the internal representation of
+
+To better specify angles (see below), all linear elements, including
+segments and lines are directioned.
+
+\subsection{Angles}
+
+Initially angles were represented as three points, now vertex + two
+directions. CCW orientation. Methods exist to determine them from
+various pairs of linear elements, uses directionality of linear
+elements to determine which ``quadrant'' of the angle is desired.
+
+[Future]: Extract angles from the diagrams in analysis rather than
+specifying each angle of interest while creating the diagram.
+
+\subsection{Math Support}
+
+Some ``core'' math structures to help these calculations: Direction
+represents a direction in [0, 2pi], fixes principal value [0, 2pi],
+and support various operations for direction intervals (basic
+intersection, adding, shifting, etc). Currently all represented by
+single theta value, could generalize via generics to dx, dy, or theta
+depending on computation source.
+
+\section{Higher-level structures}
+
+In addition to the basic geometry structures, the system uses several
+grouping structures to combine and abstract the basic figure elements
+into higher-level figures elements.
+
+\subsection{Polygons}
+
+Polygons are represented as groups of points.
+
+\subsection{Figures}
+
+Figures are currently groups of elements. In the creation of figures
+we extract additional information and build a graph out of adjacent
+components for use in the analysis stages.
+
+\section{Construction Operations}
+
+\subsection{Traditional constructions}
+
+Midpoint, perpendicular line, bisectors
+
+\subsection{Intersections}
+
+Generic intersections, mathematically based at line/line or
+line/circle at the core. Other intersections also add the check that
+the resulting point(s) are on the elements.
+
+\subsection{Measurement-based operations}
+
+A ``Ruler + Protractor'' is generally not permitted in traditional
+construction problems. However, sometimes its nice to be able to use
+measurements to more quickly compute a result (e.g. angle bisector by
+halving angle) vs. going through the whole ray/circle based
+construction process.
+
+\subsection{Transformations}
+
+Currently, rotate about a point or translate by a vector. Also
+interfaces for by *random* point or vector.
+
+\section{Randomness}
+
+\subsection{Random Choices}
+
+At the basis of all random
+
+\subsection{Remembering choices}
+
+\subsection{Bakktracking}
+
+TODO: More on this
+
+\subsection{Avoiding almost-degenerate points}
+
+Backtracking helps with picking really bad values.
+
+\subsection{Animating choices}
+
+I animate over a small range within the specified random
+range. Top-level infrastructure determinies frames, sleeping, etc.
+Constructions can request to animate functions of one arg [0, 1]. As
+the figure and animation is run, each call to randomize gets a call to
+random whenever their value is non-false.
+
+\section{Dependencies}
+
+\subsection{Implementation}
+
+Eq-properties, etc.
+
+\subsection{Naming}
+
+Sometimes derived if unknown, figure out how name metadata relates to
+the dependencies.
+
+\subsection{Forcing higher-level random dependenceis}
+
+"Inverts" the dependency tree that would otherwise usually go
+down to points. set-dependency! as random-square. When given an
+element by the teacher, generally we don't know how the construction
+was performed.
+
+\subsection{Dependency-less diagrams}
+
+In some cases, the dependency structure of a figure can be wiped.
+
+\section{Construction Language}
+
+Constructions and instruction-based investigations are specified by
+scheme procedures that return the desired figures.
+
+\subsection{Macros}
+
+I created a let-geo* special form that is similar to Scheme's (let
+...) form, but sets the element names as specified so they can be more
+easily referred to later.
+
+\subsection{Multiple Assignment}
+
+In let-geo*, I also permit some constructions to optionally map to
+multiple assignments of names, such as the case in which you create a
+triangle and simulatneously want to store and name the triangle's
+vertex points.
+
+\section{Graphics}
+
+\subsection{MIT Scheme X Graphics}
+
+\subsection{Bounds}

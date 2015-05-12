@@ -1,0 +1,87 @@
+\chapter{Declarative Geometry Constraint Solver}
+\label{chap:declarative}
+
+\section{Overview}
+
+The second module is a declarative geometric constraint solver. Given
+a user-specified topology of the diagram and various constraints, this
+system is able to solve those constraints and instantiate a diagram
+that satisfies them if possible.
+
+This system is implemented using propagators, involved the creation of
+new partial information about point regions and direction intervals,
+and focuses on a
+
+Future efforts involve a backtrack-search mechanism if constraints
+fail, and a system of initializing the diagram with content from an
+existing figure, kicking out and wiggling arbitrary premises, and
+seeing how the resulting diagram properties respond.
+
+\section{Mechanical Analogies}
+
+The geometry constraint solver - physical manipulation, simulation,
+and ``wiggling''
+
+\subsection{Bar and Joint Linkages}
+
+Bars have endpoints, directions and length. Joints have a vertex point
+and two directions. Currently, most joints are directioned and have
+max value of 180 degrees.
+
+\subsection{Mechanism}
+
+The Mechanism in our declarative system is analogous to Figure,
+grouping elements. Also computes various caching and lookup tables to
+more easily access elements.
+
+\section{Partial Information}
+
+\subsection{Regions}
+
+Propagating partial information across bars and joints yields a new
+region system: Regions include point sets of one or more possible
+points, an entire ray, or an entire arc. These rays and arcs are
+from an anchored bar with only one of direction or length specified,
+for instance.
+
+\subsection{Direction Intervals}
+
+Ranges of intervals. Full circle + invalid intervals. Adding and
+subtracting intervals of direction and thetas gets complicated at times.
+
+Challenges with intersection, multiple segments. Eventually just
+return nothing is okay.
+
+\section{Propagator Constraints}
+
+\subsection{Basic Linkage Constraints}
+
+Direction, dx, dy, length, thetas.
+
+\subsection{Higher Order Constraints}
+
+Angle sum of polygon, or scan through polygon and ensure that the
+angles don't not match. Example is equilateral triangle, for
+instance... Could also observe always ``60 degrees'' as an interesting
+fact and put that in as a constraint. They're alebgraically quite
+similar, but my propagators currently don't perform symbolic algebra.
+
+\section{Solving: Specification Ordering}
+
+Given a wired diagram, process is repeatedly specifying values for elements
+
+\subsection{Anchored vs. Specified vs. Initialized}
+
+\section{Backtracking}
+
+TODO in future, sounds fun.
+
+\section{Interfacing with existing diagrams}
+
+TODO in future, sounds fun.
+
+\section{Specification Interface}
+
+\subsubsection{Establish Polygon Topology}
+
+Nice techniques for establishing polygon t

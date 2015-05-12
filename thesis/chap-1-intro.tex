@@ -1,0 +1,88 @@
+%% This is an example first chapter.  You should put chapter/appendix that you
+%% write into a separate file, and add a line \include{yourfilename} to
+%% main.tex, where `yourfilename.tex' is the name of the chapter/appendix file.
+%% You can process specific files by typing their names in at the
+%% \files=
+%% prompt when you run the file main.tex through LaTeX.
+\chapter{Introduction}
+\label{chap:intro}
+
+In this thesis, I develop and analyze an interactive computer system
+that emulates a student learning geometry concepts through inductive
+investigation. Although geometry knowledge can be conveyed via a
+series of factual definitions, theorems, and proofs, my system focuses
+on a more investigative approach in which an external teacher guides
+the student to ``discover'' new definitions and theorems via
+explorations and self-directed inquiry.
+
+My system emulates such a student by beginning with a fairly limited
+knowledge set regarding basic definitions in geometry and providing a
+means by which a user interacting with the system can ``teach''
+additional geometric concepts and theorems by suggesting
+investigations the system should explore to see if it ``notices
+anything interesting.''
+
+To enable such learning, my project includes the combination of four
+intertwined modules: an imperative geometry construction interpreter
+to build constructions, a declarative geometry constraint solver to
+solve and test specifications, an observation-based perception module
+to notice interesting properties, and a learning module to analyze
+information from the other modules and integrate it into new
+definition and theorem discoveries.
+
+To evaluate its recognition of such concepts, my system provides means
+for a user to extract the observations and apply its findings to new
+scenarios.  Through a series of simple investigations similar to an
+introductory course in geometry, the system [\emph{not quite yet, but
+    hopefully}] has been able to propose and learn a few dozen
+standard geometry theorems, and through more self-directed
+explorations, it has discovered several interesting properties and
+theorems not typically covered in standard mathematics courses.
+
+\section{Document Structure}
+
+\begin{description}
+
+\item [Chapter~\ref{chap:motivation}] further discusses motivation of
+  the system and presents some examples of diagram manipulation,
+  emphasizing the technique of visualizing diagrams ``in the mind's
+  eye.''
+
+\item[Chapter~\ref{chap:related-work}] discusses some related work to
+  automated geometry theorem discovery and proof, as well as a
+  comparison with existing dynamic geometry systems.
+
+\item[Chapter~\ref{chap:sys-overview}] further introduces the system
+  modules and discusses how they work together in the discovery of new
+  definitions and theorems.
+
+\item[Chapter~\ref{chap:imperative}] describes the implementation and
+  function of the imperative construction module that enables the
+  system to carry out constructions.
+
+\item[Chapters~\ref{chap:declarative}] describes the implementation
+  and function of the propagator-based declarative geometry constraint
+  solver that builds instances of diagrams satisfying declarative
+  constraints.
+
+\item[Chapter~\ref{chap:observer}] describes the implementation and
+  function of the perception module focused on observing interesting
+  properties in diagrams. A key question involves determining ``what
+  is interesting''.
+
+\item[Chapter~\ref{chap:analyzer}] describes the analyzer module which
+  integrates results from the other systems to create new
+  discoveries. Main features include filtering out obvious or known
+  results to focus on the most interesting discoveries, the
+  persistence and storage of definitions and theorems, and an
+  interface to apply these findings to new situations.
+
+\item[Chapter~\ref{chap:results}] discusses several of the definitions
+  and theorems results the overall system has been able to discover
+  and learn.
+
+\item[Chapter~\ref{chap:conclusion}] discusses the strengths and
+  weaknesses of the system. Future work and possible extensions are
+  discussed.
+
+\end{description}

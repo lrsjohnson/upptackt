@@ -1,0 +1,44 @@
+\chapter{Observation Module}
+\label{chap:observer}
+
+\section{Overview}
+
+The observation module is primarily concerned with the task of
+observing interesting properties in diagrams.
+
+\subsection{Extracting more information}
+
+The observation module also builds and traverses a
+graph-representation of the object of connectedness and adjacencies to
+extract more segments and angles, or include intersections of elements
+in its investigation.
+
+\subsubsection{Auxillary Segments}
+
+In some circumstances, the system can insert and consider segments
+between all pairs of points. Although this can sometimes produce
+interesting results, it can often lead to too many elements being
+considered. This option is off by default but can be enabled in a
+self-exploration mode.
+
+\subsection{What is Interesting?}
+
+Concurrent points, collinear points, equal angles,
+supplementary/complementary angles, parallel, perpendicular elements,
+concentric points, (future:) ratios between measurements, etc.
+
+\subsection{Removing Obvious Properties}
+
+This module makes use of available dependency information to eliminate
+some obvious properties. At this phase, the eliminations arise only
+from basic geometry knowledge ``hard-coded'' into the system, and not
+upon any specific prior-learned formula.
+
+\subsubsection{Trivial relations}
+
+Points being on lines, segments, circles directly dependent on that point.
+
+\subsubsection{Branch Relations}
+
+Other examples include ``branch'' relations. [TODO REF: Chen, Song,
+  etc.]. ABCD on a line with AB = CD also means that AC = BD, for instance.
