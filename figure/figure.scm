@@ -19,6 +19,11 @@
 (define (figure-elements figure)
   (cdr figure))
 
+(define (all-figure-elements figure)
+  (append (figure-elements figure)
+          (figure-points figure)
+          (figure-linear-elements figure)))
+
 (define (figure? x)
   (and (pair? x)
        (eq? (car x 'figure))))

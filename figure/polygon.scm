@@ -34,6 +34,10 @@
       (error "polygon point index not in range"))
   (list-ref (%polygon-points polygon) i))
 
+(declare-element-component-handler
+ polygon-point-ref
+ polygon?)
+
 (define (polygon-points polygon)
   (map (lambda (i) (polygon-point polygon i))
        (iota (polygon-n-points polygon))))

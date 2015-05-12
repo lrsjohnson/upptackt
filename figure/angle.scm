@@ -26,6 +26,13 @@
   (vertex angle-vertex)
   (dir2 angle-arm-2))
 
+(declare-element-component-handler
+ (component-procedure-from-getters
+  ray-from-arm-1
+  angle-vertex
+  ray-from-arm-2)
+ angle?)
+
 ;;;;;;;;;;;;;;;;;;;;; Transformations on Angles ;;;;;;;;;;;;;;;;;;;;;;
 
 (define (reverse-angle a)

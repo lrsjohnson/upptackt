@@ -118,8 +118,8 @@
   (let ((c1 (circle-center cir1))
         (c2 (circle-center cir2))
         (r1 (circle-radius cir1))
-        (s2 (circle-radius cir2)))
-    (intersect-circles-by-centers-radii c1 r c2 r2)))
+        (r2 (circle-radius cir2)))
+    (intersect-circles-by-centers-radii c1 r1 c2 r2)))
 
 (define (intersect-circle-line cir line)
   (let ((center (circle-center cir))

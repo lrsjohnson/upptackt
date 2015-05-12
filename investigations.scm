@@ -56,12 +56,10 @@
 ;;; Givens: - p is a point on perpendicular bisector of segment (a, b)
 ;;; Goal: p is equidistant from a and b
 (define (perpendicular-bisector-equidistant)
-  (let-geo* ((s (random-segment))
-             (a (segment-endpoint-1 s))
-             (b (segment-endpoint-2 s))
+  (let-geo* (((s (a b)) (random-segment))
              (l1 (perpendicular-bisector s))
              (p (random-point-on-line l1)))
-            (figure a b s l1 p)))
+            (figure s l1 p)))
 ;;; TODO: Analyze equal segments not actually there...
 
 ;;; [6] Converse of perpendicular bisector conjecture
@@ -91,14 +89,12 @@
 ;;; Goal: Distnace from a to r-1 = distance a to r-2
 
 (define (angle-bisector-distance)
-   (let-geo* ((a (random-angle))
-              (r-1 (make-ray (angle-vertex a) (angle-arm-1 a)))
-              (r-2 (make-ray (angle-vertex a) (angle-arm-2 a)))
-              (l-1 (angle-bisector a))
-              (p (random-point-on-ray l-1))
-              (s-1 (perpendicular-to r-1 p))
-              (s-2 (perpendicular-to r-2 p)))
-     (figure a r-1 r-2 l-1 p s-1 s-2)))
+  (let-geo* (((a (r-1 v r-2)) (random-angle))
+             (ab (angle-bisector a))
+             (p (random-point-on-ray ab))
+             ((s-1 (p b)) (perpendicular-to r-1 p))
+             ((s-2 (p c)) (perpendicular-to r-2 p)))
+     (figure a r-1 r-2 ab p s-1 s-2)))
 ;;; Interesting, dependent on "shortest distance" from prior conjecture
 ;;; TODO: perpendicular-to => Segment
 

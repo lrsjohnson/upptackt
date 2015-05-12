@@ -4,12 +4,12 @@
    (lambda (element)
      (canvas-set-color canvas (element-color element))
      ((draw-element element) canvas))
-   (figure-elements figure))
+   (all-figure-elements figure))
   (for-each
    (lambda (element)
      (canvas-set-color canvas (element-color element))
      ((draw-label element) canvas))
-   (figure-elements figure))
+   (all-figure-elements figure))
   (graphics-flush (canvas-g canvas))
   )
 
@@ -102,15 +102,6 @@
                      angle-start
                      angle-end)))
 
-(define (draw-polygon canvas polygon)
-  (let ((points (polygon-points polygon)))
-    (for-each (lambda (p)
-                (draw-point canvas p))
-              points)
-    (for-each (lambda (s)
-                (draw-segment canvas s))
-              (polygon-segments polygon))))
-
 ;;; Add to generic operations
 
 (add-to-draw-element! point? draw-point)
@@ -119,7 +110,6 @@
 (add-to-draw-element! angle? draw-angle)
 (add-to-draw-element! line? draw-line)
 (add-to-draw-element! ray? draw-ray)
-(add-to-draw-element! polygon? draw-polygon)
 
 (add-to-draw-label! point? draw-point-label)
 

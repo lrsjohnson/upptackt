@@ -49,6 +49,11 @@
    `(aux-segment ,p1 ,p2)
    (make-segment p1 p2)))
 
+(declare-element-component-handler
+ (component-procedure-from-getters segment-endpoint-1
+                                   segment-endpoint-2)
+ segment?)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Lines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <line>

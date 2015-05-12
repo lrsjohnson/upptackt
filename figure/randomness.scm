@@ -45,7 +45,7 @@
   (rand-range 0 (* 2 pi)))
 
 (define (rand-angle-measure)
-  (rand-range 0 pi))
+  (rand-range (* pi 0.05) (* .95 pi)))
 
 (define (random-direction)
   (let ((theta (rand-theta)))
@@ -119,7 +119,7 @@
          (seg (ray-extend-to-max-segment p1 p2))
          (sp1 (segment-endpoint-1 seg))
          (sp2 (segment-endpoint-2 seg))
-         (t (rand-range 0.1 1.0))
+         (t (rand-range 0.05 1.0))
          (v (sub-points sp2 sp1)))
     (add-to-point sp1 (scale-vec v t))))
 
@@ -190,9 +190,11 @@
     (circle-from-points (midpoint pr1 pr2) pr1)))
 
 (define (random-angle)
-  (let ((v (random-point))
-        (d1 (random-direction))
-        (d2 (random-direction)))
+  (let* ((v (random-point))
+         (d1 (random-direction))
+         (d2 (add-to-direction
+              d1
+              (rand-angle-measure))))
     (smallest-angle (make-angle d1 v d2))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Random Polygons ;;;;;;;;;;;;;;;;;;;;;;;;;;;

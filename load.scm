@@ -2,6 +2,7 @@
 (set! *random-state* (fasload "a-random-state"))
 
 (define (reset)
+  (close)
   (ge (make-top-level-environment))
   (load "load"))
 
@@ -20,6 +21,7 @@
             "print"
             "macros"
             "animation"
+            "figure/core"
             "figure/line"
             "figure/direction"
             "figure/direction-interval"
