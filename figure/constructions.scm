@@ -87,3 +87,6 @@
          (half-angle (/ radians 2))
          (new-direction (add-to-direction d2 half-angle)))
     (make-ray vertex new-direction)))
+
+(define (polygon-angle-bisector polygon vertex-angle)
+  (angle-bisector (polygon-angle polygon vertex-angle)))

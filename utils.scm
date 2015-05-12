@@ -81,3 +81,11 @@
 
 (define ((flip-args f) x y)
   (f y x))
+
+(define (index-of el list equality-predicate)
+  (let lp ((i 0)
+           (l list))
+    (cond ((null? l) #f)
+          ((equality-predicate (car l) el)
+           i)
+          (else (lp (+ i 1) (cdr l))))))

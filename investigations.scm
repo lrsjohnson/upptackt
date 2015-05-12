@@ -102,17 +102,17 @@
 ;;; [9] Angle bisector concurrency
 ;;; Given: Triangle abc with angle-bisectors l1, l2, l3
 ;;; Goal: l1, l2, l3 are concurrent
-#|(define (angle-bisector-concurrency)
-  (let-geo* ((t1 (random-triangle))
-             ((a-1 a-2 a-3) (triangle-angles a b c))
-             (l1 (angle-bisector a-1))
-             (l2 (angle-bisector a-2))
-             (l3 (angle-bisector a-3)))
-    (figure a b c a-1 a-2 a-3 l1 l2 l3)))|#
+(define (angle-bisector-concurrency)
+  (let-geo* (((t1 (a b c)) (random-triangle))
+             (((a-1 a-2 a-3)) (polygon-angles t1))
+             (l1 (polygon-angle-bisector t1 a))
+             (l2 (polygon-angle-bisector t1 b))
+             (l3 (polygon-angle-bisector t1 c)))
+    (figure t1 l1 l2 l3)))
 ;;; TODO: Angles from Triangle
 ;;; TODO: Concurrency of lines
 ;;; TODO: Draw markings for angle bisector
-
+#|
 ;;; [10] Perpendicular Bisector Concurrency
 ;;; Given: Triangle ABC with sides s1, s2, s3, perpendicular bisectors
 ;;; l1, l2, l3

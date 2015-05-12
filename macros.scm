@@ -9,10 +9,17 @@
 
 ;; Future:
 ;; - Warn about more errors
+;; - More efficient multiple-assignment for lists
 
 ;;; Code:
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Expanding Assignment ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (expand-multiple-assignment lhs rhs)
+  (map (lambda (name i)
+         (list name `(list-ref ,rhs ,i)))
+       lhs
+       (iota (length lhs))))
 
 (define (make-component-assignments key-name component-names)
   (map (lambda (name i)
@@ -40,7 +47,9 @@
   (let ((lhs (car assignment))
         (rhs (cadr assignment)))
     (if (list? lhs)
-        (expand-compound-assignment lhs rhs)
+        (if (= (length lhs) 1)
+            (expand-multiple-assignment (car lhs) rhs)
+            (expand-compound-assignment lhs rhs))
         (list assignment))))
 
 (define (expand-assignments assignments)
