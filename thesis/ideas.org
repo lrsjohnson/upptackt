@@ -1,8 +1,36 @@
 #+TITLE: Thesis Ideas
 #+OPTIONS: toc:nil
 * Overview
+  - Goals:
+    - Emulate a student learning geometry
+    - Investigative approach, teacher guides student to "discover"
+      definitions and theorems, via visual reasoning, manipulation of
+      diagrams "in the mind's eye", exploration, investigation.
 ** Visualizing "In the Mind's Eye"
+   - Visual reasoning skills important
+   - "What happens if" or "Is it always true that"?
+** Manipulating Diagrams
+   - Examples from proposal...
+** System:
+   - Coordinate-based diagrams, construction instructions,
+     declarative constraints. Analyzer, Declarative geometry constraint solver.
 * Prior Work
+* Learning
+** Inputs
+   - Simple diagram, coordinates but no dependencies
+   - Steps for constructing a diagram
+   - Symbolic constraints on a diagram + topology
+** Learning Actions
+   - "Observe" diagram for interesting properties.
+   - "Analyze" findings, make use of history
+** Results
+   - From multiple instances, propose and test definitions
+     (incl. rectangle in parallelogram examples, e.g.)
+   - Definitions (multiple) of new objects. Identify them in images
+   - New theorems => generalize from results. "A point on a
+     perpendicular bisector of a segment is equidistant to the
+     endpoints of said segment"
+   - More Geometry exercises via findings?
 * Imperative Geometry Construction System
 ** Basic Structures
 *** Points
@@ -121,4 +149,10 @@
 *** Higher-level constraints
 ** Specification Ordering
 *** Constraints First
+*** Heuristic
 * Learning
+** Observation
+   - What counts as interesting properties?
+** Analysis
+* Results
+** Learning
