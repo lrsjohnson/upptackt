@@ -19,7 +19,6 @@
             "lib/multimin"
             "print"
             "macros"
-            "analyzer"
             "animation"
             "figure/line"
             "figure/direction"
@@ -29,11 +28,11 @@
             "figure/angle"
             "figure/bounds"
             "figure/circle"
+            "figure/point"
             "figure/constructions"
             "figure/intersections"
             "figure/figure"
             "figure/math-utils"
-            "figure/point"
             "figure/polygon"
             "figure/metadata"
             "figure/dependencies"
@@ -48,6 +47,7 @@
             "manipulate/topology"
             "manipulate/mechanism"
             "manipulate/main"
+            "learning/analyzer"
             "main"))
 (initialize-scheduler)
 

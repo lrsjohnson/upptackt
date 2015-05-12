@@ -19,9 +19,9 @@
 (define (analyze-figure figure)
   (analyze figure))
 
-
 ;;; Given a figure, report what's interesting
 (define (analyze figure)
+  (number-figure-random-dependencies! figure)
   (let* ((points (figure-points figure))
          (angles (figure-filter angle? figure))
          (implied-segments (point-pairs->segments (all-pairs points)))
@@ -48,7 +48,7 @@
 
 (define (results-with-names result-type elements)
   (map (lambda (p-pair)
-         (cons result-type (map element-dependency p-pair)))
+         (cons result-type (map element-dependencies->list p-pair)))
        elements))
 
 
@@ -203,4 +203,4 @@
   (hash-table/for-each
    data-table
    (lambda (k v)
-     (pp (list v (cons 'discovered k))))))
+     (pprint (list v (cons 'discovered k))))))
