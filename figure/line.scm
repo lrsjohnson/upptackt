@@ -41,7 +41,7 @@
      seg
      (symbol '*seg*: (element-name p1) '- (element-name p2)))
     (with-dependency
-     `(segment p1 p2)
+     `(segment ,p1 ,p2)
      seg)))
 
 (define (make-auxiliary-segment p1 p2)
@@ -207,3 +207,8 @@
 (defhandler ->direction line->direction line?)
 (defhandler ->direction ray->direction ray?)
 (defhandler ->direction segment->direction segment?)
+
+(define ->line (make-generic-operation 1 '->line))
+(defhandler ->line identity line?)
+(defhandler ->line segment->line segment?)
+(defhandler ->line ray->line ray?)

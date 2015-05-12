@@ -29,26 +29,38 @@
   (let ((p1 (segment-endpoint-1 s))
         (p2 (segment-endpoint-2 s)))
     (with-dependency
-     `(segment-midpoint ,(element-dependency s))
+     `(segment-midpoint ,s)
      (midpoint p1 p2))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; TODO: Where to put these?
 (define (on-segment? p seg)
-  (let ((p1 (segment-endpoint-1 seg))
-        (p2 (segment-endpoint-2 seg)))
-    (let ((d1 (distance p p1))
-          (d2 (distance p p2))
-          (d3 (distance p1 p2)))
-      (close-enuf? (+ d1 d2) d3))))
+  (let ((seg-start (segment-endpoint-1 seg))
+        (seg-end (segment-endpoint-2 seg)))
+    (let ((seg-length (distance seg-start seg-end))
+          (p-length (distance seg-start p))
+          (dir-1 (direction-from-points seg-start p))
+          (dir-2 (direction-from-points seg-start seg-end)))
+      (and (direction-equal? dir-1 dir-2)
+           (or
+            (point-equal? seg-end p)
+            (< p-length seg-length))))))
 
-;;; TODO: Fix for lines / segments
 (define (on-line? p l)
-  (on-segment?
-   p
-   (make-segment (line-p1 l)
-                 (line-p2 l))))
+  (let ((line-pt (line-point l))
+        (line-dir (line-direction l)))
+    (or (point-equal? p line-pt)
+     (let ((dir-to-p (direction-from-points p line-pt)))
+       (or (direction-equal? line-dir dir-to-p)
+           (direction-equal? line-dir (reverse-direction dir-to-p)))))))
+
+(define (on-ray? p r)
+  (let ((ray-endpt (ray-endpoint r))
+        (ray-dir (ray-direction r)))
+    (or (point-equal? ray-endpt p)
+        (let ((dir-to-p (direction-from-points ray-endpt p)))
+          (direction-equal? dir-to-p ray-dir)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;; Construction of lines ;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -56,6 +68,11 @@
   (let* ((direction (->direction linear-element))
          (rotated-direction (rotate-direction-90 direction)))
     (make-line point rotated-direction)))
+
+(define (perpendicular-to linear-element point)
+  (let ((pl (perpendicular linear-element point)))
+    (let ((i (intersect-linear-elements pl linear-element)))
+      (make-segment point i))))
 
 (define (perpendicular-bisector segment)
   (let ((midpt (segment-midpoint segment)))

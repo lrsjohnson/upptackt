@@ -78,3 +78,6 @@
 
 (define ((negatep f) x)
   (- (f x)))
+
+(define ((flip-args f) x y)
+  (f y x))

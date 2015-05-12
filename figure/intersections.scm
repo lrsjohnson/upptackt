@@ -105,7 +105,7 @@
                       (list (add-to-point ip1 (reverse-vec offset))
                             (add-to-point ip2 (reverse-vec offset))))))))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;; Intersections ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;; Basic Intersections ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (intersect-lines line1 line2)
   (let ((p1 (line-p1 line1))
@@ -127,3 +127,35 @@
         (p1 (line-p1 line))
         (p2 (line-p2 line)))
     (intersect-circle-line-by-points center radius p1 p2)))
+
+(define standard-intersect (make-generic-operation 2 'standard-intersect))
+
+(defhandler standard-intersect
+  intersect-lines line? line?)
+
+(defhandler standard-intersect
+  intersect-circles circle? circle?)
+
+(defhandler standard-intersect
+  intersect-circle-line circle? line?)
+
+(defhandler standard-intersect
+  (flip-args intersect-circle-line) line? circle?)
+
+;;;;;;;;;;;;;;;;;;;;;;;; Generic intersection ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (intersect-linear-elements el-1 el-2)
+  (let ((i (standard-intersect (->line el-1)
+                               (->line el-2))))
+    (if (or (not (on-element? i el-1))
+            (not (on-element? i el-2)))
+        (error "Linear elements line don't intersect" (list el-1 el-2))
+        i)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; On Elements ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define on-element? (make-generic-operation 2 'on-element?))
+
+(defhandler on-element? on-segment? point? segment?)
+(defhandler on-element? on-line? point? line?)
+(defhandler on-element? on-ray? point? ray?)
