@@ -2,6 +2,7 @@
 ** Priorities / Short-term goals
 *** Cleanup
     - [ ] Annotate Analyzer, Animate
+    - [ ] "Random Quadrilaterals" - Fix randomness
 *** Construction from Constraints
     - [ ] Ordering of value instantiation <------
     - [ ] TMS for linkages / region propagators?

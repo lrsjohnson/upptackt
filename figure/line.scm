@@ -111,6 +111,11 @@
 (define (ray-from-points endpoint p1)
   (make-ray endpoint (direction-from-points endpoint p1)))
 
+(define (shorten-ray-from-point r p)
+  (if (not (on-ray? p r))
+      (error "Can only shorten rays from points on the ray"))
+  (ray-from-point-direction p (ray-direction r)))
+
 ;;;;;;;;;;;;;;;;;;;;;; Constructors from angles ;;;;;;;;;;;;;;;;;;;;;;
 
 (define (ray-from-arm-1 a)

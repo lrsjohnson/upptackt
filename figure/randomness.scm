@@ -56,15 +56,20 @@
 (define *point-wiggle-radius* 0.05)
 (define (random-point)
   (let ((x (internal-rand-range -0.8 0.8))
-        (y (internal-rand-range -0.8 0.8))
-        (theta (internal-rand-range 0 (* 2 pi)))
-        (d-theta (animate-range 0 (* 2 pi))))
-    (let ((dir (make-direction (+ theta d-theta))))
-      (with-dependency
-       (make-random-dependency 'random-point)
-       (add-to-point
-        (make-point x y)
-        (vec-from-direction-distance dir *point-wiggle-radius*))))))
+        (y (internal-rand-range -0.8 0.8)))
+    (random-point-around (make-point x y))))
+
+(define (random-point-around p)
+  (let ((x (point-x p))
+        (y (point-y p)))
+    (let ((theta (internal-rand-range 0 (* 2 pi)))
+          (d-theta (animate-range 0 (* 2 pi))))
+      (let ((dir (make-direction (+ theta d-theta))))
+        (with-dependency
+         (make-random-dependency 'random-point)
+         (add-to-point
+          (make-point x y)
+          (vec-from-direction-distance dir *point-wiggle-radius*)))))))
 
 ;;; TODO: Maybe separate out reflection about line?
 (define (random-point-left-of-line line)
@@ -85,14 +90,15 @@
       (let ((dir-difference (subtract-directions d2 d1)))
         (let ((new-dir (add-to-direction
                         d1
-                        (rand-range 0 dir-difference))))
-          (add-to-point
-           (add-to-point (ray-endpoint r1)
-                         (vec-from-direction-distance
-                          new-dir
-                          (rand-range 0 1)))
-           (scale-vec offset-vec
-                      (rand-range 0 1.0))))))))
+                        (internal-rand-range 0.05 dir-difference))))
+          (random-point-around
+           (add-to-point
+            (add-to-point (ray-endpoint r1)
+                          (vec-from-direction-distance
+                           new-dir
+                           (internal-rand-range 0.05 0.9)))
+            (scale-vec offset-vec
+                       (internal-rand-range 0.05 0.9)))))))))
 
 (define (random-point-on-segment seg)
   (let* ((p1 (segment-endpoint-1 seg))
@@ -257,6 +263,11 @@
       (segment-endpoint-2 s2)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;; Random Quadrilaterals ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (random-quadrilateral)
+  (with-dependency
+   (make-random-dependency 'random-quadrilateral)
+   (random-n-gon 4)))
 
 (define (random-square)
   (let* ((s1 (random-segment))

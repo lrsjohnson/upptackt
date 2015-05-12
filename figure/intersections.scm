@@ -128,7 +128,8 @@
         (p2 (line-p2 line)))
     (intersect-circle-line-by-points center radius p1 p2)))
 
-(define standard-intersect (make-generic-operation 2 'standard-intersect))
+(define standard-intersect
+  (make-generic-operation 2 'standard-intersect))
 
 (defhandler standard-intersect
   intersect-lines line? line?)
