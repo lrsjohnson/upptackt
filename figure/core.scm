@@ -29,6 +29,8 @@
 (define (declare-element-component-handler handler type)
   (defhandler element-component handler type number?))
 
+(declare-element-component-handler list-ref list?)
+
 #|
 Example Usage:
 

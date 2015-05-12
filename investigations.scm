@@ -96,8 +96,6 @@
              ((s-2 (p c)) (perpendicular-to r-2 p)))
      (figure a r-1 r-2 ab p s-1 s-2)))
 ;;; Interesting, dependent on "shortest distance" from prior conjecture
-;;; TODO: perpendicular-to => Segment
-
 
 ;;; [9] Angle bisector concurrency
 ;;; Given: Triangle abc with angle-bisectors l1, l2, l3
@@ -109,44 +107,38 @@
              (l2 (polygon-angle-bisector t1 b))
              (l3 (polygon-angle-bisector t1 c)))
     (figure t1 l1 l2 l3)))
-;;; TODO: Angles from Triangle
 ;;; TODO: Concurrency of lines
 ;;; TODO: Draw markings for angle bisector
-#|
+
 ;;; [10] Perpendicular Bisector Concurrency
 ;;; Given: Triangle ABC with sides s1, s2, s3, perpendicular bisectors
 ;;; l1, l2, l3
 ;;; Goal: l1, l2, l3 are concurrent
-#|(define (perpendicular-bisector-concurrency)
-  (let-geo* (((a b c) (random-triangle))
-             ((s-1 s-2 s-3) (traingle-sides a b c))
-             (l1 (perpendicular-bisector s-1))
-             (l2 (perpendicular-bisector s-2))
-             (l3 (perpendicular-bisector s-3)))
-    (figure a b c s-1 s-2 s-3 l1 l2 l3)))|#
-;;; TODO: Sides from triangle
-;;; TODO: Redundant with original sides in (a, b, c)
-;;; TODO: Concurrent, but not at vertex points...
+(define (perpendicular-bisector-concurrency)
+  (let-geo* (((t (a b c)) (random-triangle))
+             (l1 (perpendicular-bisector (make-segment a b)))
+             (l2 (perpendicular-bisector (make-segment b c)))
+             (l3 (perpendicular-bisector (make-segment c a))))
+    (figure t l1 l2 l3)))
 
 ;;; [11] Altitude Concurrency
 ;;; Given: Triangle ABC with altituds alt-1, alt2, alt-3
 ;;; Goal: alt-1, alt-2, alt-3 are concurrent
-#|(define (perpendicular-bisector-concurrency)
-  (let-geo* (((a b c) (random-triangle))
-             (alt-1 (perpendicular-to a (make-segment b c)))
-             (alt-2 (perpendicular-to b (make-segment a c)))
-             (alt-3 (perpendicular-to c (make-segment a b))))
-            (figure a b c s-1 s-2 alt-1 alt-2 alt-3)))|#
-;;; TODO: Altitudes: Segment a, b, c
+(define (altitude-concurrency)
+  (let-geo* (((t (a b c)) (random-triangle))
+             (alt-1 (perpendicular-line-to (make-segment b c) a))
+             (alt-2 (perpendicular-line-to (make-segment a c) b))
+             (alt-3 (perpendicular-line-to (make-segment a b) c)))
+            (figure t alt-1 alt-2 alt-3)))
 ;;; TODO: Resist redundant concurrencies
 ;;; TODO: See if it can provide/learn a name for this point?
 
 ;;;  [12] Circumcenter Conjecture
-#|(define (circumcenter-properties)
-  (let-geo* (((a b c) (random-triangle))
-             (c-center (circumcenter a b c)))))|#
-;;; TODO: Circumcenter macro
-;;; TODO: Handle >2 equal segment sizes...
+(define (circumcenter-figure)
+  (let-geo* (((t (a b c)) (random-triangle))
+             (c-center (circumcenter t)))
+    (figure t c-center (circle-from-points c-center a))))
+;;; TODO: Circumcenter macro?
 
 ;;; [13] Incenter Conjecture
 ;;; [14] Median Concurrency Conjecture
@@ -188,7 +180,7 @@
 
 (define (parallelogram-opposite-angles)
   (let-geo*
-      ((p (random-parallelogram)))
+      (((p (a b c d)) (random-parallelogram)))
     (figure p)))
 #|
 ;;; [45] Parallelogram Consecutive Angles Conjecture
@@ -214,19 +206,9 @@
 (define (cyclic-quadrilateral)
   (let-geo*
    ((cir (random-circle))
-    (a (point-on-circle cir))
-    (b (point-on-circle cir))
-    (c (point-on-circle cir))
-    (d (point-on-circle cir))
-    (s1 (make-segment a b))
-    (s2 (make-segment b c))
-    (s3 (make-segment c d))
-    (s4 (make-segment d a))
-    (a-1 (smallest-angle-from s1 s2))
-    (a-2 (smallest-angle-from s2 s3))
-    (a-3 (smallest-angle-from s3 s4))
-    (a-4 (smallest-angle-from s4 s1)))
-   (figure cir a b c d s1 s2 s3 s4 a-1 a-2 a-3 a-4)))
+    (((a b c d)) (n-random-points-on-circle-ccw cir 4))
+    (q (polygon-from-points a b c d)))
+   (figure q)))
 #|
 ;;; [64] Parallel Lines Intercepted Arcs Conjecture
 ;;; [65] Circumference Conjecture

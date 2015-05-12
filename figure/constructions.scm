@@ -71,8 +71,12 @@
 
 (define (perpendicular-to linear-element point)
   (let ((pl (perpendicular linear-element point)))
-    (let ((i (intersect-linear-elements pl linear-element)))
+    (let ((i (intersect-linear-elements pl (->line linear-element))))
       (make-segment point i))))
+
+(define (perpendicular-line-to linear-element point)
+  (let ((pl (perpendicular linear-element point)))
+    pl))
 
 (define (perpendicular-bisector segment)
   (let ((midpt (segment-midpoint segment)))
@@ -90,3 +94,13 @@
 
 (define (polygon-angle-bisector polygon vertex-angle)
   (angle-bisector (polygon-angle polygon vertex-angle)))
+
+;;;;;;;;;;;;;;;;;;;;; Higher-order constructions ;;;;;;;;;;;;;;;;;;;;;
+
+(define (circumcenter t)
+  (let ((p1 (polygon-point-ref t 0))
+        (p2 (polygon-point-ref t 1))
+        (p3 (polygon-point-ref t 2)))
+    (let ((l1 (perpendicular-bisector (make-segment p1 p2)))
+          (l2 (perpendicular-bisector (make-segment p1 p3))))
+      (intersect-linear-elements l1 l2))))

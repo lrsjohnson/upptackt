@@ -23,3 +23,13 @@
 (define (circle-from-points center radius-point)
   (make-circle center
           (distance center radius-point)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; Points on circle ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (point-on-circle-in-direction cir dir)
+  (let ((center (circle-center cir))
+        (radius (circle-radius cir)))
+    (add-to-point
+     center
+     (vec-from-direction-distance
+      dir radius))))

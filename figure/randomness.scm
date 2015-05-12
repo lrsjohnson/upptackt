@@ -124,13 +124,18 @@
     (add-to-point sp1 (scale-vec v t))))
 
 (define (random-point-on-circle c)
-  (let ((center (circle-center c))
-        (radius (circle-radius c))
-        (dir (random-direction)))
-    (make-point (+ (point-x center)
-                   (* radius (cos angle)))
-                (+ (point-y center)
-                   (* radius (sin angle)))))) ;; TODO  Cleanup
+  (let ((dir (random-direction)))
+    (point-on-circle-in-direction c dir)))
+
+(define (n-random-points-on-circle-ccw c n)
+  (let* ((thetas
+          (sort
+           (make-initialized-list n (lambda (i) (rand-theta)))
+           <)))
+    (map (lambda (theta)
+           (point-on-circle-in-direction c
+                                         (make-direction theta)))
+         thetas)))
 
 ;;;;;;;;;;;;;;;;;;;;;;; Random Linear Elements ;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -218,7 +223,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Random Triangles ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (random-triangle)
+(define (random-tiangle)
   (let* ((p1 (random-point))
          (p2 (random-point))
          (p3 (random-point-left-of-line (line-from-points p1 p2))))

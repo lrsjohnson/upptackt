@@ -15,11 +15,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Expanding Assignment ;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define *multiple-assignment-symbol* '*multiple-assignment-result*)
+
 (define (expand-multiple-assignment lhs rhs)
-  (map (lambda (name i)
-         (list name `(list-ref ,rhs ,i)))
-       lhs
-       (iota (length lhs))))
+  (expand-compound-assignment
+   (list *multiple-assignment-symbol* lhs)
+   rhs))
 
 (define (make-component-assignments key-name component-names)
   (map (lambda (name i)
