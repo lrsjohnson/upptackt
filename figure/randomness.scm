@@ -229,7 +229,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Random Triangles ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (random-tiangle)
+(define (random-triangle)
   (let* ((p1 (random-point))
          (p2 (random-point))
          (p3 (random-point-left-of-line (line-from-points p1 p2))))

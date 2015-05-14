@@ -21,5 +21,5 @@
   list?)
 
 (define (pprint x)
-  (display "\n")
-  (pp (print x)))
+  (pp (print x))
+  (display "\n"))

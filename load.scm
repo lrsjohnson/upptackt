@@ -2,7 +2,7 @@
 (set! *random-state* (fasload "a-random-state"))
 
 (define (reset)
-  (close)
+  (ignore-errors (lambda () (close)))
   (ge (make-top-level-environment))
   (load "load"))
 
@@ -49,8 +49,14 @@
             "manipulate/topology"
             "manipulate/mechanism"
             "manipulate/main"
+            "learning/definitions"
+            "learning/student"
             "learning/analyzer"
+            "learning/core-knowledge"
             "main"))
+
 (initialize-scheduler)
+
+(initialize-student)
 
 'done-loading

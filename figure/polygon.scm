@@ -26,6 +26,10 @@
   (let ((n-points (length points)))
     (%polygon n-points points)))
 
+(define ((ngon-predicate n) obj)
+  (and (polygon? obj)
+       (= n (n-points obj))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Polygon Points ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Internal reference for polygon points
