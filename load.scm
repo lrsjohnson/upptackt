@@ -1,62 +1,37 @@
-;;; Start from scratch
-(set! *random-state* (fasload "a-random-state"))
+;;; load.scm -- Load the system
+
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utilities ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (reset)
   (ignore-errors (lambda () (close)))
   (ge (make-top-level-environment))
   (load "load"))
 
-(load "lib/eq-properties")
+(define (load-module subdirectory)
+  (let ((cur-pwd (pwd)))
+    (cd subdirectory)
+    (load "load")
+    (cd cur-pwd)))
 
-(cd "lib/propagator")
-(load "load")
-(cd "../..")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Load Modules ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(for-each (lambda (f) (load f))
-          '("lib/stack-queue"
-            "utils"
-            "lib/ghelper"
-            "lib/scmutils-basic"
-            "lib/multimin"
-            "print"
-            "macros"
-            "animation"
-            "figure/core"
-            "figure/line"
-            "figure/direction"
-            "figure/direction-interval"
-            "figure/vec"
-            "figure/measurements"
-            "figure/angle"
-            "figure/bounds"
-            "figure/circle"
-            "figure/point"
-            "figure/constructions"
-            "figure/intersections"
-            "figure/figure"
-            "figure/math-utils"
-            "figure/polygon"
-            "figure/metadata"
-            "figure/dependencies"
-            "figure/randomness"
-            "figure/transforms"
-            "appearance"
+(for-each (lambda (m) (load-module m))
+          '("lib"
+            "core"
+            "figure"
             "graphics"
-            "investigations"
-            "manipulate/linkages"
-            "manipulate/region"
-            "manipulate/constraints"
-            "manipulate/topology"
-            "manipulate/mechanism"
-            "manipulate/main"
-            "learning/definitions"
-            "learning/student"
-            "learning/analyzer"
-            "learning/core-knowledge"
-            "main"))
+            "manipulate"
+            "perception"
+            "learning"
+            "content"))
+(load "main")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Initialize ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(set! *random-state* (fasload "a-random-state"))
 (initialize-scheduler)
-
 (initialize-student)
 
 'done-loading

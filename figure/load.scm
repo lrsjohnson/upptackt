@@ -1,0 +1,21 @@
+;;; load.scm -- Load figure
+(for-each (lambda (f) (load f))
+          '("core"
+            "line"
+            "direction"
+            "direction-interval"
+            "vec"
+            "measurements"
+            "angle"
+            "bounds"
+            "circle"
+            "point"
+            "constructions"
+            "intersections"
+            "figure"
+            "math-utils"
+            "polygon"
+            "metadata"
+            "dependencies"
+            "randomness"
+            "transforms"))

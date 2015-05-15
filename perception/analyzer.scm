@@ -23,32 +23,34 @@
 (define (analyze figure)
   (number-figure-random-dependencies! figure)
   (let* ((points (figure-points figure))
-         (angles (figure-filter angle? figure))
-         (implied-segments (point-pairs->segments (all-pairs points)))
+         (angles
+          (figure-angles figure))
+         (implied-segments '(); (point-pairs->segments (all-pairs points))
+                           )
          (linear-elements (append
                            (figure-linear-elements figure)
                            implied-segments))
          (segments (append
                     (figure-segments figure)
                     implied-segments)))
-    (append (results-with-names 'concurrent
+    (append (results-with-names concurrent-points-relationship
                                 (report-concurrent-points points))
-            (results-with-names 'angle-equal
+            (results-with-names equal-angle-relationship
                                 (report-equal-angles angles))
-            (results-with-names 'supplementary
+            (results-with-names supplementary-angles-relationship
                                 (report-supplementary-angles angles))
-            (results-with-names 'complementary
+            (results-with-names complementary-angles-relationship
                                 (report-complementary-angles angles))
-            (results-with-names 'parallel
+            (results-with-names parallel-relationship
                                 (report-parallel-elements linear-elements))
-            (results-with-names 'perpendicular
+            (results-with-names perpendicular-relationship
                                 (report-perpendicular-elements linear-elements))
-            (results-with-names 'equal-length
+            (results-with-names equal-length-relationship
                                 (report-equal-segments segments)))))
 
-(define (results-with-names result-type elements)
-  (map (lambda (p-pair)
-         (cons result-type (map element-dependencies->list p-pair)))
+(define (results-with-names relationship elements)
+  (map (lambda (pair)
+         (make-observation '() relationship pair))
        elements))
 
 
@@ -157,9 +159,13 @@
     (hash-table/remove! group-elements 'invalid)
     (hash-table/datum-list group-elements)))
 
-(define ((report-pairwise predicate) elements)
+(define ((report-grouped-pairwise predicate) elements)
   (let ((elt-pairs (all-pairs elements)))
     (merge-pair-groups elements (filter (pair-predicate predicate) elt-pairs))))
+
+(define ((report-pairwise predicate) elements)
+  (let ((elt-pairs (all-pairs elements)))
+    (filter (pair-predicate predicate) elt-pairs)))
 
 ;;; Check for concurrent points
 (define (report-concurrent-points points)
