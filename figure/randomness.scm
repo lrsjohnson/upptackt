@@ -227,6 +227,9 @@
                        ray2)
                       points)))))))
 
+(define (random-polygon)
+  (random-n-gon (+ 3 (random 5))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Random Triangles ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (random-triangle)

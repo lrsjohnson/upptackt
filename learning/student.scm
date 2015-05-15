@@ -64,13 +64,29 @@
   (let ((result (student-lookup *current-student* term)))
     (if (not result)
         'unknown
-        (print result))))
+        result)))
 
 (define (is-a? term obj)
   (let ((def (what-is term)))
     (if (not def)
-        'unknown
+        `(,term unknown)
         ((definition-predicate def) obj))))
+
+(define (show-me term)
+  (let ((def (what-is term)))
+    (if (not def)
+        `(,term unknown)
+        (show-element ((definition-generator def))))))
+
+(define (examine object)
+  (filter (lambda (term)
+            (is-a? term object))
+          (hash-table/key-list (student-definitions *current-student*))))
+
+;;;;;;;;;;;;;;;;;;;;;;;; Graphics Interfaces ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (show-element element)
+  (draw-figure (figure element) c))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Initializing Student ;;;;;;;;;;;;;;;;;;;;;;;;
 

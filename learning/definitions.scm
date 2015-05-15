@@ -13,15 +13,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Basic Structure ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <definition>
-  (%make-definition name classification restrictions predicate)
+  (%make-definition name classification restrictions predicate generator)
   definition?
   (name definition-name)
   (classification definition-classification)
   (restrictions definition-restrictions)
-  (predicate definition-predicate set-definition-predicate!))
+  (predicate definition-predicate set-definition-predicate!)
+  (generator definition-generator))
 
-(define (make-primitive-definition name predicate)
-  (%make-definition name 'primitive '()  predicate))
+(define (make-primitive-definition name predicate generator)
+  (%make-definition name 'primitive '()  predicate generator))
 
 (define (primitive-definition? def)
   (and (definition? def)
@@ -30,8 +31,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;; Higher-order Definitions ;;;;;;;;;;;;;;;;;;;;;;
 
-(define (make-restrictions-definition name classification restrictions)
-  (%make-definition name classification restrictions #f))
+(define (make-restrictions-definition
+         name classification restrictions generator)
+  (%make-definition name classification restrictions #f generator))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Formatting ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
