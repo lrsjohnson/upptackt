@@ -13,6 +13,19 @@
 
 ;;; Code:
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Sources ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (set-source! element source)
+  (eq-put! element 'source source))
+
+(define (with-source source element)
+  (set-source! element source)
+  element)
+
+(define (element-source element)
+  (or (eq-get element 'source)
+      '*unknown-source*))
+
 ;;;;;;;;;;;;;;;;;;;;;;;; Setitng Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (set-dependency! element dependency)
@@ -22,11 +35,11 @@
   (set-dependency! element dependency)
   element)
 
+
 (define (with-dependency-if-unknown dependency element)
   (if (dependency-unknown? element)
       (with-dependency dependency element)
       element))
-
 ;;;;;;;;;;;;;;;;;;;;;;;; Unknown Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define *unknown-dependency* (list '*unknown-dependency*))

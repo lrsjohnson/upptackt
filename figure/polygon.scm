@@ -78,7 +78,9 @@
        ;;: TODO: Handle situations where polygon isn't terminal dependency
        (with-dependency
         `(polygon-segment ,i ,j ,(element-dependency polygon))
-        segment))))))
+        (with-source
+         (lambda (p) (polygon-segment p i j))
+         segment)))))))
 
 (define (polygon-segments polygon)
   (let ((n-points (polygon-n-points polygon)))
@@ -106,8 +108,10 @@
                                              n-points)))
              (angle (angle-from-points a1p v a2p)))
         (with-dependency
-        `(polygon-angle polygon i)
-        angle))))))
+         `(polygon-angle ,i ,polygon)
+         (with-source
+          (lambda (p) (polygon-angle-by-index p i))
+          angle)))))))
 
 (defhandler polygon-angle
   polygon-angle-by-index

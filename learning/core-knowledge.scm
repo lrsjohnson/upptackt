@@ -31,15 +31,17 @@
   (list
    ;; Triangle
    (make-restrictions-definition
-    'triangle 'polygon
+    'triangle '(polygon)
     (list (lambda (t) (= (polygon-n-points t) 3)))
     random-triangle)
    ;; Quadrilateral
    (make-restrictions-definition
-    'quadrilateral 'polygon
+    'quadrilateral '(polygon)
     (list (lambda (t) (= (polygon-n-points t) 4)))
     random-quadrilateral)
+
    ;; Isoceles Triangle!
+   #|
    (make-restrictions-definition
     'isoceles-triangle 'triangle
     (list (lambda (t)
@@ -48,4 +50,7 @@
                    (c (polygon-point-ref t 2)))
               (segment-equal-length? (make-segment a b)
                                      (make-segment a c)))))
-    random-isoceles-triangle)))
+
+   random-isoceles-triangle))
+|#
+   ))

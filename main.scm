@@ -1,3 +1,8 @@
+(define (i-t-figure)
+  (let-geo* (((t (a b c)) (random-isoceles-triangle)))
+    (figure t)))
+
+
 (define (midpoint-figure)
   (let-geo* (((s (a b)) (random-segment))
              (m (segment-midpoint s)))
@@ -129,11 +134,12 @@
      (lambda ()
        (let ((current-figure (current-figure-proc)))
          (draw-figure current-figure c)
-
-         ;(let ((analysis-results (analyze-figure current-figure))) (save-results analysis-results analysis-data))
+         (let ((analysis-results (analyze-figure current-figure)))
+           (save-results analysis-results analysis-data))
          )))
-    (display "--- Results ---\n")
-    (print-analysis-results analysis-data)))
+    ;(display "--- Results ---\n")
+    ;(print-analysis-results analysis-data)
+    ))
 
 (define interesting-figures
   (list
