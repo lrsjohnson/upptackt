@@ -42,6 +42,11 @@
                               (segment-endpoint-2 s)))
                       (figure-filter segment? figure))))
 
+(define (figure-angles figure)
+  (append (figure-filter angle? figure)
+          (append-map (lambda (polygon) (polygon-angles polygon))
+                      (figure-filter polygon? figure))))
+
 (define (figure-segments figure)
   (append (figure-filter segment? figure)
           (append-map (lambda (polygon) (polygon-segments polygon))
