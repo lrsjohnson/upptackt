@@ -60,10 +60,9 @@
                (direction-theta (reverse-direction d2))))
 
 (define (direction-perpendicular? d1 d2)
-  (close-enuf?
-   (abs (- (direction-theta d1)
-           (direction-theta d2)))
-   (/ pi 2)))
+  (let ((difference (subtract-directions d1 d2)))
+    (or (close-enuf? difference (/ pi 2))
+        (close-enuf? difference (* 3 (/ pi 2))))))
 
 (define (direction-parallel? d1 d2)
   (or (direction-equal? d1 d2)
