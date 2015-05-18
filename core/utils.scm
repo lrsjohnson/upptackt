@@ -89,3 +89,7 @@
           ((equality-predicate (car l) el)
            i)
           (else (lp (+ i 1) (cdr l))))))
+
+;;; (nth-letter-symbol 1) => 'a , 2 => 'b, etc.
+(define (nth-letter-symbol i)
+  (symbol (make-char (+ 96 i) 0)))

@@ -59,6 +59,13 @@
    (%polygon-points polygon)
    point-equal?))
 
+(define (name-polygon polygon)
+  (for-each (lambda (i)
+              (set-element-name! (polygon-point-ref polygon i)
+                                 (nth-letter-symbol (+ i 1))))
+            (iota (polygon-n-points polygon)))
+  polygon)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Polygon Segments ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; i and j are indices of adjacent points

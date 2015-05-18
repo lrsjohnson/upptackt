@@ -213,6 +213,11 @@
    (segment-endpoint-1 s)
    (segment-endpoint-2 s)))
 
+(define (segment->vec s)
+  (sub-points
+   (segment-endpoint-2 s)
+   (segment-endpoint-1 s)))
+
 (define ->direction (make-generic-operation 1 '->direction))
 (defhandler ->direction line->direction line?)
 (defhandler ->direction ray->direction ray?)

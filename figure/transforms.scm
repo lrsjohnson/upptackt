@@ -75,6 +75,17 @@
 (defhandler translate-by translate-line-by vec? line?)
 (defhandler translate-by translate-angle-by vec? angle?)
 
+;;; Reflections
+
+(define (reflect-about-line line p)
+  (if (on-line? p line)
+      p
+      (let ((s (perpendicular-to line p)))
+        (let ((v (segment->vec s)))
+          (add-to-point
+           p
+           (scale-vec v 2))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;; Random Translation ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (translate-randomly-along-line l elt)

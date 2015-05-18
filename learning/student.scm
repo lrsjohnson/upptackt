@@ -28,21 +28,21 @@
 (define (build-predicate-for-definition s def)
   (let ((classifications (definition-classifications def))
         (observations (definition-observations def)))
-   (let ((classification-predicate
-          (lambda (obj)
-            (every
-             (lambda (classification)
-               (or ((definition-predicate (student-lookup s classification))
-                    obj)
-                   (begin (if *explain*
-                              (pprint `(failed-classification
-                                        ,classification)))
-                          #f)))
-             classifications))))
-     (lambda args
-       (and (apply classification-predicate args)
-            (every (lambda (o) (satisfies-observation o args))
-                   observations))))))
+    (let ((classification-predicate
+           (lambda (obj)
+             (every
+              (lambda (classification)
+                (or ((definition-predicate (student-lookup s classification))
+                     obj)
+                    (begin (if *explain*
+                               (pprint `(failed-classification
+                                         ,classification)))
+                           #f)))
+              classifications))))
+      (lambda args
+        (and (apply classification-predicate args)
+             (every (lambda (o) (satisfies-observation o args))
+                    observations))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -102,13 +102,26 @@
 
 (define (examine object)
   (show-element object)
-  (filter (lambda (term)
-            (internal-is-a? term object))
-          (hash-table/key-list (student-definitions *current-student*))))
+  (let ((base-terms (filter (lambda (term)
+                              (internal-is-a? term object))
+                            (hash-table/key-list
+                             (student-definitions *current-student*)))))
+    base-terms))
+
+;;;;;;;;;;;;;;;;;;;;;;; Simplifying base terms ;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (simplify-base-terms terms)
+  (let ((parent-terms (append-map
+                       (lambda (t) (definition-classifications (lookup t)))
+                           terms)))
+    (filter (lambda (t) (not (memq t parent-terms)))
+            terms)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Graphics Interfaces ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (show-element element)
+  (if (polygon? element)
+      (name-polygon element))
   (draw-figure (figure element) c))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Initializing Student ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -123,17 +136,23 @@
   (let ((v (lookup term)))
     (if (not (eq? v 'unknown))
         (pprint `(already-known ,term))
-        (let ((example (object-generator)))
+        (let ((example (name-polygon (object-generator))))
           (let* ((base-terms (examine example))
+                 (simple-base-terms (simplify-base-terms base-terms))
+                 (base-definitions (map lookup base-terms))
+                 (base-observations (flatten (map definition-observations
+                                                  base-definitions)))
                  (fig (figure (with-dependency '<premise> example)))
-                 (observations (analyze-figure fig)))
+                 (observations (analyze-figure fig))
+                 (simplified-observations
+                  (simplify-observations observations base-observations)))
             (run-figure (lambda () (figure (object-generator))))
             (pprint observations)
             (let ((new-def
                    (make-restrictions-definition
                     term
-                    base-terms
-                    observations
+                    simple-base-terms
+                    simplified-observations
                     object-generator)))
               (add-definition! *current-student* new-def)
               'done))))))

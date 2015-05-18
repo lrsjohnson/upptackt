@@ -47,6 +47,9 @@
 (define (rand-angle-measure)
   (rand-range (* pi 0.05) (* .95 pi)))
 
+(define (rand-obtuse-angle-measure)
+  (rand-range (* pi 0.55) (* .95 pi)))
+
 (define (random-direction)
   (let ((theta (rand-theta)))
     (make-direction theta)))
@@ -313,6 +316,21 @@
          (p3 (add-to-point
               p2
               (sub-points p4 p1))))
+    (with-dependency
+     (make-random-dependency 'random-parallelogram)
+     (polygon-from-points p1 p2 p3 p4))))
+
+(define (random-kite)
+  (let* ((r1 (random-ray))
+         (p1 (ray-endpoint r1))
+         (r2 (rotate-about (ray-endpoint r1)
+                           (rand-obtuse-angle-measure)
+                           r1))
+         (p2 (random-point-on-ray r1))
+         (p4 (random-point-on-ray r2))
+         (p3 (reflect-about-line
+              (line-from-points p2 p4)
+              p1)))
     (with-dependency
      (make-random-dependency 'random-parallelogram)
      (polygon-from-points p1 p2 p3 p4))))

@@ -69,6 +69,7 @@
          (rotated-direction (rotate-direction-90 direction)))
     (make-line point rotated-direction)))
 
+;;; endpoint-1 is point, endpoint-2 is on linear-element
 (define (perpendicular-to linear-element point)
   (let ((pl (perpendicular linear-element point)))
     (let ((i (intersect-linear-elements pl (->line linear-element))))
