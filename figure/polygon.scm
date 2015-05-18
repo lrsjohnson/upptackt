@@ -28,7 +28,7 @@
 
 (define ((ngon-predicate n) obj)
   (and (polygon? obj)
-       (= n (n-points obj))))
+       (= n (polygon-n-points obj))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Polygon Points ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -77,9 +77,9 @@
             (segment (make-segment p1 p2)))
        ;;: TODO: Handle situations where polygon isn't terminal dependency
        (with-dependency
-        `(polygon-segment ,i ,j ,(element-dependency polygon))
+        `(polygon-segment ,i ,j ,polygon)
         (with-source
-         (lambda (p) (polygon-segment p i j))
+         (lambda (p) (polygon-segment (car p) i j))
          segment)))))))
 
 (define (polygon-segments polygon)
@@ -110,7 +110,7 @@
         (with-dependency
          `(polygon-angle ,i ,polygon)
          (with-source
-          (lambda (p) (polygon-angle-by-index p i))
+          (lambda (p) (polygon-angle-by-index (car p) i))
           angle)))))))
 
 (defhandler polygon-angle

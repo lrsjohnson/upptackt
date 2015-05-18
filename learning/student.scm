@@ -27,17 +27,22 @@
 
 (define (build-predicate-for-definition s def)
   (let ((classifications (definition-classifications def))
-        (restrictions (definition-restrictions def)))
+        (observations (definition-observations def)))
    (let ((classification-predicate
           (lambda (obj)
             (every
              (lambda (classification)
-               (definition-predicate (student-lookup s classification)))
+               (or ((definition-predicate (student-lookup s classification))
+                    obj)
+                   (begin (if *explain*
+                              (pprint `(failed-classification
+                                        ,classification)))
+                          #f)))
              classifications))))
      (lambda args
        (and (apply classification-predicate args)
-            (every (lambda (r) (apply r args))
-                   restrictions))))))
+            (every (lambda (o) (satisfies-observation o args))
+                   observations))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -64,30 +69,33 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Query ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (what-is term)
+(define (lookup term)
   (let ((result (student-lookup *current-student* term)))
     (if (not result)
         'unknown
         result)))
 
+(define (what-is term)
+  (pprint (lookup term)))
+
 (define *explain* #f)
 
 (define (is-a? term obj)
   (show-element obj)
-  (let ((def (what-is term)))
+  (let ((def (lookup term)))
     (if (eq? def 'unknown)
         `(,term unknown)
         (fluid-let ((*explain* #t))
           ((definition-predicate def) obj)))))
 
 (define (internal-is-a? term obj)
-  (let ((def (what-is term)))
+  (let ((def (lookup term)))
     (if (eq? def 'unknown)
         `(,term unknown)
         ((definition-predicate def) obj))))
 
 (define (show-me term)
-  (let ((def (what-is term)))
+  (let ((def (lookup term)))
     (if (eq? def 'unknown)
         `(,term unknown)
         (show-element ((definition-generator def))))))
@@ -112,16 +120,20 @@
 
 
 (define (learn-term term object-generator)
-  (let ((example (object-generator)))
-    (let* ((base-terms (examine example))
-          (fig (figure example))
-          (results (analyze-figure fig)))
-      (pprint results)
-      (run-figure (lambda () (figure (object-generator))))
-      (let ((new-def
-             (make-restrictions-definition
-              term
-              base-terms
-              (list (lambda (obj) (satisfies-observations results obj)))
-              object-generator)))
-        (add-definition! *current-student* new-def)))))
+  (let ((v (lookup term)))
+    (if (not (eq? v 'unknown))
+        (pprint `(already-known ,term))
+        (let ((example (object-generator)))
+          (let* ((base-terms (examine example))
+                 (fig (figure (with-dependency '<premise> example)))
+                 (observations (analyze-figure fig)))
+            (run-figure (lambda () (figure (object-generator))))
+            (pprint observations)
+            (let ((new-def
+                   (make-restrictions-definition
+                    term
+                    base-terms
+                    observations
+                    object-generator)))
+              (add-definition! *current-student* new-def)
+              'done))))))

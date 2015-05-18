@@ -1,4 +1,4 @@
-;;; relationship.scm -- relationships among elements
+;;; relationship.scm -- relationships among element-list
 
 ;;; Commentary
 
@@ -24,8 +24,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;; Checking relationships ;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (relationship-holds r elements)
-  (apply (relationship-predicate r) elements))
+(define (relationship-holds r element-list)
+  (apply (relationship-predicate r) element-list))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Basic relationship ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -49,3 +49,6 @@
 
 (define complementary-angles-relationship
   (%make-relationship 'complementary complementary-angles?))
+
+(define (make-polygon-n-sides-relationship n)
+  (%make-relationship (symbol 'n-sides- n) (ngon-predicate n)))

@@ -26,16 +26,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Checking observation ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (satisfies-observation obs new-premise)
-  (let ((new-args (map (lambda (arg)
-                         ((element-source arg) new-premise))
-                       (observation-args obs)))
+  (let ((new-args
+         (map (lambda (arg)
+                ((element-source arg) new-premise))
+              (observation-args obs)))
         (rel (observation-relationship obs)))
-    (relationship-holds rel new-args)))
-
-(define (satisfies-observations obs-list new-premise)
-  (every (lambda (obs)
-           (or (satisfies-observation obs new-premise)
-               (begin (if *explain*
-                          (pprint `(failed-observation ,obs)))
-                      #f)))
-         obs-list))
+    (or (relationship-holds rel new-args)
+        (begin (if *explain*
+                   (pprint `(failed-observation ,obs)))
+               #f))))
