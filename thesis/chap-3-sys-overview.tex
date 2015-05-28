@@ -1,16 +1,55 @@
 \chapter{System Overview}
 \label{chap:sys-overview}
 
+Given this idea of manipulating diagrams ``in the mind's eye'' to
+explore and discover geometry theorems, I introduce the system
+components.
+
+\section{Goals}
+
+Theorems/Conjectures: Definitions, properties
+
+Definitions ``What is a rhombus?''
+
+Properties ``The diagonals of a parallelogram bisect one another'' or
+
+\section{Representations}
+
+Construction Steps
+
+Figure
+
+Constraints
+
+\section{Modules}
+
+\section{Example Interaction}
+
+
+
+%% Other Stuff:
+
 \section{Software Implementation}
 
-My proposed MEng project involves building and analyzing a software
-implementation that can make such inductive observations and
-discoveries as described above.  Although there are many aspects
-involved in replicating the human-like reasoning discussed, I will
-initially focus on a core system that is able to model the inductive
-exploratory behavior.  Further abilities can be added as extensions or
-applications of the core system as described in section
-\ref{sec:extension}.
+My MEng project involved building and analyzing a software
+implementation that can make inductive observations and discoveries in
+the domain of Elementary Geometry.  Although there are many aspects
+involved in replicating the human-like reasoning discussed, my system
+focuses on a core set of four modules that is able to model the
+inductive exploratory behavior.  Further abilities can be added as
+extensions or applications of the core system as described in section
+\ref{sec:conclusion}.
+
+\subsection{Modules}
+
+These four modules include an imperative geometry construction
+interpreter used to build diagrams, a declarative geometry constraint
+solver to solve and test specifications, an observation-based
+perception module to notice interesting properties, and a learning
+module to analyze information from the other modules and integrate it
+into new definition and theorem discoveries.
+
+\section{Sample Interaction}
 
 This core system will provide an interpreter to accept input of
 construction instructions, an analytic geometry system that can create

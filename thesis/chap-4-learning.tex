@@ -1,16 +1,32 @@
-\chapter{Analyzer and Learning Module}
+\chapter{Learning Module}
 \label{chap:analyzer}
 
 \section{Overview}
 
-The Analyzer and learning module is one the core elements integrating
+The Learning and learning module is one the core elements integrating
 information from the other components of the system. It maintains
 
-\section{Learning Definitions}
+\section{Interactions with Learning Module}
 
-\section{Geometry Theorem Discoveries}
+\subsection{Querying}
 
-\subsection{Representing Discoveries}
+\begin{verbatim}
+(what-is 'parallelogram')
+\end{verbatim}
+
+\subsection{Learning Definitions}
+
+\begin{verbatim}
+(learn-term 'parallelogram random-parallelogram)
+\end{verbatim}
+
+\subsection{Applying Learned Properties}
+
+\begin{verbatim}
+(analyze-figure figure-proc)
+\end{verbatim}
+
+\section{Representing Discoveries}
 
 For example, assertions about equality of segments |AB| = |CD| are
 independent of the ordering of points within the elements.
@@ -22,10 +38,3 @@ with arbitrary pattern elements \texttt{(? s1 ,segment)} for
 instance. Then, when new conjectures are being considered, we attempt
 to pattern match based on existing elements to see if there is a
 redundant observation.
-
-\section{Output and using the information}
-
-Users can see and ``read'' the theorems. For definitions, they can
-also ask ``is ABCD a parallelogram'', for instance.
-
-Also, output in format.

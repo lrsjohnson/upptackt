@@ -5,7 +5,11 @@
 
 The first module is an imperative system for performing geometry
 constructions. This is the typical input method for generating
-coordinate-backed instances of figures and thus declares
+coordinate-backed instances of figures and thus declares.
+
+We will first discuss the basic underlying structures that comprise
+figures, then describe the higher-order language used to specify
+construction steps.
 
 \section{Basic Structures}
 
@@ -73,8 +77,8 @@ the resulting point(s) are on the elements.
 
 A ``Ruler + Protractor'' is generally not permitted in traditional
 construction problems. However, sometimes its nice to be able to use
-measurements to more quickly compute a result (e.g. angle bisector by
-halving angle) vs. going through the whole ray/circle based
+measurements to more quickly compute a result (e.g.\ angle bisector by
+halving angle) vs.\ going through the whole ray/circle based
 construction process.
 
 \subsection{Transformations}
@@ -92,11 +96,14 @@ At the basis of all random
 
 \subsection{Bakktracking}
 
-TODO: More on this
+Currently, the system does not backtrack based on random
+choices. However, there are plans to perform checks on
+randomly-generated elements that are too close to one another and to
+retry the random choice to avoid degenerate choices.
 
 \subsection{Avoiding almost-degenerate points}
 
-Backtracking helps with picking really bad values.
+As discussed above, randomly making choices in
 
 \subsection{Animating choices}
 

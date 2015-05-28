@@ -27,8 +27,8 @@ observation, followed by the formation and evaluation of conjectures.
 
 Similar to such day-to-day three-dimensional reasoning, visualizing
 and manipulating 2D geometric diagrams ``in the mind's eye'' allows
-one to explore questions such as ``what happens if...''  or ``is it
-always true that...''  to discover new conjectures.  Further
+one to explore questions such as ``what happens if\ldots''  or ``is it
+always true that\ldots''  to discover new conjectures.  Further
 investigation of examples can increase one's belief in such a
 conjecture, and an accompanying system of deductive reasoning from
 basic axioms could prove that an observation is correct.
@@ -37,7 +37,7 @@ As an example, a curious student might notice that in a certain
 drawing of a triangle, the three perpendicular bisectors of the edges
 are concurrent, and that a circle constructed with center at the point
 of concurrence intersects all three vertices of the triangle.  Given
-this ``interesting observation,'' the student might explore other
+this ``interesting observation'', the student might explore other
 triangles to see if this behavior is just coincidence, or conjecture
 about whether it applies to certain classes of triangles or all
 triangles in general.  After investigating several other examples, the
@@ -57,20 +57,20 @@ particularly interested in exploring and modeling the more creative
 human-like thought processes of inductively exploring and manipulating
 diagrams to \emph{discover} new insights about geometry.
 
-I propose the creation and analysis of an interactive computer system
-that emulates the curious student described above, and is capable of
-exploring geometric concepts through inductive investigation.  The
-system will begin with a fairly limited set of factual knowledge
-regarding basic definitions in geometry and provide means by which a
-user interacting with the system could ``teach'' the system additional
-geometric concepts and theorems by suggesting investigations the
-system should explore to see if it ``notices anything interesting.''
+The interactive computer system presented in this thesis emulates the
+curious student described above, and is capable of exploring geometric
+concepts through inductive investigation.  The system begins with a
+fairly limited set of factual knowledge regarding basic definitions in
+geometry and provides means by which a user interacting with the
+system can ``teach'' the system additional geometric concepts and
+theorems by suggesting investigations the system should explore to see
+if it ``notices anything interesting.''
 
 To evaluate its recognition of such concepts, the interactive system
-will provide means for a user to extract the observations and apply
-its findings to new scenarios.  In addition to the automated reasoning
-and symbolic artificial intelligence aspects of a system that can
-learn and reason inductively about geometry, the project also has some
+provide means for a user to extract the observations and apply such
+findings to new scenarios.  In addition to the automated reasoning and
+symbolic artificial intelligence aspects of a system that can learn
+and reason inductively about geometry, the project also has some
 interesting opportunities to explore educational concepts related to
 experiential learning, and several extensions to integrate it with
 existing construction synthesis and proof systems.
@@ -81,8 +81,7 @@ Although the field of mathematics has developed a rigorous structure
 of deductive proofs explaining most findings in geometry, much of
 human intuition and initial reasoning about geometric ideas come not
 from applying formal rules, but rather from visually manipulating
-diagrams ``in the mind's eye.''
-
+diagrams ``in the mind's eye.'' Consider the following example:
 
 \subsection{An Initial Example}
 
@@ -99,7 +98,7 @@ forward-chaining of known theorems to determine whether there was a
 logical path that led from the given constraints to the desired result
 that the quadrilateral shown is a rectangle.  However, getting the
 correct results would require having a rich enough set of inference
-rules and a valid system of applying them.
+rules and a valid logic system for applying them.
 
 A more intuitive visual-reasoning approach usually first explored by
 humans is to initially verify that the marked constraints hold for the
@@ -117,7 +116,7 @@ true, and could commit to exploring a more rigorous deductive proof.
 \noindent {\bf Solution to Example 1: As the reader likely discovered,
   the first two diagrams can be manipulated to yield instances that
   are not rectangles, while the third is sufficiently constrained to
-  always represent a rectangle.  (This can be proved by adding a
+  always represent a rectangle.  (This can be proven by adding a
   diagonal and using the Pythagorean theorem.)}
 
 \subsection{Diagrams, Figures, and Constraints}
@@ -141,10 +140,11 @@ In the initial example above, the three quadrilaterals figures are
 drawn as rectangles.  It is true that all quadrilateral figures in the
 space represented by the third diagram are rectangles.  However, the
 space of quadrilaterals represented by the first two diagrams include
-instances that are not rectangles, as shown above.  At this time, we
-will only start with valid diagrams whose constraints are satisfied in
-the given figure.  However, detecting and explaining inconsistent
-diagrams could be an interesting extension.
+instances that are not rectangles, as shown above.  At this time, the
+system only accepts diagrams whose constraints are satisfied in a
+given figure.  However, detecting and explaining impossible diagrams,
+purely from their set of constraints could be an interesting
+extension.
 
 \section{Geometry Investigation}
 
@@ -177,9 +177,10 @@ measured figures, could sufficiently convince the viewer that vertical
 angles always have equal measure.
 
 Of course, this fact can also be proved deductively by adding up pairs
-of angles that sum to 180 degrees.  However, the inductive
-manipulations are more reflective of the initial, intuitive process
-one typically takes when first presented with understanding a diagram.
+of angles that sum to 180 degrees, or by using a symmetry arguments.
+However, the inductive manipulations are more reflective of the
+initial, intuitive process one typically takes when first presented
+with understanding a problem.
 
 \subsection{Elementary Results}
 \label{sec:elem}
