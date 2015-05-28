@@ -38,10 +38,6 @@
       (error "polygon point index not in range"))
   (list-ref (%polygon-points polygon) i))
 
-(declare-element-component-handler
- polygon-point-ref
- polygon?)
-
 (define (polygon-points polygon)
   (map (lambda (i) (polygon-point polygon i))
        (iota (polygon-n-points polygon))))
@@ -51,7 +47,13 @@
   ;;: TODO: Handle situations where polygon isn't terminal dependency
   (with-dependency ;;-if-unknown
    `(polygon-point ,i ,(element-dependency polygon))
-   (polygon-point-ref polygon i)))
+   (with-source
+    (lambda (p) (polygon-point (car p) i))
+    (polygon-point-ref polygon i))))
+
+(declare-element-component-handler
+ polygon-point
+ polygon?)
 
 (define (polygon-index-from-point polygon point)
   (index-of

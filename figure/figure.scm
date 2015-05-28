@@ -8,7 +8,7 @@
 
 ;; Future:
 ;; - Convert to record type like other structures
-;; - Determine automatically?
+;; - Extract points automatically?
 
 ;;; Code:
 

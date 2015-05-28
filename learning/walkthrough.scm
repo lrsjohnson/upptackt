@@ -72,7 +72,7 @@
 
 (learn-term 'rectangle random-rectangle)
 
-(what-is 'rect)
+(what-is 'rectangle)
 
 (learn-term 'sq random-square)
 

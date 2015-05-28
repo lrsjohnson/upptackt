@@ -93,3 +93,9 @@
 ;;; (nth-letter-symbol 1) => 'a , 2 => 'b, etc.
 (define (nth-letter-symbol i)
   (symbol (make-char (+ 96 i) 0)))
+
+(define (hash-table/append table key element)
+  (hash-table/put! table
+                   key
+                   (cons element
+                         (hash-table/get table key '()))))

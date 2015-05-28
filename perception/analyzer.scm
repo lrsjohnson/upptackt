@@ -23,36 +23,37 @@
 (define (analyze figure)
   (number-figure-random-dependencies! figure)
   (let* ((points (figure-points figure))
-         (angles
-          (figure-angles figure))
-         (implied-segments '(); (point-pairs->segments (all-pairs points))
+         (angles (figure-angles figure))
+         (implied-segments '() ; (point-pairs->segments (all-pairs points))
                            )
          (linear-elements (append
                            (figure-linear-elements figure)
                            implied-segments))
-         (segments (append
-                    (figure-segments figure)
-                    implied-segments)))
-    (append (results-with-names concurrent-points-relationship
-                                (report-concurrent-points points))
-            (results-with-names equal-angle-relationship
-                                (report-equal-angles angles))
-            (results-with-names supplementary-angles-relationship
-                                (report-supplementary-angles angles))
-            (results-with-names complementary-angles-relationship
-                                (report-complementary-angles angles))
-            (results-with-names parallel-relationship
-                                (report-parallel-elements linear-elements))
-            (results-with-names perpendicular-relationship
-                                (report-perpendicular-elements linear-elements))
-            (results-with-names equal-length-relationship
-                                (report-equal-segments segments)))))
+         (segments (append (figure-segments figure)
+                           implied-segments)))
+    (append
+     (pairwise-relationships segments
+                             (list equal-length-relationship))
+     (pairwise-relationships angles
+                             (list equal-angle-relationship
+                                   supplementary-angles-relationship
+                                   complementary-angles-relationship))
+     (pairwise-relationships linear-elements
+                             (list parallel-relationship
+                                   perpendicular-relationship)))))
 
-(define (results-with-names relationship elements)
+(define (pairwise-relationships elements relationships)
+  (append-map (lambda (r)
+                (pairwise-relationship elements r))
+              relationships))
+
+(define (pairwise-relationship elements relationship)
   (map (lambda (pair)
          (make-observation '() relationship pair))
-       elements))
+       (report-pairwise (relationship-predicate relationship)
+                        elements)))
 
+;;;;;;;;;;;;;;;;;;;;;;; Cross products, pairs ;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; General proceudres for generating pairs
 (define (all-pairs elements)
@@ -70,7 +71,7 @@
                                 (lp-2 rest-2)))))
                   (lp-1 rest-1))))))
 
-;;; Obtaining segments
+;;;;;;;;;;;;;;;;;;;;;;;;;; Obvious Segments ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (segment-for-endpoint p1)
   (let ((dep (element-dependency p1)))
@@ -120,15 +121,11 @@
                          (cadr point-pair))))) ; TODO: Name segment
                ppairs)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;; Dealing with pairs ;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;; Check for pairwise equality
 (define ((pair-predicate predicate) pair)
   (predicate (car pair) (cadr pair)))
-
-(define (hash-table/append table key element)
-  (hash-table/put! table
-                   key
-                   (cons element
-                         (hash-table/get table key '()))))
 
 ;;; Merges "connected-components" of pairs
 (define (merge-pair-groups elements pairs)
@@ -159,47 +156,14 @@
     (hash-table/remove! group-elements 'invalid)
     (hash-table/datum-list group-elements)))
 
-(define ((report-grouped-pairwise predicate) elements)
-  (let ((elt-pairs (all-pairs elements)))
-    (merge-pair-groups elements (filter (pair-predicate predicate) elt-pairs))))
-
-(define ((report-pairwise predicate) elements)
+(define (report-pairwise predicate elements)
   (let ((elt-pairs (all-pairs elements)))
     (filter (pair-predicate predicate) elt-pairs)))
 
-;;; Check for concurrent points
-(define (report-concurrent-points points)
-  ((report-pairwise point-equal?) points))
-
-;;; Check for equal angles
-(define (report-equal-angles angles)
-  ((report-pairwise angle-measure-equal?) angles))
-
-;;; Check for supplementary angles
-(define (report-supplementary-angles angles)
-  ((report-pairwise supplementary-angles?) angles))
-
-;;; Check for complementary angles
-(define (report-complementary-angles angles)
-  ((report-pairwise complementary-angles?) angles))
-
-;;; Check for parallel lines and segments
-(define (report-parallel-elements linear-elements)
-  ((report-pairwise parallel?) linear-elements))
-
-;;; Check for parallel lines and segments
-(define (report-perpendicular-elements linear-elements)
-  ((report-pairwise perpendicular?) linear-elements))
-
-;;; Check for parallel lines and segments
-(define (report-equal-segments implied-segments)
-  ((report-pairwise segment-equal-length?) implied-segments))
-
-;;; Results:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Results: ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (make-analysis-collector)
   (make-equal-hash-table))
-
 
 (define (save-results results data-table)
   (hash-table/put! data-table results

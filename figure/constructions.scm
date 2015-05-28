@@ -23,14 +23,21 @@
                           (point-y p2)))))
     (with-dependency
      `(midpoint ,(element-dependency p1) ,(element-dependency p2))
-     newpoint)))
+     (with-source (lambda (premise)
+                    (midpoint
+                     ((element-source p1) premise)
+                     ((element-source p1) premise)))
+                  newpoint))))
 
 (define (segment-midpoint s)
   (let ((p1 (segment-endpoint-1 s))
         (p2 (segment-endpoint-2 s)))
     (with-dependency
      `(segment-midpoint ,s)
-     (midpoint p1 p2))))
+     (with-source (lambda (premise)
+                    (segment-midpoint
+                     ((element-source s) premise)))
+                  (midpoint p1 p2)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -51,9 +58,9 @@
   (let ((line-pt (line-point l))
         (line-dir (line-direction l)))
     (or (point-equal? p line-pt)
-     (let ((dir-to-p (direction-from-points p line-pt)))
-       (or (direction-equal? line-dir dir-to-p)
-           (direction-equal? line-dir (reverse-direction dir-to-p)))))))
+        (let ((dir-to-p (direction-from-points p line-pt)))
+          (or (direction-equal? line-dir dir-to-p)
+              (direction-equal? line-dir (reverse-direction dir-to-p)))))))
 
 (define (on-ray? p r)
   (let ((ray-endpt (ray-endpoint r))

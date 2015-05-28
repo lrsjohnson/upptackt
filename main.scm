@@ -18,7 +18,7 @@
   (let-geo* (((r (a b c d)) (random-parallelogram))
              (m1 (midpoint a b))
              (m2 (midpoint c d)))
-    (figure r m1 m2)))
+    (figure r m1 m2 (make-segment m1 m2))))
 
 (define (demo-figure)
   (let-geo* (((t (a b c)) (random-isoceles-triangle))
@@ -135,10 +135,10 @@
        (let ((current-figure (current-figure-proc)))
          (draw-figure current-figure c)
          (let ((analysis-results (analyze-figure current-figure)))
-           (save-results analysis-results analysis-data))
+           (save-results (print analysis-results) analysis-data))
          )))
-    ;(display "--- Results ---\n")
-    ;(print-analysis-results analysis-data)
+    (display "--- Results ---\n")
+    (print-analysis-results analysis-data)
     ))
 
 (define interesting-figures
