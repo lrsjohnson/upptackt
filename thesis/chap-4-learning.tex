@@ -8,13 +8,36 @@ information from the other components of the system. It maintains
 
 \section{Interactions with Learning Module}
 
+The learning module provides the primary interface by which users
+interact with the system. As such, it provides means by which users
+can both query the system to discover and use what it has known, as
+well as to teach the system information by suggesting investigations
+it should undertake.
+
 \subsection{Querying}
 
+A simple way of interacting with the learning module is to ask it for
+what it knows about various geometry concepts or terms. For
+definitions, the results provide the classification (that a rhombus is
+a parallelogram), and a set of minimal properties that differentiates
+that object from its classification. Further querying can present all
+known properties of the named object as well as theorems involving
+that term.
+
 \begin{verbatim}
-(what-is 'parallelogram')
+(what-is 'rhombus)
 \end{verbatim}
 
 \subsection{Learning Definitions}
+
+To learn a new definition, the system must be given the name of the
+term being learned as well as a procedure that will generate arbitrary
+instances of that definition. To converge to the correct definition,
+that random procedure should present a wide diversity of instances
+(i.e. the random-parallelogram procedure should produce all sorts of
+parallelograms, not just rectangles). However, reconciling mixed
+information about what constitutes a term could be an interesting
+extension.
 
 \begin{verbatim}
 (learn-term 'parallelogram random-parallelogram)
@@ -22,11 +45,38 @@ information from the other components of the system. It maintains
 
 \subsection{Applying Learned Properties}
 
+To apply the learned conjectures, the learning system can use its
+repository of geometry knowledge to tell you what a given figure is or
+to point out old vs. new properties seen in a specific figure:
+
 \begin{verbatim}
-(analyze-figure figure-proc)
+(analyze-figure figure)
+(examine (random-rhombus))
 \end{verbatim}
 
+\subsection{Performing Investigations}
+
+Investigations are similar to analyzing various figures above except
+that they have the intent of the analysis results being placed in the
+geometry knowledge repository. This separation also allows for
+dependence information about where properties were derived from.
+
 \section{Representing Discoveries}
+
+Discoveries are represented within a lattice of premises (discoveries
+about quadrilaterals < discoveries about rhombuses < discoveries about
+squares, but are separate from discoveries about circles or segments).
+
+\subsection{Placement of discoveries}
+
+Given this lattice structure, an interesting question when exploring
+new properties
+
+\subsection{Ordering of discoveries}
+
+An issue with this system is that often discoveries can be in slightly
+different formats. As such, for each relationship, we establish a
+consistent ordering of elements and use pattern matching to
 
 For example, assertions about equality of segments |AB| = |CD| are
 independent of the ordering of points within the elements.

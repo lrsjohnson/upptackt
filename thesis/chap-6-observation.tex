@@ -1,12 +1,14 @@
-\chapter{Observation Module}
+\chapter{Perception Module}
 \label{chap:observer}
 
 \section{Overview}
 
-The observation module is primarily concerned with the task of
-observing interesting properties in diagrams.
+Given a module that executes construction steps to build analytic
+figures, we need a way of ``seeing'' these figures in our mind's eye.
+Thus, the perception module is primarily concerned with the task of
+examining the figure and observing interesting properties in figure.
 
-\subsection{Extracting more information}
+\subsection{Extracting segments and angles}
 
 The observation module also builds and traverses a
 graph-representation of the object of connectedness and adjacencies to
@@ -40,5 +42,10 @@ Points being on lines, segments, circles directly dependent on that point.
 
 \subsubsection{Branch Relations}
 
-Other examples include ``branch'' relations. [TODO REF: Chen, Song,
+Other examples include ``branch'' relations. [REF: Chen, Song,
   etc.]. ABCD on a line with AB = CD also means that AC = BD, for instance.
+
+\section{Representations}
+
+A ``Relationship'' object represents a type of relationship, a
+``Observation'' object refers to a specific observation seen in a figure.

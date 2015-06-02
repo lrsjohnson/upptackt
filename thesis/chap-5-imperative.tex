@@ -16,15 +16,17 @@ construction steps.
 \subsection{Points}
 
 Points form the basis of most elements. Throughout the system, points
-are
+are labeled and used to identify other elements.
 
 \section{Linear Elements}
 
 The linear elements of Segments, Lines, and Rays are built upon
-points. Initially the internal representation of
+points. Initially the internal representation of lines were that of
+two points, but to simplify manipulations,
 
 To better specify angles (see below), all linear elements, including
-segments and lines are directioned.
+segments and lines are directioned. Thus, a line pointing. Predicates
+exist that compare lines for equality ignoring
 
 \subsection{Angles}
 
@@ -33,8 +35,9 @@ directions. CCW orientation. Methods exist to determine them from
 various pairs of linear elements, uses directionality of linear
 elements to determine which ``quadrant'' of the angle is desired.
 
-[Future]: Extract angles from the diagrams in analysis rather than
-specifying each angle of interest while creating the diagram.
+Given a figure, methods exist to extract angles from the diagrams in
+analysis rather than specifying each angle of interest while creating
+the diagram.
 
 \subsection{Math Support}
 
@@ -50,6 +53,9 @@ depending on computation source.
 In addition to the basic geometry structures, the system uses several
 grouping structures to combine and abstract the basic figure elements
 into higher-level figures elements.
+
+For closure of combinators, all these higher level objects are also
+``Diagram objects''.
 
 \subsection{Polygons}
 
@@ -94,7 +100,7 @@ At the basis of all random
 
 \subsection{Remembering choices}
 
-\subsection{Bakktracking}
+\subsection{Backtracking}
 
 Currently, the system does not backtrack based on random
 choices. However, there are plans to perform checks on
@@ -155,6 +161,7 @@ vertex points.
 
 \section{Graphics}
 
-\subsection{MIT Scheme X Graphics}
-
-\subsection{Bounds}
+The system integrates with Scheme's graphics system for the X Window
+System to display the figures for the users. The graphical viewer can
+include labels and highlight specific elements, as well as display
+animations representing the ``wiggling'' of the diagram.

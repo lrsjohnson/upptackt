@@ -20,7 +20,7 @@ seeing how the resulting diagram properties respond.
 \section{Mechanical Analogies}
 
 The geometry constraint solver - physical manipulation, simulation,
-and ``wiggling''
+and ``wiggling''.
 
 \subsection{Bar and Joint Linkages}
 
@@ -54,9 +54,11 @@ return nothing is okay.
 
 \section{Propagator Constraints}
 
+System uses propagators to solve these mechanism constraints.
+
 \subsection{Basic Linkage Constraints}
 
-Direction, dx, dy, length, thetas.
+Direction, dx, dy, length, thetas. ``Bars'' + ``Joints''
 
 \subsection{Higher Order Constraints}
 
@@ -74,11 +76,18 @@ Given a wired diagram, process is repeatedly specifying values for elements
 
 \section{Backtracking}
 
-TODO in future, sounds fun.
+If it can't build a figure with a given set of specifications, it will
+first try some neighboring values, then backtrack and try a new value
+for the previous element. After a number of failed attempts, it will
+abort and claim that at this time, it is unable to build a diagram
+satisfying the constraints.
+
+(This doesn't mean that it is impossible: Add analysis/info about what
+it can/can't solve)
 
 \section{Interfacing with existing diagrams}
 
-TODO in future, sounds fun.
+Converts between figures and symbolic relationships.
 
 \section{Specification Interface}
 
