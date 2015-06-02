@@ -49,10 +49,11 @@
           (p-length (distance seg-start p))
           (dir-1 (direction-from-points seg-start p))
           (dir-2 (direction-from-points seg-start seg-end)))
-      (and (direction-equal? dir-1 dir-2)
-           (or
-            (point-equal? seg-end p)
-            (< p-length seg-length))))))
+      (or (point-equal? seg-start p)
+          (and (direction-equal? dir-1 dir-2)
+               (or
+                (point-equal? seg-end p)
+                (< p-length seg-length)))))))
 
 (define (on-line? p l)
   (let ((line-pt (line-point l))
@@ -112,3 +113,32 @@
     (let ((l1 (perpendicular-bisector (make-segment p1 p2)))
           (l2 (perpendicular-bisector (make-segment p1 p3))))
       (intersect-linear-elements l1 l2))))
+
+;;;;;;;;;;;;;;;;;;;;; Concurrent Linear Elements ;;;;;;;;;;;;;;;;;;;;;
+
+(define (concurrent? l1 l2 l3)
+  (let ((i-point (intersect-linear-elements l1 l2)))
+    (and i-point
+         (on-element? i-point l3))))
+
+(define (concentric? p1 p2 p3 p4)
+  (and (not (point-equal? p1 p2))
+       (not (point-equal? p1 p3))
+       (not (point-equal? p1 p4))
+       (not (point-equal? p2 p3))
+       (not (point-equal? p2 p4))
+       (not (point-equal? p3 p4))
+       (let ((pb-1 (perpendicular-bisector
+                    (make-segment p1 p2)))
+             (pb-2 (perpendicular-bisector
+                    (make-segment p2 p3)))
+             (pb-3 (perpendicular-bisector
+                    (make-segment p3 p4))))
+         (concurrent? pb-1 pb-2 pb-3))))
+
+(define (concentric-with-center? center p1 p2 p3)
+  (let ((d1 (distance center p1))
+        (d2 (distance center p2))
+        (d3 (distance center p3)))
+    (and (close-enuf? d1 d2)
+         (close-enuf? d1 d3))))

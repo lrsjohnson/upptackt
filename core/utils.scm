@@ -99,3 +99,14 @@
                    key
                    (cons element
                          (hash-table/get table key '()))))
+
+(define (dedupe-by equality-predicate elements)
+  (dedupe (member-procedure equality-predicate) elements))
+
+(define (dedupe member-predicate elements)
+  (cond ((null? elements) '())
+        (else
+         (let ((b1 (car elements)))
+           (if (member-predicate b1 (cdr elements))
+               (dedupe member-predicate (cdr elements))
+               (cons b1 (dedupe member-predicate (cdr elements))))))))

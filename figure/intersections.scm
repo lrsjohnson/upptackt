@@ -8,6 +8,7 @@
 
 ;; Future:
 ;; - Amb-like selection of multiple intersections, or list?
+;; - Deal with elements that are exactly the same
 
 ;;; Code:
 
@@ -40,11 +41,11 @@
                  (det x3 y3 x4 y4)
                  (det y3  1 y4  1))))
       (if (= denom 0)
-          (error "lines don't intersect")
+          '()
           (let
               ((px (/ num-x denom))
                (py (/ num-y denom)))
-            (make-point px py))))))
+            (list (make-point px py)))))))
 
 ;;; http://mathforum.org/library/drmath/view/51836.html
 (define (intersect-circles-by-centers-radii c1 r1 c2 r2)
@@ -107,12 +108,18 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Basic Intersections ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (intersect-lines line1 line2)
+(define (intersect-lines-to-list line1 line2)
   (let ((p1 (line-p1 line1))
         (p2 (line-p2 line1))
         (p3 (line-p1 line2))
         (p4 (line-p2 line2)))
     (intersect-lines-by-points p1 p2 p3 p4)))
+
+(define (intersect-lines line1 line2)
+  (let ((i-list (intersect-lines-to-list line1 line2)))
+    (if (null? i-list)
+        (error "Lines don't intersect")
+        (car i-list))))
 
 (define (intersect-circles cir1 cir2)
   (let ((c1 (circle-center cir1))
@@ -132,7 +139,7 @@
   (make-generic-operation 2 'standard-intersect))
 
 (defhandler standard-intersect
-  intersect-lines line? line?)
+  intersect-lines-to-list line? line?)
 
 (defhandler standard-intersect
   intersect-circles circle? circle?)
@@ -146,12 +153,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Generic intersection ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (intersect-linear-elements el-1 el-2)
-  (let ((i (standard-intersect (->line el-1)
-                               (->line el-2))))
-    (if (or (not (on-element? i el-1))
-            (not (on-element? i el-2)))
-        (error "Linear elements line don't intersect" (list el-1 el-2))
-        i)))
+  (let ((i-list (standard-intersect (->line el-1)
+                                    (->line el-2))))
+    (if (null? i-list)
+        #f
+        (let ((i (car i-list)))
+          (if (or (not (on-element? i el-1))
+                  (not (on-element? i el-2)))
+              #f
+              i)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; On Elements ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -48,17 +48,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Deduplication ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-(define (m:dedupe member-predicate elements)
-  (cond ((null? elements) '())
-        (else
-         (let ((b1 (car elements)))
-           (if (member-predicate b1 (cdr elements))
-               (m:dedupe member-predicate (cdr elements))
-               (cons b1 (m:dedupe member-predicate (cdr elements))))))))
-
 (define (m:dedupe-bars bars)
-  (m:dedupe (member-procedure m:bars-name-equivalent?) bars))
+  (dedupe (member-procedure m:bars-name-equivalent?) bars))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Accessors ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

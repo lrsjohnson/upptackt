@@ -32,44 +32,56 @@
          (segments (append (figure-segments figure)
                            implied-segments)))
     (append
-     (pairwise-relationships segments
+     (extract-relationships points
+                            (list concurrent-points-relationship
+                                  concentric-relationship
+                                  concentric-with-center-relationship))
+     (extract-relationships segments
                              (list equal-length-relationship))
-     (pairwise-relationships angles
+     (extract-relationships angles
                              (list equal-angle-relationship
                                    supplementary-angles-relationship
                                    complementary-angles-relationship))
-     (pairwise-relationships linear-elements
+     (extract-relationships linear-elements
                              (list parallel-relationship
-                                   perpendicular-relationship)))))
+                                   perpendicular-relationship
+                                   )))))
 
-(define (pairwise-relationships elements relationships)
+(define (extract-relationships elements relationships)
   (append-map (lambda (r)
-                (pairwise-relationship elements r))
+                (extract-relationship elements r))
               relationships))
 
-(define (pairwise-relationship elements relationship)
-  (map (lambda (pair)
-         (make-observation '() relationship pair))
-       (report-pairwise (relationship-predicate relationship)
-                        elements)))
+(define (extract-relationship elements relationship)
+  (map (lambda (tuple)
+         (make-observation '() relationship tuple))
+       (report-n-wise
+        (relationship-arity relationship)
+        (relationship-predicate relationship)
+        elements)))
 
 ;;;;;;;;;;;;;;;;;;;;;;; Cross products, pairs ;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; General proceudres for generating pairs
 (define (all-pairs elements)
-  (let lp-1 ((elements-1 elements))
-    (if (null? elements-1)
-        '()
-        (let ((el-1 (car elements-1))
-              (rest-1 (cdr elements-1)))
-          (append (let lp-2 ((elements-2 rest-1))
-                    (if (null? elements-2)
-                        '()
-                        (let ((el-2 (car elements-2))
-                              (rest-2 (cdr elements-2)))
-                          (cons (list el-1 el-2)
-                                (lp-2 rest-2)))))
-                  (lp-1 rest-1))))))
+  (all-n-tuples 2 elements))
+
+(define (all-n-tuples n elements)
+  (cond ((zero? n) '(()))
+        ((< (length elements) n) '())
+        (else
+         (let lp ((elements-1 elements))
+           (if (null? elements-1)
+               '()
+               (let ((element-1 (car elements-1))
+                     (n-minus-1-tuples
+                      (all-n-tuples (- n 1) (cdr elements-1))))
+                 (append
+                  (map
+                   (lambda (rest-tuple)
+                     (cons element-1 rest-tuple))
+                   n-minus-1-tuples)
+                  (lp (cdr elements-1)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Obvious Segments ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -124,8 +136,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;; Dealing with pairs ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Check for pairwise equality
-(define ((pair-predicate predicate) pair)
-  (predicate (car pair) (cadr pair)))
+(define ((nary-predicate n predicate) tuple)
+  (apply predicate tuple))
 
 ;;; Merges "connected-components" of pairs
 (define (merge-pair-groups elements pairs)
@@ -156,9 +168,9 @@
     (hash-table/remove! group-elements 'invalid)
     (hash-table/datum-list group-elements)))
 
-(define (report-pairwise predicate elements)
-  (let ((elt-pairs (all-pairs elements)))
-    (filter (pair-predicate predicate) elt-pairs)))
+(define (report-n-wise n predicate elements)
+  (let ((tuples (all-n-tuples n elements)))
+    (filter (nary-predicate n predicate) tuples)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Results: ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

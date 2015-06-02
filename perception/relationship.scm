@@ -13,9 +13,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;; Relationship Structure ;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <relationship>
-  (%make-relationship type predicate)
+  (%make-relationship type arity predicate)
   relationship?
   (type relationship-type)
+  (arity relationship-arity)
   (predicate relationship-predicate))
 
 (define print-relationship relationship-type)
@@ -32,29 +33,40 @@
 ;;; Segments:
 
 (define equal-length-relationship
-  (%make-relationship 'equal-length segment-equal-length?))
+  (%make-relationship 'equal-length 2 segment-equal-length?))
 
 ;;; Angles:
 (define equal-angle-relationship
-  (%make-relationship 'equal-angle angle-measure-equal?))
+  (%make-relationship 'equal-angle 2 angle-measure-equal?))
 
 (define supplementary-angles-relationship
-  (%make-relationship 'supplementary supplementary-angles?))
+  (%make-relationship 'supplementary 2 supplementary-angles?))
 
 (define complementary-angles-relationship
-  (%make-relationship 'complementary complementary-angles?))
+  (%make-relationship 'complementary 2 complementary-angles?))
 
 ;;; Linear elements:
 (define perpendicular-relationship
-  (%make-relationship 'perpendicular perpendicular?))
+  (%make-relationship 'perpendicular 2 perpendicular?))
 
 (define parallel-relationship
-  (%make-relationship 'parallel parallel?))
+  (%make-relationship 'parallel 2 parallel?))
+
+(define concurrent-relationship
+  (%make-relationship 'concurrent 3 concurrent?))
 
 ;;; Points:
 (define concurrent-points-relationship
-  (%make-relationship 'concurrent point-equal?))
+  (%make-relationship 'concurrent 2 point-equal?))
+
+(define concentric-relationship
+  (%make-relationship 'concentric 4 concentric?))
+
+(define concentric-with-center-relationship
+  (%make-relationship 'concentric-with-center
+                      4 concentric-with-center?))
 
 ;;; Polygons:
 (define (make-polygon-n-sides-relationship n)
-  (%make-relationship (symbol 'n-sides- n) (ngon-predicate n)))
+  (%make-relationship (symbol 'n-sides- n)
+                      1 (ngon-predicate n)))
