@@ -1,0 +1,34 @@
+\chapter{Demonstration}
+\label{chap:demo}
+
+My system uses this idea of manipulating diagrams ``in the mind's
+eye'' to explore and discover geometry theorems. Before discussing
+some of the internal representations and modules, I will briefly
+describe the goals of the system to provide direction and context to
+understand the components.
+
+
+\begin{lstlisting}[firstnumber=1, caption=Getting labels, label=glabels]
+(define (arbitrary-triangle)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c)))
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Constraint Solving for Isoceles Triangle, label=glabels]
+(define (isoceles-triangle)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c)
+   (m:c-length-equal (m:bar 'a 'b)
+                     (m:bar 'b 'c))))
+\end{lstlisting}
+
+
+\begin{lstlisting}[caption=Constraint Solving for Isoceles Triangle, label=glabels]
+(define (parallelogram-by-angles)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-angle-equal (m:joint 'a)
+                    (m:joint 'c))
+   (m:c-angle-equal (m:joint 'b)
+                    (m:joint 'd))))
+\end{lstlisting}
