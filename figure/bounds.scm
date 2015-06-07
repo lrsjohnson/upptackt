@@ -13,6 +13,26 @@
 
 ;;; Code:
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Bounds ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define-record-type <bounds>
+  (make-bounds x-interval y-interval)
+  bounds?
+  (x-interval bounds-x-interval)
+  (y-interval bounds-y-interval))
+
+(define (bounds-xmin b) (interval-low (bounds-x-interval b)))
+(define (bounds-xmax b) (interval-high (bounds-x-interval b)))
+(define (bounds-ymin b) (interval-low (bounds-y-interval b)))
+(define (bounds-ymax b) (interval-high (bounds-y-interval b)))
+
+(define (print-bounds b)
+  `(bounds ,(bounds-xmin b)
+           ,(bounds-xmax b)
+           ,(bounds-ymin b)
+           ,(bounds-ymax b)))
+(defhandler print print-bounds bounds?)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Bounds Constants ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Max bounds of the graphics window
@@ -81,3 +101,69 @@
                  (max-y (+ y1 (* max-t dy))))
             (make-segment p1
                           (make-point max-x max-y)))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Rescale Figure ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define empty-bounds (make-bounds (make-interval 0 0)
+                                  (make-interval 0 0)))
+
+(define (extend-interval i new-value)
+  (let ((low (interval-low i))
+        (high (interval-high i)))
+    (make-interval (min low new-value)
+                   (max high new-value))))
+
+(define (interval-length i)
+  (- (interval-high i)
+     (interval-low i)))
+
+(define (extend-bounds bounds point)
+  (let ((px (point-x point))
+        (py (point-y point)))
+    (make-bounds
+     (extend-interval (bounds-x-interval bounds)
+                      px)
+     (extend-interval (bounds-y-interval bounds)
+                      py))))
+
+(define (bounds-width bounds)
+  (interval-length (bounds-x-interval bounds)))
+
+(define (bounds-height bounds)
+  (interval-length (bounds-y-interval bounds)))
+
+(define (bounds->square bounds)
+  (let ((new-side-length
+         (max (bounds-width bounds)
+              (bounds-height bounds))))
+    (recenter-bounds bounds
+                     new-side-length
+                     new-side-length)))
+
+(define (recenter-interval i new-length)
+  (let* ((min (interval-low i))
+         (max (interval-high i))
+         (old-half-length (/ (- max min) 2))
+         (new-half-length (/ new-length 2)))
+    (make-interval (- (+ min old-half-length) new-half-length)
+                   (+ (- max old-half-length) new-half-length))))
+
+(define (recenter-bounds bounds new-width new-height)
+  (make-bounds
+   (recenter-interval (bounds-x-interval bounds) new-width)
+   (recenter-interval (bounds-y-interval bounds) new-height)))
+
+(define (scale-bounds bounds scale-factor)
+  (recenter-bounds
+   bounds
+   (* (bounds-width bounds) scale-factor)
+   (* (bounds-height bounds) scale-factor)))
+
+(define (extract-bounds figure)
+  (let ((all-points (figure-points figure)))
+    (let lp ((bounds empty-bounds)
+             (points all-points))
+      (if (null? points)
+          bounds
+          (extend-bounds (lp bounds (cdr points))
+                         (car points))))))

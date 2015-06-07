@@ -1,4 +1,5 @@
 (define (draw-figure figure canvas)
+  (set-coordinates-for-figure figure canvas)
   (clear-canvas canvas)
   (for-each
    (lambda (element)
@@ -10,8 +11,17 @@
      (canvas-set-color canvas (element-color element))
      ((draw-label element) canvas))
    (all-figure-elements figure))
-  (graphics-flush (canvas-g canvas))
-  )
+  (graphics-flush (canvas-g canvas)))
+
+(define (set-coordinates-for-figure figure canvas)
+  (let* ((bounds (scale-bounds (bounds->square (extract-bounds figure))
+                               1.1)))
+    (graphics-set-coordinate-limits
+     (canvas-g canvas)
+     (bounds-xmin bounds)
+     (bounds-ymin bounds)
+     (bounds-xmax bounds)
+     (bounds-ymax bounds))))
 
 (define draw-element
   (make-generic-operation 1 'draw-element
