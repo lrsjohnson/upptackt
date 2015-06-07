@@ -1,15 +1,73 @@
-\chapter{Tables}
+\chapter{Code Listings}
 
-\begin{table}
-\caption{Armadillos}
-\label{arm:table}
-\begin{center}
-\begin{tabular}{||l|l||}\hline
-Armadillos & are \\\hline
-our	   & friends \\\hline
-\end{tabular}
-\end{center}
-\end{table}
+\lstlistoflistings
+
+\lstdefinestyle{includes}{
+  basicstyle=\scriptsize\ttfamily,
+}
+
+
+\newcommand{\includecode}[2][c]{\newpage\lstinputlisting[caption=#2, style=includes]{code/#2}}
+% ...
+\linespread{1}
+\includecode{load.scm}
+\includecode{main.scm}
+
+\includecode{learning/load.scm}
+\includecode{learning/core-knowledge.scm}
+\includecode{learning/definitions.scm}
+\includecode{learning/simplifier.scm}
+\includecode{learning/student.scm}
+\includecode{learning/walkthrough.scm}
+
+\includecode{figure/load.scm}
+\includecode{figure/core.scm}
+\includecode{figure/line.scm}
+\includecode{figure/direction.scm}
+\includecode{figure/direction.scm}
+\includecode{figure/vec.scm}
+\includecode{figure/measurements.scm}
+\includecode{figure/angle.scm}
+\includecode{figure/bounds.scm}
+\includecode{figure/circle.scm}
+\includecode{figure/point.scm}
+\includecode{figure/constructions.scm}
+\includecode{figure/intersections.scm}
+\includecode{figure/figure.scm}
+\includecode{figure/math-utils.scm}
+\includecode{figure/polygon.scm}
+\includecode{figure/metadata.scm}
+\includecode{figure/dependencies.scm}
+\includecode{figure/randomness.scm}
+\includecode{figure/transforms.scm}
+
+\includecode{perception/load.scm}
+\includecode{perception/observation.scm}
+\includecode{perception/analyzer.scm}
+
+
+\includecode{graphics/load.scm}
+\includecode{graphics/appearance.scm}
+\includecode{graphics/graphics.scm}
+
+\includecode{manipulate/load.scm}
+\includecode{manipulate/linkages.scm}
+\includecode{manipulate/region.scm}
+\includecode{manipulate/constraints.scm}
+\includecode{manipulate/topology.scm}
+\includecode{manipulate/mechanism.scm}
+\includecode{manipulate/main.scm}
+
+\includecode{content/load.scm}
+\includecode{content/investigations.scm}
+
+\includecode{core/load.scm}
+\includecode{core/animation.scm}
+\includecode{core/macros.scm}
+\includecode{core/print.scm}
+\includecode{core/utils.scm}
+% ...
+
 
 \clearpage
 \newpage

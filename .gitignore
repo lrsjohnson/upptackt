@@ -26,4 +26,5 @@
 *.mtc1
 *.out
 *.synctex.gz
+*.lol
 /thesis/ideas.pdf
