@@ -44,6 +44,7 @@
                                    complementary-angles-relationship))
      (extract-relationships linear-elements
                              (list parallel-relationship
+                                   concurrent-relationship
                                    perpendicular-relationship
                                    )))))
 
