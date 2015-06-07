@@ -110,3 +110,29 @@
            (if (member-predicate b1 (cdr elements))
                (dedupe member-predicate (cdr elements))
                (cons b1 (dedupe member-predicate (cdr elements))))))))
+
+
+(define (partition-into-equivalence-classes elements equivalence-predicate)
+  (let lp ((equivalence-classes '())
+           (remaining-elements elements))
+    (if (null? remaining-elements)
+        equivalence-classes
+        (lp
+         (add-to-equivalence-classes
+          equivalence-classes
+          (car remaining-elements)
+          (member-procedure equivalence-predicate))
+         (cdr remaining-elements)))))
+
+(define (add-to-equivalence-classes classes element memp)
+  (if (null? classes)
+      (list (list element))
+      (let ((first-class (car classes))
+            (remaining-classes (cdr classes)))
+        (if (memp element first-class)
+            (cons (cons element first-class)
+                  remaining-classes)
+            (cons first-class
+                  (add-to-equivalence-classes remaining-classes
+                                              element
+                                              memp))))))
