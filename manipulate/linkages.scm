@@ -345,26 +345,39 @@
       (let ((vertex (make-point px py)))
         (m:make-arc vertex length dir-interval))
       nothing))
-
 (propagatify m:x-y-length-di->region)
+
+(define (m:region-length-direction->region pr length dir)
+  (if (direction-interval? dir)
+      nothing
+      (m:translate-region
+       pr
+       (vec-from-direction-distance dir length))))
+(propagatify m:region-length-direction->region)
+
 
 (define (m:p1->p2-bar-propagator p1 p2 bar)
   (let ((p1x (m:point-x p1))
         (p1y (m:point-y p1))
+        (p1r (m:point-region p1))
         (p2r (m:point-region p2))
         (length (m:bar-length bar))
         (dir (m:bar-direction bar)))
     (p:m:x-y-direction->region p1x p1y dir p2r)
-    (p:m:x-y-length-di->region p1x p1y length dir p2r)))
+    (p:m:x-y-length-di->region p1x p1y length dir p2r)
+    (p:m:region-length-direction->region p1r length dir p2r)))
 
 (define (m:p2->p1-bar-propagator p2 p1 bar)
   (let ((p2x (m:point-x p2))
         (p2y (m:point-y p2))
         (p1r (m:point-region p1))
+        (p2r (m:point-region p2))
         (length (m:bar-length bar))
         (dir (m:bar-direction bar)))
     (p:m:x-y-direction->region p2x p2y (ce:reverse-direction dir) p1r)
-    (p:m:x-y-length-di->region p2x p2y length (ce:reverse-direction dir) p1r)))
+    (p:m:x-y-length-di->region p2x p2y length (ce:reverse-direction dir) p1r)
+    (p:m:region-length-direction->region
+     p2r length (ce:reverse-direction dir) p1r)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Joint  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Direction-2 is counter-clockwise from direction-1 by theta

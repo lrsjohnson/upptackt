@@ -17,22 +17,34 @@
    (m:establish-polygon-topology 'a 'b 'c)
    (m:c-right-angle (m:joint 'c))))
 
+(define (quadrilateral-with-diagonals a b c d)
+  (list
+   (m:establish-polygon-topology a b c d)
+   (m:establish-polygon-topology a b c)
+   (m:establish-polygon-topology b c d)
+   (m:establish-polygon-topology c d a)
+   (m:establish-polygon-topology d a c)))
+
+(define (quadrilateral-with-diagonals-intersection a b c d e)
+  (list
+   (quadrilateral-with-diagonals a b c d)
+   (m:establish-polygon-topology a b e)
+   (m:establish-polygon-topology b c e)
+   (m:establish-polygon-topology c d e)
+   (m:establish-polygon-topology d a e)
+   (m:c-line-order c e a)
+   (m:c-line-order b e d)))
+
 (define (quad-diagonals)
   (m:mechanism
    ;; Setup abcd with e in the middle:
-   (m:establish-polygon-topology 'a 'b 'c 'd)
-   (m:establish-polygon-topology 'a 'b 'e)
-   (m:establish-polygon-topology 'b 'c 'e)
-   (m:establish-polygon-topology 'c 'd 'e)
-   (m:establish-polygon-topology 'd 'a 'e)
-
-   (m:c-line-order 'c 'e 'a)
-   (m:c-line-order 'b 'e 'd)
+   (quadrilateral-with-diagonals-intersection 'a 'b 'c 'd 'e)
 
    ;; Right Angle in Center:
    (m:c-right-angle (m:joint 'b 'e 'c))
 
    ;; Diagonals Equal
+   ;;(m:c-length-equal (m:bar 'c 'a) (m:bar 'b 'd))
    (m:c-length-equal (m:bar 'c 'e) (m:bar 'a 'e))
    ;;(m:c-length-equal (m:bar 'b 'e) (m:bar 'd 'e))
 
@@ -120,39 +132,63 @@
       )))
 
 #|
-(let lp ()
-  (initialize-scheduler)
-  (pp 'start)
-  (m:run-mechanism
-   (lambda ()
-     (m:mechanism
-      ;;(m:establish-polygon-topology 'a 'b 'c)
-      (m:make-named-bar 'a 'b)
-      (m:make-named-bar 'b 'c)
-      (m:make-named-bar 'c 'a)
-      (m:make-named-joint 'c 'b 'a)
-      (m:make-named-joint 'a 'c 'b)
-      (m:make-named-joint 'b 'a 'c)
+ (let lp ()
+   (initialize-scheduler)
+   (pp 'start)
+   (m:run-mechanism
+    (lambda ()
+      (m:mechanism
+       ;;(m:establish-polygon-topology 'a 'b 'c)
+       (m:make-named-bar 'a 'b)
+       (m:make-named-bar 'b 'c)
+       (m:make-named-bar 'c 'a)
+       (m:make-named-joint 'c 'b 'a)
+       (m:make-named-joint 'a 'c 'b)
+       (m:make-named-joint 'b 'a 'c)
 
-      (m:make-named-bar 'a 'd)
-      (m:make-named-bar 'b 'd)
-      (m:make-named-joint 'd 'a 'b)
-      (m:make-named-joint 'a 'b 'd)
-      (m:make-named-joint 'b 'd 'a)
+       (m:make-named-bar 'a 'd)
+       (m:make-named-bar 'b 'd)
+       (m:make-named-joint 'd 'a 'b)
+       (m:make-named-joint 'a 'b 'd)
+       (m:make-named-joint 'b 'd 'a)
 
-      (m:make-named-bar 'c 'd)
-      (m:make-named-joint 'a 'd 'c)
-      (m:make-named-joint 'c 'a 'd)
-      (m:make-named-joint 'd 'c 'a))))
-  (lp))
+       (m:make-named-bar 'c 'd)
+       (m:make-named-joint 'a 'd 'c)
+       (m:make-named-joint 'c 'a 'd)
+       (m:make-named-joint 'd 'c 'a))))
+   (lp))
 
-(let lp ()
-  (initialize-scheduler)
-  (let ((m (m:mechanism
-            (m:establish-polygon-topology 'a 'b 'c 'd))))
-    (m:build-mechanism m)
-    (m:solve-mechanism m)
-    (let ((f (m:mechanism->figure m)))
-      (draw-figure f c)
-      (pp (analyze-figure f)))))
+ (let lp ()
+   (initialize-scheduler)
+   (let ((m (m:mechanism
+             (m:establish-polygon-topology 'a 'b 'c 'd))))
+     (m:build-mechanism m)
+     (m:solve-mechanism m)
+     (let ((f (m:mechanism->figure m)))
+       (draw-figure f c)
+       (pp (analyze-figure f)))))
 |#
+
+(define (rect-demo-1)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-length-equal (m:bar 'a 'b)
+                     (m:bar 'b 'c))
+   (m:c-right-angle (m:joint 'd))))
+
+(define (rect-demo-2)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-length-equal (m:bar 'a 'd)
+                     (m:bar 'b 'c))
+   (m:c-right-angle (m:joint 'd))
+   (m:c-angle-equal (m:joint 'a)
+                    (m:joint 'c))))
+
+(define (rect-demo-3)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-length-equal (m:bar 'a 'd)
+                     (m:bar 'b 'c))
+   (m:c-right-angle (m:joint 'd))
+   (m:c-right-angle (m:joint 'b))))

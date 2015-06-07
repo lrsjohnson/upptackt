@@ -173,14 +173,17 @@
               (else (m:make-region-contradiction (list ray1 ray2))))
         (let ((ray1-p2 (m:p2-on-ray ray1))
               (ray2-p2 (m:p2-on-ray ray2)))
-          (let ((intersection
+          (let ((intersections
                  (intersect-lines-by-points endpoint-1 ray1-p2
                                             endpoint-2 ray2-p2)))
-            (if (and (m:on-ray? intersection ray1)
-                     (m:on-ray? intersection ray2))
-                (m:make-point-set (list intersection))
-                ;; TODO: Determine error value
-                (m:make-region-contradiction (list ray1 ray2))))))))
+            (if (not (= 1 (length intersections)))
+                (m:make-region-contradiction (list ray1 ray2))
+                (let ((intersection (car intersections)))
+                 (if (and (m:on-ray? intersection ray1)
+                          (m:on-ray? intersection ray2))
+                     (m:make-point-set (list intersection))
+                     ;; TODO: Determine error value
+                     (m:make-region-contradiction (list ray1 ray2))))))))))
 
 (define (m:intersect-arcs arc1 arc2)
   (let ((c1 (m:arc-center arc1))
@@ -256,6 +259,29 @@
 
 (define (m:intersect-region-with-point-set region ps)
   (m:intersect-point-set-with-region ps region))
+
+;;;;;;;;;;;;;;;;;;;;; Translating regions by Vec ;;;;;;;;;;;;;;;;;;;;;
+
+(define m:translate-region (make-generic-operation 2 'm:translate-region))
+
+(define (m:translate-point-set ps vec)
+  (m:make-point-set
+   (map (lambda (p) (add-to-point p vec))
+        (m:point-set-points ps))))
+(defhandler m:translate-region m:translate-point-set m:point-set? vec?)
+
+(define (m:translate-ray ray vec)
+  (m:make-ray
+   (add-to-point (m:ray-endpoint ray) vec)
+   (m:ray-direction ray)))
+(defhandler m:translate-region m:translate-ray m:ray? vec?)
+
+(define (m:translate-arc arc vec)
+  (m:make-arc
+   (add-to-point (m:arc-center arc) vec)
+   (m:arc-radius arc)
+   (m:arc-dir-interval arc)))
+(defhandler m:translate-region m:translate-arc m:arc? vec?)
 
 ;;;;;;;;;;;;;;;;; Generic Intersect Regions "Merge" ;;;;;;;;;;;;;;;;;;
 
