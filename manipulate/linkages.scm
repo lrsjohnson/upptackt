@@ -840,10 +840,13 @@
 (define (m:random-theta-for-joint joint)
   (let ((theta-range (m:examine-cell (m:joint-theta joint))))
     (if (interval? theta-range)
-        (begin
-          (safe-internal-rand-range
-           (interval-low theta-range)
-           (interval-high theta-range)))
+        (if (close-enuf? (interval-low theta-range)
+                         (interval-high theta-range))
+            (interval-low theta-range)
+            (begin
+              (safe-internal-rand-range
+               (interval-low theta-range)
+               (interval-high theta-range))))
         (error "Attempting to specify theta for joint"))))
 
 (define (m:random-bar-length)

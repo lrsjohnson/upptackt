@@ -233,7 +233,7 @@
     (run)
     (cond ((m:mechanism-contradictory? m)
            (m:draw-mechanism m c)
-           (error "Contradictory mechanism built"))
+           #f)
           ((not (m:mechanism-fully-specified? m))
            (if (m:specify-something m)
                (lp)
