@@ -147,3 +147,9 @@
                   (add-to-equivalence-classes remaining-classes
                                               element
                                               memp))))))
+
+(define (all-subsets elements)
+  (append-map
+   (lambda (n)
+     (all-n-tuples n elements))
+   (iota (+ (length elements) 1))))

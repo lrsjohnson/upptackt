@@ -67,5 +67,5 @@
     (m:build-mechanism m)
     (m:solve-mechanism m)
     (let ((f (m:mechanism->figure m)))
-      (draw-figure f c)
+      (show-figure f)
       f)))

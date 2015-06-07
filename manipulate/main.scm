@@ -107,7 +107,6 @@
    (m:c-length-equal (m:bar 'c 'd)
                      (m:bar 'a 'd))))
 
-;;; Never works:
 (define (parallelogram-by-angles)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c 'd)
