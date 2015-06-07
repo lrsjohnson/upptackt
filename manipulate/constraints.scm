@@ -89,6 +89,19 @@
                       (ce:multi+ (map m:joint-theta other-joints)))
                 (length equal-joints))))))))
 
+(define (n-gon-angle-sum n)
+  (* n (- pi (/ (* 2 pi) n))))
+
+(define (m:polygon-sum-slice all-joint-ids)
+  (m:make-slice
+   (m:make-constraint
+    'm:joint-sum
+    all-joint-ids
+    (lambda (m)
+      (let ((all-joints (m:multi-lookup m all-joint-ids))
+            (total-sum (n-gon-angle-sum (length all-joint-ids))))
+        (m:joints-constrained-in-sum all-joints total-sum))))))
+
 ;;;;;;;;;;;;; Applying and Marking Constrained Elements ;;;;;;;;;;;;;;
 
 (define (m:constrained? element)
@@ -115,6 +128,19 @@
             (m:constraint-args constraint))
   ((m:constraint-procedure constraint) m))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Slices ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Slices are constraints that are processed once the normal
+;;; constraints have been aplied.
+
+(define-record-type <m:slice>
+  (m:make-slice constraint)
+  m:slice?
+  (constraint m:slice-constraint))
+
+(define (m:apply-slice m slice)
+  (m:apply-constraint m (m:slice-constraint slice)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Propagator Utils ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (ce:multi+ cells)
@@ -123,3 +149,51 @@
         (else
          (ce:+ (car cells)
                (ce:multi+ (cdr cells))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;; Slices (for sums) ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (m:equal-values-in-sum equal-cells all-cells total-sum)
+  (let ((other-values (set-difference all-cells equal-cells eq?)))
+    (c:id (car equal-cells)
+          (ce:/
+           (ce:- total-sum
+                 (ce:multi+ other-values))
+           (length equal-cells)))))
+
+(define (m:sum-slice elements cell-transformer equality-predicate total-sum)
+  (let ((equivalence-classes
+         (partition-into-equivalence-classes elements equality-predicate))
+        (all-cells (map cell-transformer elements)))
+    (cons
+     (c:id total-sum
+           (ce:multi+ all-cells))
+     (filter identity
+             (map (lambda (equiv-class)
+                    (and (> (length equiv-class) 1)
+                         (begin
+                           (m:equal-values-in-sum
+                            (map cell-transformer equiv-class)
+                            all-cells
+                            total-sum))))
+                  equivalence-classes)))))
+
+(define (angle-equal-constraint? c)
+  (eq? (m:constraint-type c) 'm:c-angle-equal))
+
+(define (m:joints-constrained-equal-to-one-another? joint-1 joint-2)
+  (let ((joint-1-constraints
+         (filter angle-equal-constraint?
+                 (m:element-constraints joint-1)))
+        (joint-2-constraints
+         (filter angle-equal-constraint?
+                 (m:element-constraints joint-2))))
+    (not (null? (set-intersection joint-1-constraints
+                                  joint-2-constraints
+                                  (member-procedure eq?))))))
+
+(define (m:joints-constrained-in-sum all-joints total-sum)
+  (m:sum-slice
+   all-joints
+   m:joint-theta
+   m:joints-constrained-equal-to-one-another?
+   total-sum))

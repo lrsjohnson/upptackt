@@ -69,6 +69,12 @@
     (list (m:joint 'a) (m:joint 'b) (m:joint 'c))
     pi)))
 
+(define (isoceles-triangle-by-angles)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c)
+   (m:c-angle-equal (m:joint 'a)
+                    (m:joint 'b))))
+
 ;;; Often works:
 (define (arbitrary-quadrilateral)
   (m:mechanism
@@ -108,16 +114,7 @@
    (m:c-angle-equal (m:joint 'a)
                     (m:joint 'c))
    (m:c-angle-equal (m:joint 'b)
-                    (m:joint 'd))
-
-   (m:equal-joints-in-sum
-    (list (m:joint 'a) (m:joint 'c))
-    (list (m:joint 'a) (m:joint 'b) (m:joint 'c) (m:joint 'd))
-    (* 2 pi))
-   (m:equal-joints-in-sum
-    (list (m:joint 'b) (m:joint 'd))
-    (list (m:joint 'a) (m:joint 'b) (m:joint 'c) (m:joint 'd))
-    (* 2 pi))))
+                    (m:joint 'd))))
 
 (define *m*)
 (define (m:run-mechanism mechanism-proc)

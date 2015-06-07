@@ -30,5 +30,8 @@
                   (m:make-named-joint p1-name vertex-name p2-name))
                 (cddr extended-point-names)
                 (cdr extended-point-names)
-                point-names)))
-      (append bars joints))))
+                point-names))
+          (polygon-sum-slice))
+      (append bars joints
+              (list (m:polygon-sum-slice
+                     (map m:joint-name joints)))))))

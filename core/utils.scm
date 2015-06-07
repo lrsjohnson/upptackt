@@ -61,6 +61,17 @@
           (lp (delp e set1)
               (cdr set2))))))
 
+(define (set-intersection set1 set2 member-predicate)
+  (let lp ((set1 (dedupe member-predicate set1))
+           (intersection '()))
+    (if (null? set1)
+        intersection
+        (let ((e (car set1)))
+          (lp (cdr set1)
+              (if (member-predicate e set2)
+                  (cons e intersection)
+                  intersection))))))
+
 (define (eq-append! element key val)
   (eq-put! element key
            (cons val

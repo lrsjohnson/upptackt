@@ -15,29 +15,31 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Mechanism Structure ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <m:mechanism>
-    (%m:make-mechanism bars joints constraints
+    (%m:make-mechanism bars joints constraints slices
                        bar-table joint-table joint-by-vertex-table)
     m:mechanism?
     (bars m:mechanism-bars)
     (joints m:mechanism-joints)
     (constraints m:mechanism-constraints)
+    (slices m:mechanism-slices)
     (bar-table m:mechanism-bar-table)
     (joint-table m:mechanism-joint-table)
     (joint-by-vertex-table m:mechanism-joint-by-vertex-table))
 
-(define (m:make-mechanism bars joints constraints)
+(define (m:make-mechanism bars joints constraints slices)
   (let ((bar-table (m:make-bars-by-name-table bars))
         (joint-table (m:make-joints-by-name-table joints))
         (joint-by-vertex-table (m:make-joints-by-vertex-name-table joints)))
-    (%m:make-mechanism bars joints constraints
+    (%m:make-mechanism bars joints constraints slices
                        bar-table joint-table joint-by-vertex-table)))
 
 (define (m:mechanism . args)
   (let ((elements (flatten args)))
     (let ((bars (m:dedupe-bars (filter m:bar? elements)))
           (joints (filter m:joint? elements))
-          (constraints (filter m:constraint? elements)))
-      (m:make-mechanism bars joints constraints))))
+          (constraints (filter m:constraint? elements))
+          (slices (filter m:slice? elements)))
+      (m:make-mechanism bars joints constraints slices))))
 
 (define (m:print-mechanism m)
   `((bars ,(map print (m:mechanism-bars m)))
@@ -196,6 +198,11 @@
               (m:apply-constraint m c))
             (m:mechanism-constraints m)))
 
+(define (m:apply-slices m)
+  (for-each (lambda (s)
+              (m:apply-slice m s))
+            (m:mechanism-slices m)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Build ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (m:identify-vertices m)
@@ -211,7 +218,8 @@
   (m:identify-vertices m)
   (m:assemble-linkages (m:mechanism-bars m)
                        (m:mechanism-joints m))
-  (m:apply-mechanism-constraints m))
+  (m:apply-mechanism-constraints m)
+  (m:apply-slices m))
 
 (define (m:initialize-solve)
   (set! *any-dir-specified* #f)
