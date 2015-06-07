@@ -138,8 +138,7 @@
            (save-results (print analysis-results) analysis-data))
          )))
     (display "--- Results ---\n")
-    (print-analysis-results analysis-data)
-    ))
+    (print-analysis-results analysis-data)))
 
 (define interesting-figures
   (list

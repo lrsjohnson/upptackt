@@ -19,4 +19,8 @@
 
 (define (element-name element)
   (or (eq-get element 'name)
-      '*unnamed*))
+      (generic-element-name element)))
+
+(define generic-element-name
+  (make-generic-operation 1 'generic-element-name
+                          (lambda (el) 'unnamed)))

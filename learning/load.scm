@@ -3,4 +3,5 @@
           '("definitions"
             "student"
             "conjecture"
+            "simplifier"
             "core-knowledge"))

@@ -37,9 +37,6 @@
 
 (define (make-segment p1 p2)
   (let ((seg (%segment p1 p2)))
-    (set-element-name!
-     seg
-     (symbol '*seg*: (element-name p1) '- (element-name p2)))
     (with-dependency
      `(segment ,p1 ,p2)
      seg)))
@@ -53,6 +50,12 @@
  (component-procedure-from-getters segment-endpoint-1
                                    segment-endpoint-2)
  segment?)
+
+(defhandler generic-element-name
+  (lambda (seg)
+    `(segment ,(element-name (segment-endpoint-1 seg))
+              ,(element-name (segment-endpoint-2 seg))))
+  segment?)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Lines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
