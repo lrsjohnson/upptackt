@@ -27,7 +27,7 @@
 
 (define (build-predicate-for-definition s def)
   (let ((classifications (definition-classifications def))
-        (observations (definition-observations def)))
+        (conjectures (definition-conjectures def)))
     (let ((classification-predicate
            (lambda (obj)
              (every
@@ -41,8 +41,8 @@
               classifications))))
       (lambda args
         (and (apply classification-predicate args)
-             (every (lambda (o) (satisfies-observation o args))
-                    observations))))))
+             (every (lambda (o) (satisfies-conjecture o args))
+                    conjectures))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -122,7 +122,10 @@
 (define (show-element element)
   (if (polygon? element)
       (name-polygon element))
-  (draw-figure (figure element) c))
+  (show-figure (figure element)))
+
+(define (show-figure figure)
+  (draw-figure figure c))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Initializing Student ;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -140,19 +143,20 @@
           (let* ((base-terms (examine example))
                  (simple-base-terms (simplify-base-terms base-terms))
                  (base-definitions (map lookup base-terms))
-                 (base-observations (flatten (map definition-observations
-                                                  base-definitions)))
+                 (base-conjectures (flatten (map definition-conjectures
+                                                 base-definitions)))
                  (fig (figure (with-dependency '<premise> example)))
                  (observations (analyze-figure fig))
-                 (simplified-observations
-                  (simplify-observations observations base-observations)))
+                 (conjectures (map conjecture-from-observation observations))
+                 (simplified-conjectures
+                  (simplify-conjectures conjectures base-conjectures)))
             (run-figure (lambda () (figure (object-generator))))
-            (pprint observations)
+            (pprint conjectures)
             (let ((new-def
                    (make-restrictions-definition
                     term
                     simple-base-terms
-                    simplified-observations
+                    simplified-conjectures
                     object-generator)))
               (add-definition! *current-student* new-def)
               'done))))))

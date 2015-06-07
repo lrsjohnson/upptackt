@@ -27,23 +27,24 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Built-in Definitions ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (polygon-n-sides-observation n)
-  (make-observation
-   '()
-   (make-polygon-n-sides-relationship n)
-   (list (with-source car '<premise>))))
+(define (polygon-n-sides-conjecture n)
+  (make-conjecture
+   '(polygon)
+   '(identity)
+   (list car)
+   (make-polygon-n-sides-relationship n)))
 
 (define built-in-definitions
   (list
    ;; Triangle
    (make-restrictions-definition
     'triangle '(polygon)
-    (list (polygon-n-sides-observation 3))
+    (list (polygon-n-sides-conjecture 3))
     random-triangle)
    ;; Quadrilateral
    (make-restrictions-definition
     'quadrilateral '(polygon)
-    (list (polygon-n-sides-observation 4))
+    (list (polygon-n-sides-conjecture 4))
     random-quadrilateral)
 
    ;; Isoceles Triangle!

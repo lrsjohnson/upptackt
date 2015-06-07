@@ -13,11 +13,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Basic Structure ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <definition>
-  (%make-definition name classifications observations predicate generator)
+  (%make-definition name classifications conjectures predicate generator)
   definition?
   (name definition-name)
   (classifications definition-classifications)
-  (observations definition-observations)
+  (conjectures definition-conjectures)
   (predicate definition-predicate set-definition-predicate!)
   (generator definition-generator))
 
@@ -31,15 +31,15 @@
 ;;;;;;;;;;;;;;;;;;;;;; Higher-order Definitions ;;;;;;;;;;;;;;;;;;;;;;
 
 (define (make-restrictions-definition
-         name classifications observations generator)
-  (%make-definition name classifications observations #f generator))
+         name classifications conjectures generator)
+  (%make-definition name classifications conjectures #f generator))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Formatting ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (print-definition def)
   (list (definition-name def)
         (definition-classifications def)
-        (map print (definition-observations def))))
+        (map print (definition-conjectures def))))
 
 (defhandler print print-definition
   definition?)

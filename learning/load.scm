@@ -2,4 +2,5 @@
 (for-each (lambda (f) (load f))
           '("definitions"
             "student"
+            "conjecture"
             "core-knowledge"))
