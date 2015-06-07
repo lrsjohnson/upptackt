@@ -55,7 +55,7 @@
 
 (define (extract-relationship elements relationship)
   (map (lambda (tuple)
-         (make-observation '() relationship tuple))
+         (make-observation relationship tuple))
        (report-n-wise
         (relationship-arity relationship)
         (relationship-predicate relationship)
