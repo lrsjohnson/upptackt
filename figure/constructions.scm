@@ -116,9 +116,10 @@
 ;;;;;;;;;;;;;;;;;;;;; Concurrent Linear Elements ;;;;;;;;;;;;;;;;;;;;;
 
 (define (concurrent? l1 l2 l3)
-  (let ((i-point (intersect-linear-elements l1 l2)))
+  (let ((i-point (intersect-linear-elements-no-endpoints l1 l2)))
     (and i-point
-         (on-element? i-point l3))))
+         (on-element? i-point l3)
+         (not (element-endpoint? i-point l3)))))
 
 (define (concentric? p1 p2 p3 p4)
   (and (not (point-equal? p1 p2))

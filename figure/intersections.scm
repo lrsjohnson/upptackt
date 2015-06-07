@@ -163,6 +163,13 @@
               #f
               i)))))
 
+(define (intersect-linear-elements-no-endpoints el-1 el-2)
+  (let ((i (intersect-linear-elements el-1 el-2)))
+    (and (or i
+             (element-endpoint? i el-1)
+             (element-endpoint? i el-2))
+         i)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; On Elements ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define on-element? (make-generic-operation 2 'on-element?))
@@ -170,3 +177,17 @@
 (defhandler on-element? on-segment? point? segment?)
 (defhandler on-element? on-line? point? line?)
 (defhandler on-element? on-ray? point? ray?)
+
+;;;;;;;;;;;;;;;;;;;;;;; Element Endpoint Test ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define element-endpoint? (make-generic-operation 2 'on-endpoint?
+                                                  (lambda (p el) #f)))
+
+(define (segment-endpoint? p seg)
+  (or (point-equal? p (segment-endpoint-1 seg))
+      (point-equal? p (segment-endpoint-2 seg))))
+(defhandler element-endpoint? segment-endpoint? point? segment?)
+
+(define (ray-endpoint? p ray)
+  (point-equal? p (ray-endpoint seg)))
+(defhandler element-endpoint? ray-endpoint? point? ray?)
