@@ -1,0 +1,83 @@
+\chapter{Demonstration}
+\label{chap:demo}
+
+My system uses this idea of manipulating diagrams ``in the mind's
+eye'' to explore and discover geometry theorems. Before discussing
+some of the internal representations and modules, I will briefly
+describe the goals of the system to provide direction and context to
+understand the components.
+
+\section{Imperative Figure Construction}
+
+\begin{tcblisting}{colback=white,colframe=black!75!black,
+listing only,
+leftrule=3pt,
+listing options={style=tcblatex,
+basicstyle=\footnotesize\ttfamily}}
+(define (triangle-with-pep-bisectors)
+  (let-geo* ((a (make-point 0 0))
+             (b (make-point 1.5 0))
+             (c (make-point 1 1))
+             (t (polygon-from-points a b c))
+             (pb1 (perpendicular-bisector (make-segment a b)))
+             (pb2 (perpendicular-bisector (make-segment b c)))
+             (pb3 (perpendicular-bisector (make-segment c a))))
+    (figure t pb1 pb2 pb3)))
+\end{tcblisting}
+
+\begin{tcblisting}{colback=white,colframe=black!75!black,
+listing and comment, righthand width=5cm,
+leftrule=3pt,
+listing options={style=tcblatex,numbers=none,
+basicstyle=\footnotesize\ttfamily},
+tcbimage comment={images/demo-tri-pb-fig.png},
+comment style={size=fbox,colframe=white,colback=white!50,height=8cm},
+every listing line*={\textcolor{black}{\small\ttfamily\bfseries => }}}
+(show-figure (triangle-with-perp-bisectors))
+\end{tcblisting}
+
+
+
+\begin{tcblisting}{colback=white,colframe=black!75!black,
+listing only, righthand width=5cm,
+leftrule=3pt,
+fontlower=\ttfamily,
+listing options={style=tcblatex,numbers=none,
+basicstyle=\footnotesize\ttfamily},
+comment style={size=fbox,colframe=white,colback=white!50,height=8cm}}
+=> (show-figure (triangle-with-perp-bisectors))
+
+((concurrent #[line 22] #[line 20] #[line 18])
+ (perpendicular #[line 22] #[segment 21])
+ (perpendicular #[line 20] #[segment 19])
+ (perpendicular #[line 18] #[segment 17]))
+\end{tcblisting}
+
+
+
+\section{Declarative Constraint Solving}
+
+\begin{lstlisting}[caption=Getting labels]
+(define (arbitrary-triangle)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c)))
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Constraint Solving for Isoceles Triangle]
+(define (isoceles-triangle)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c)
+   (m:c-length-equal (m:bar 'a 'b)
+                     (m:bar 'b 'c))))
+\end{lstlisting}
+
+
+\begin{lstlisting}[caption=Constraint Solving for Isoceles Triangle]
+(define (parallelogram-by-angles)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-angle-equal (m:joint 'a)
+                    (m:joint 'c))
+   (m:c-angle-equal (m:joint 'b)
+                    (m:joint 'd))))
+\end{lstlisting}

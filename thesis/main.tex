@@ -71,6 +71,15 @@
   literate=*{`}{{`}}{1},
   showstringspaces=false,breaklines}
 
+\usepackage{tcolorbox}
+\tcbuselibrary{most}
+
+\newtcblisting{scm-repl}{colback=white,colframe=black!75!black,
+listing only,listing options={style=tcblatex,numbers=none,
+basicstyle=\footnotesize\ttfamily}, hbox,
+tcbimage comment={example-image-a.pdf},
+every listing line*={\textcolor{black}{\small\ttfamily\bfseries => }}}
+
 %% End Code Listings
 
 %% This bit allows you to either specify only the files which you wish to
