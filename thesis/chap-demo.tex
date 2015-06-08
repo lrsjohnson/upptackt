@@ -9,11 +9,7 @@ understand the components.
 
 \section{Imperative Figure Construction}
 
-\begin{tcblisting}{colback=white,colframe=black!75!black,
-listing only,
-leftrule=3pt,
-listing options={style=tcblatex,
-basicstyle=\footnotesize\ttfamily}}
+\begin{code-example}{Basic Example}
 (define (triangle-with-pep-bisectors)
   (let-geo* ((a (make-point 0 0))
              (b (make-point 1.5 0))
@@ -23,56 +19,63 @@ basicstyle=\footnotesize\ttfamily}}
              (pb2 (perpendicular-bisector (make-segment b c)))
              (pb3 (perpendicular-bisector (make-segment c a))))
     (figure t pb1 pb2 pb3)))
-\end{tcblisting}
 
-\begin{tcblisting}{colback=white,colframe=black!75!black,
-listing and comment, righthand width=5cm,
-leftrule=3pt,
-listing options={style=tcblatex,numbers=none,
-basicstyle=\footnotesize\ttfamily},
-tcbimage comment={images/demo-tri-pb-fig.png},
-comment style={size=fbox,colframe=white,colback=white!50,height=8cm},
-every listing line*={\textcolor{black}{\small\ttfamily\bfseries => }}}
-(show-figure (triangle-with-perp-bisectors))
-\end{tcblisting}
+(define (triangle-with-pep-bisectors)
+  (let-geo* ((a (make-point 0 0))
+             (b (make-point 1.5 0))
+             (c (make-point 1 1))
+             (t (polygon-from-points a b c))
+             (pb1 (perpendicular-bisector (make-segment a b)))
+             (pb2 (perpendicular-bisector (make-segment b c)))
+             (pb3 (perpendicular-bisector (make-segment c a))))
+    (figure t pb1 pb2 pb3)))
+\end{code-example}
 
+\begin{img-example}{Basic Example Image}{images/demo-tri-pb-fig.png}
+=> (show-figure (triangle-with-perp-bisectors))
+\end{img-example}
 
-
-\begin{tcblisting}{colback=white,colframe=black!75!black,
-listing only, righthand width=5cm,
-leftrule=3pt,
-fontlower=\ttfamily,
-listing options={style=tcblatex,numbers=none,
-basicstyle=\footnotesize\ttfamily},
-comment style={size=fbox,colframe=white,colback=white!50,height=8cm}}
+\begin{repl-example}{Simple Analysis}
 => (show-figure (triangle-with-perp-bisectors))
 
 ((concurrent #[line 22] #[line 20] #[line 18])
  (perpendicular #[line 22] #[segment 21])
  (perpendicular #[line 20] #[segment 19])
  (perpendicular #[line 18] #[segment 17]))
-\end{tcblisting}
+\end{repl-example}
 
 
 
 \section{Declarative Constraint Solving}
 
-\begin{lstlisting}[caption=Getting labels]
+\begin{img-example}{Arbitrary Triangle}{images/demo-arbitrary-tri.png}
+Text Goes Here
+\end{img-example}
+\iffalse
+\begin{code-example}{Demo}
 (define (arbitrary-triangle)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c)))
-\end{lstlisting}
 
-\begin{lstlisting}[caption=Constraint Solving for Isoceles Triangle]
+=> (run-mechanism (arbitrary-triangle))
+
+(specifying-joint m:joint:c:b:a .41203408293499)
+(initializing-angle m:joint:c:b:a-dir-1 (direction 3.888926311421853))
+(specifying-joint m:joint:a:c:b 1.8745808264593105)
+(initializing-point m:bar:c:a-p1 (0 0))
+(specifying-bar m:bar:c:a .4027149730292784)
+\end{code-example}
+
+\begin{repl-example}{Constraint Solving for Isoceles Triangle}
 (define (isoceles-triangle)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c)
    (m:c-length-equal (m:bar 'a 'b)
                      (m:bar 'b 'c))))
-\end{lstlisting}
+\end{code-example}
 
 
-\begin{lstlisting}[caption=Constraint Solving for Isoceles Triangle]
+\begin{code-example}{Constraint Solving for Isoceles Triangle}
 (define (parallelogram-by-angles)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c 'd)
@@ -80,4 +83,5 @@ comment style={size=fbox,colframe=white,colback=white!50,height=8cm}}
                     (m:joint 'c))
    (m:c-angle-equal (m:joint 'b)
                     (m:joint 'd))))
-\end{lstlisting}
+\end{code-example}
+\fi

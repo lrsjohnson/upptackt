@@ -74,11 +74,39 @@
 \usepackage{tcolorbox}
 \tcbuselibrary{most}
 
-\newtcblisting{scm-repl}{colback=white,colframe=black!75!black,
-listing only,listing options={style=tcblatex,numbers=none,
-basicstyle=\footnotesize\ttfamily}, hbox,
-tcbimage comment={example-image-a.pdf},
-every listing line*={\textcolor{black}{\small\ttfamily\bfseries => }}}
+%% Actual Code Listings:
+
+
+\newtcblisting[auto counter,number within=chapter]{code-example}[2][]{
+listing only, breakable,
+leftrule=3pt,
+code=\linespread{1},
+listing options={style=tcblatex, basicstyle=\footnotesize\ttfamily},
+fonttitle=\bfseries,
+title=Code Example \thetcbcounter: #2,#1}
+
+\newtcblisting[use counter from=code-example]{repl-example}[2][]{
+listing only, breakable,
+leftrule=3pt,
+code=\linespread{1},
+listing options={style=tcblatex, basicstyle=\footnotesize\ttfamily,
+numbers=none},
+fonttitle=\bfseries,
+title=Interaction Example \thetcbcounter: #2,#1}
+
+\newtcblisting[use counter from=code-example]{img-example}[3][]{
+listing and comment, righthand width=5cm, breakable,
+leftrule=3pt,
+code=\linespread{1},
+listing options={style=tcblatex,numbers=none,
+basicstyle=\footnotesize\ttfamily},
+tcbimage comment={#3},
+fonttitle=\bfseries,
+comment style={size=fbox,frame hidden,height=8cm},
+%every listing line*={\textcolor{black}{\small\ttfamily\bfseries => }},
+title=Graphics Example \thetcbcounter: #2,#1
+}
+
 
 %% End Code Listings
 
