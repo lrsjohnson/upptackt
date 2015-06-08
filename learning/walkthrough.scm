@@ -24,6 +24,8 @@
 
 ;;;;;;;;;;;; Can idenitfy whether elements satisfy these ;;;;;;;;;;;;;
 
+(show-element (random-parallelogram))
+
 (is-a? 'polygon (random-square))
 
 (is-a? 'quadrilateral (random-square))

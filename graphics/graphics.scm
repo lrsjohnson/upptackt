@@ -1,3 +1,7 @@
+;;; graphics.scm -- Graphics Commands
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Main Interface ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (draw-figure figure canvas)
   (set-coordinates-for-figure figure canvas)
   (clear-canvas canvas)
@@ -98,7 +102,7 @@
                         (point-y center)
                         radius)))
 
-(define *angle-mark-radius* 0.1)
+(define *angle-mark-radius* 0.05)
 (define (draw-angle canvas a)
   (let* ((vertex (angle-vertex a))
          (d1 (angle-arm-1 a))

@@ -78,26 +78,17 @@
              (cir (circle-from-points e f)))
     (figure a b c d l1 l2 e f cir)))
 
-(define (angle-test)
+(define (incircle-circumcircle)
   (let-geo* (((t (a b c)) (random-triangle))
-             (a-1 (smallest-angle (angle-from-points a b c)))
-             (a-2 (smallest-angle (angle-from-points b c a)))
-             (a-3 (smallest-angle (angle-from-points c a b)))
-             (l1 (angle-bisector a-1))
-             (l2 (angle-bisector a-2))
-             (l3 (angle-bisector a-3))
-             (center-point
-              (intersect-lines (ray->line l1)
-                               (ray->line l2)))
-             (radius-line
-              (perpendicular (line-from-points b c)
-                             center-point))
-             (radius-point
-              (intersect-lines radius-line
-                               (line-from-points b c)))
-             (cir (circle-from-points
-                   center-point
-                   radius-point))
+             (((a-1 a-2 a-3)) (polygon-angles t))
+             (ab1 (angle-bisector a-1))
+             (ab2 (angle-bisector a-2))
+             ((radius-segment (center-point radius-point))
+              (perpendicular-to (make-segment a b)
+                                (intersect-linear-elements ab1 ab2)))
+             (incircle (circle-from-points
+                        center-point
+                        radius-point))
              (pb1 (perpendicular-bisector
                    (make-segment a b)))
              (pb2 (perpendicular-bisector
@@ -106,10 +97,11 @@
              (circum-cir (circle-from-points
                           pb-center
                           a)))
-    (figure t cir a-1 a-2 a-3
+    (figure t a-1 a-2 a-3
             pb-center
-            circum-cir
-            center-point)))
+            radius-segment
+            incircle
+            circum-cir)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Run commands

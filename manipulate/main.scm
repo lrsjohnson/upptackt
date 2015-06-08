@@ -97,6 +97,14 @@
    (m:c-length-equal (m:bar 'c 'd)
                      (m:bar 'd 'a))))
 
+(define (kite-by-angles-sides)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-length-equal (m:bar 'a 'b)
+                     (m:bar 'a 'd))
+   (m:c-angle-equal (m:joint 'b)
+                    (m:joint 'd))))
+
 (define (rhombus-by-sides)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c 'd)
@@ -121,11 +129,12 @@
   (let ((m (mechanism-proc)))
     (set! *m* m)
     (m:build-mechanism m)
-    (m:solve-mechanism m)
-    (let ((f (m:mechanism->figure m)))
-      (draw-figure f c)
-      ;;(pp (analyze-figure f))
-      )))
+    (if (not (m:solve-mechanism m))
+        (pp "Unsolvable!")
+        (let ((f (m:mechanism->figure m)))
+          (draw-figure f c)
+          ;;(pp (analyze-figure f))
+          ))))
 
 #|
  (let lp ()

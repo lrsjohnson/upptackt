@@ -348,3 +348,14 @@
     (with-dependency
      (make-random-dependency 'random-rhombus)
      (polygon-from-points p1 p2 p3 p4))))
+
+(define (random-trapezoid)
+  (let* ((r1 (random-ray))
+         (r2 (translate-randomly r1))
+         (p1 (ray-endpoint r1))
+         (p2 (random-point-on-ray r1))
+         (p3 (random-point-on-ray r2))
+         (p4 (ray-endpoint r2)))
+    (with-dependency
+     (make-random-dependency 'random-trapezoid)
+     (polygon-from-points p1 p2 p3 p4))))

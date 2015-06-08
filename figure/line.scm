@@ -33,6 +33,10 @@
    (segment-endpoint-2 segment)
    `(segment-endpoint-2 segment)))
 
+(defhandler print
+  element-name
+  segment?)
+
 ;;; Alternate, helper constructors
 
 (define (make-segment p1 p2)
@@ -62,8 +66,12 @@
 (define-record-type <line>
   (%make-line point dir)
   line?
-  (point line-point)
-  (dir line-direction)) ;; Point on the line
+  (point line-point) ;; Point on the line
+  (dir line-direction))
+
+(defhandler print
+  element-name
+  line?)
 
 (define make-line %make-line)
 

@@ -42,6 +42,7 @@
           (conjecture-construction-procedures conj)))
         (rel (conjecture-relationship conj)))
     (or (relationship-holds rel new-args)
+        #f
         (begin (if *explain*
                    (pprint `(failed-conjecture ,conj)))
                #f))))

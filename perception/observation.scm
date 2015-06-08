@@ -23,4 +23,5 @@
   (cons
    (print (observation-relationship obs))
    (map print (observation-args obs))))
+
 (defhandler print print-observation observation?)

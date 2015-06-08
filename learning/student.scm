@@ -22,7 +22,6 @@
 (define (make-student)
   (%make-student (make-key-weak-eq-hash-table)))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;; Building Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (build-predicate-for-definition s def)
@@ -65,15 +64,17 @@
 (define *current-student* #f)
 
 (define (student-lookup s term)
-  (lookup-definition s term))
+  (or (lookup-definition s term)
+      *unknown*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Query ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (lookup term)
-  (let ((result (student-lookup *current-student* term)))
-    (if (not result)
-        'unknown
-        result)))
+  (student-lookup *current-student* term))
+
+(define *unknown* 'unknown)
+(define (unknown? x)
+  (eq? x *unknown*))
 
 (define (what-is term)
   (pprint (lookup term)))
@@ -81,32 +82,35 @@
 (define *explain* #f)
 
 (define (is-a? term obj)
-  (show-element obj)
   (let ((def (lookup term)))
-    (if (eq? def 'unknown)
+    (if (unknown? def)
         `(,term unknown)
         (fluid-let ((*explain* #t))
           ((definition-predicate def) obj)))))
 
 (define (internal-is-a? term obj)
   (let ((def (lookup term)))
-    (if (eq? def 'unknown)
+    (if (unknown? def)
         `(,term unknown)
         ((definition-predicate def) obj))))
 
 (define (show-me term)
   (let ((def (lookup term)))
-    (if (eq? def 'unknown)
+    (if (unknown? def)
         `(,term unknown)
         (show-element ((definition-generator def))))))
 
 (define (examine object)
   (show-element object)
-  (let ((base-terms (filter (lambda (term)
-                              (internal-is-a? term object))
-                            (hash-table/key-list
-                             (student-definitions *current-student*)))))
-    base-terms))
+  (let ((applicable-terms
+         (filter (lambda (term)
+                   (internal-is-a? term object))
+                 (all-known-terms))))
+    applicable-terms))
+
+(define (all-known-terms)
+  (hash-table/key-list
+   (student-definitions *current-student*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;; Simplifying base terms ;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -126,6 +130,15 @@
 
 (define (show-figure figure)
   (draw-figure figure c))
+
+;;;;;;;;;;;;;;;;;;;;;;;;; Analyzing Elements ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (analyze-element element)
+  (if (polygon? element)
+      (name-polygon element))
+  (let ((fig (figure element)))
+    (show-figure fig)
+    (analyze-figure fig)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Initializing Student ;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -150,7 +163,7 @@
                  (conjectures (map conjecture-from-observation observations))
                  (simplified-conjectures
                   (simplify-conjectures conjectures base-conjectures)))
-            (run-figure (lambda () (figure (object-generator))))
+            (run-figure (lambda () (figure example)))
             (pprint conjectures)
             (let ((new-def
                    (make-restrictions-definition

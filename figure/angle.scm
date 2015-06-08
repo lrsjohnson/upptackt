@@ -33,6 +33,15 @@
   ray-from-arm-2)
  angle?)
 
+(defhandler generic-element-name
+  (lambda (angle)
+    `(angle ,(element-name (angle-vertex angle))))
+  angle?)
+
+(defhandler print
+  element-name
+  angle?)
+
 ;;;;;;;;;;;;;;;;;;;;; Transformations on Angles ;;;;;;;;;;;;;;;;;;;;;;
 
 (define (reverse-angle a)

@@ -30,7 +30,7 @@
 (define (polygon-n-sides-conjecture n)
   (make-conjecture
    '(polygon)
-   '(identity)
+   '(<premise>)
    (list car)
    (make-polygon-n-sides-relationship n)))
 

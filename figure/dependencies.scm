@@ -111,3 +111,11 @@
   (lambda (l)
     (map element-dependencies->list l))
   list?)
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;; Formatting Dependencies ;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (format-dependencies object)
+  (element-dependencies->list object))

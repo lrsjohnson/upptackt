@@ -16,11 +16,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Main Interface ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (analyze-figure figure)
+(define (all-observations figure)
   (analyze figure))
 
+(define (analyze-figure figure)
+  (all-observations figure))
+
 ;;; Given a figure, report what's interesting
-(define (analyze figure)
+(define (all-observations figure)
   (number-figure-random-dependencies! figure)
   (let* ((points (figure-points figure))
          (angles (figure-angles figure))

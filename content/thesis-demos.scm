@@ -4,7 +4,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Basic Figure Example ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (triangle-with-pep-bisectors)
+(define (triangle-with-perp-bisectors)
   (let-geo* ((a (make-point 0 0))
              (b (make-point 1.5 0))
              (c (make-point 1 1))
@@ -21,3 +21,38 @@
     (figure s pb
             (make-segment a p)
             (make-segment b p))))
+
+(define (incircle-circumcircle)
+  (let-geo* (((t (a b c)) (random-triangle))
+             (((a-1 a-2 a-3)) (polygon-angles t))
+             (ab1 (angle-bisector a-1))
+             (ab2 (angle-bisector a-2))
+             ((radius-segment (center-point radius-point))
+              (perpendicular-to (make-segment a b)
+                                (intersect-linear-elements ab1 ab2)))
+             (incircle (circle-from-points
+                        center-point
+                        radius-point))
+             (pb1 (perpendicular-bisector
+                   (make-segment a b)))
+             (pb2 (perpendicular-bisector
+                   (make-segment b c)))
+             (pb-center (intersect-lines pb1 pb2))
+             (circum-cir (circle-from-points
+                          pb-center
+                          a)))
+    (figure t a-1 a-2 a-3
+            pb-center
+            radius-segment
+            incircle
+            circum-cir)))
+
+
+(define (is-this-a-rectangle-2)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-length-equal (m:bar 'a 'd)
+                     (m:bar 'b 'c))
+   (m:c-right-angle (m:joint 'd))
+   (m:c-angle-equal (m:joint 'a)
+                    (m:joint 'c))))

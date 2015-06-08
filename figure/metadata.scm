@@ -21,6 +21,12 @@
   (or (eq-get element 'name)
       (generic-element-name element)))
 
+(define *unnamed* (list 'unnamed))
+(define (is-unnamed? x) (eq? *unnamed* x))
+
 (define generic-element-name
   (make-generic-operation 1 'generic-element-name
-                          (lambda (el) 'unnamed)))
+                          (lambda (el) *unnamed*)))
+
+(define (named? element)
+  (not (is-unnamed? (element-name element-name))))

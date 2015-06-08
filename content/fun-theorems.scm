@@ -1,9 +1,6 @@
 ;;; Inspired by examples in Automated Generation of Geometric Theorems
 ;;; from Images of Diagrams - Xiaoyu Chen Dan Song and Dongming Wangb
 
-;;; [1] Linear Pair Conjecture
-;;; Givens: Angles a-1 and a-2 form a linear pair
-;;; Goal: m(a-1) + m(a-2) = 180 degrees
 (define (quad-midpoint-extension)
   (let-geo* (((q (a b c d)) (random-quadrilateral))
              (e (midpoint a b))
@@ -21,3 +18,15 @@
              (lh1 (line-from-points f i))
              (lh2 (line-from-points e j)))
     (figure q e f r1 r2 g lg1 lg2 i j lh1 lh2)))
+
+(define (two-segments-intersections)
+  (let-geo* (((q (a b c d)) (random-quadrilateral))
+             (e (random-point-on-segment (make-segment a b)))
+             (f (random-point-on-segment (make-segment c d))))
+    (figure q e f
+            (make-segment a c)
+            (make-segment b d)
+            (make-segment a f)
+            (make-segment b f)
+            (make-segment c e)
+            (make-segment d e))))

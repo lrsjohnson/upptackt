@@ -37,10 +37,10 @@
 
 ;;; Max bounds of the graphics window
 
-(define *g-min-x* -1)
-(define *g-max-x*  1)
-(define *g-min-y* -1)
-(define *g-max-y*  1)
+(define *g-min-x* -2)
+(define *g-max-x*  2)
+(define *g-min-y* -2)
+(define *g-max-y*  2)
 
 ;;;;;;;;;;;;;;;; Conversion to segments for Graphics ;;;;;;;;;;;;;;;;;
 

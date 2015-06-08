@@ -850,7 +850,7 @@
         (error "Attempting to specify theta for joint"))))
 
 (define (m:random-bar-length)
-  (internal-rand-range 0.1 0.9))
+  (internal-rand-range 0.3 0.9))
 
 (define (m:initialize-bar bar)
   (if (not (m:bar-anchored? bar))
