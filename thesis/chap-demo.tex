@@ -398,7 +398,9 @@ When solving the mechanism
 (specifying-joint m:joint:c:b:a 2.65583669872538)
 \end{pdf-example}
 
-\begin{pdf-example}{Constraint Solving for Parallelogram}
+\begin{pdf-example}
+[label=pl-by-angles]
+{Constraint Solving for Parallelogram}
 {images/parallelogram.pdf}
 (define (parallelogram-by-angles)
   (m:mechanism
@@ -421,7 +423,9 @@ Finally, in addition to solving constraints of the angles and sides
 for a single polygon, the mechanism system allows for the creation of
 arbitrary topologies of bars and linkages.
 
-\begin{code-example}{More Involved Topologies for Constraint Solving}
+\begin{code-example}
+[label=quad-diagonals]
+{More Involved Topologies for Constraint Solving}
 (define (m:quadrilateral-with-intersecting-diagonals a b c d e)
   (list (m:establish-polygon-topology a b e)
         (m:establish-polygon-topology b c e)
@@ -578,9 +582,30 @@ done
 (sq (rh rectangle) ())
 \end{repl-example}
 
-\begin{repl-example}
-{Learning Simple Definitions}
+Finally, the fun example that integrates all of these systems is
+learning simple definitions for these terms. In these examples,
+\texttt{get-simple-definitions} takes a known term, looks up the known
+observations and properties for that term, and tests using all
+reasonable subsets of those properties as constraints via the
+constraint solver. For each subset of properties, if the constraint
+solver was able to create a diagram satisfying exactly those
+properties, the resulting diagram is examined as with ``is-a'' above
+to see if all the known properties of the original term hold.
 
+If so, the subset of properties is reported as a valid definition of
+the term, and if the resulting diagram fails some properties, the
+subset is reported as an invalid (insufficient) set of constraints.
+
+In the example \ref{simple-definitions}, we see a trace of finding
+simple definitions for isoceles triangles and parallelograms. In the
+first example, the observed properties of an isoceles triangle are
+that its segments and angles are equal. Via the definitions
+simplification via constraint solving, we actually discover that the
+constraints of base angles equal or sides equal are sufficient.
+
+\begin{repl-example}
+[label=simple-definitions]
+{Learning Simple Definitions}
 => (what-is 'isoceles-triangle)
 
 (i-t
@@ -599,12 +624,24 @@ done
  (valid-definition
   ((equal-length (segment a b) (segment c a))
    (equal-angle (angle b) (angle c)))))
+\end{repl-example}
 
+In parallelogram example \ref{pl-definitions}, some subsets are omitted because the
+constraint solver wasn't able to solve a diagram given those
+constraints (to be improved / retried more gracefully in the
+future). However, the results still show some interesting valid
+definitions such as the pair of equal opposite angles as explored in
+Example~\ref{pl-by-angles} or equal length opposite sides and
+correctly mark several sets of invalid definitions as not being
+specific enough.
+
+\begin{repl-example}
+[label=pl-definitions]
+{Learning Parallelogram Definitions}
 => (get-simple-definitions 'pl)
 
 ((invalid-definition ())
  (invalid-definition ((equal-length (segment a b) (segment c d))))
- (unknown-definition ((equal-length (segment b c) (segment d a))))
  (invalid-definition ((equal-angle (angle a) (angle c))))
  (invalid-definition ((equal-angle (angle b) (angle d))))
  (valid-definition
@@ -638,3 +675,14 @@ done
    (equal-angle (angle a) (angle c))
    (equal-angle (angle b) (angle d)))))
 \end{repl-example}
+
+This simple definitions implementation is still a work in progress and
+has room for improvement. For instance, checking all possible subsets
+is wasteful as any superset of a valid definition is known to be valid
+and any subset of an invalid definition is known to be invalid. In
+addition to such checks, in the future I plan to use the knowledge
+about what properties the insufficient diagram is violating to use as
+a possible addition to the constraint set. Further extensions could
+involve generalizing this get-simple-definitions to support other
+topologies for the initial properties (such as the quadrilaterals
+specified by their diagonal properties in Example~\ref{quad-diagonals}.

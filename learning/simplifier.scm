@@ -76,6 +76,7 @@
        (polygon-n-points obj))
       (error "Object isn't a polygon")))
 
+;;; TODO: Make more general
 (define (polygon-from-figure figure)
   (let ((all-points (figure-points figure)))
     (let lp ((i 1)
