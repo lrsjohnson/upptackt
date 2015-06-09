@@ -118,7 +118,7 @@
   (if (not *any-dir-specified*)
       (let ((dir (random-direction)))
         (set! *any-dir-specified* #t)
-        (pp `(initializing-angle ,(name cell) ,(print dir)))
+        (pp `(initializing-direction ,(name cell) ,(print dir)))
         (m:instantiate cell dir 'first-time-angle))))
 
 (define (m:specify-point-if-first-time point)
@@ -130,14 +130,14 @@
 
 (define (m:specify-bar bar)
   (let ((v (m:random-bar-length)))
-    (pp `(specifying-bar ,(print (m:bar-name bar)) ,v))
+    (pp `(specifying-bar-length ,(print (m:bar-name bar)) ,v))
     (m:instantiate (m:bar-length bar) v 'specify-bar)
     (m:specify-angle-if-first-time (m:bar-direction bar))
     (m:specify-point-if-first-time (m:bar-p1 bar))))
 
 (define (m:specify-joint joint)
   (let ((v (m:random-theta-for-joint joint)))
-    (pp `(specifying-joint ,(print (m:joint-name joint)) ,v))
+    (pp `(specifying-joint-angle ,(print (m:joint-name joint)) ,v))
     (m:instantiate (m:joint-theta joint) v 'specify-joint)
     (m:specify-angle-if-first-time (m:joint-dir-1 joint))))
 
@@ -239,6 +239,22 @@
                (lp)
                (error "Couldn't find anything to specify.")))
           (else 'mechanism-built))))
+
+(define (m:solve-mechanism-new m)
+  (set! *m* m)
+  (m:initialize-solve))
+
+(define (m:specify-something-new m fail)
+  (let ((linkages (append (m:mechanism-bars m)
+                          (m:mechanism-joints m))))
+    (let lp ((linkages (sort-linknages linkages)))
+      (if (null? linkages)
+          (fail)
+          (let ((first-linkage (car linkages))
+                (other-linkages (cdr linkages)))
+            (m:specify-linkage m first-linkage
+                               (lambda ()
+                                 (lp (cdr linkages)))))))))
 
 #|
  (begin

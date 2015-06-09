@@ -22,6 +22,29 @@ seeing how the resulting diagram properties respond.
 The geometry constraint solver - physical manipulation, simulation,
 and ``wiggling''.
 
+\section{Example}
+\begin{code-example}{Rectangle Constraints Example}{images/rect-demo-2.png}
+(define (is-this-a-rectangle-2)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-length-equal (m:bar 'a 'd)
+                     (m:bar 'b 'c))
+   (m:c-right-angle (m:joint 'd))
+   (m:c-angle-equal (m:joint 'a)
+                    (m:joint 'c))))
+\end{code-example}
+
+\begin{img-example}{Solved Constraints}{images/rect-demo-2.png}
+=> (m:run-mechanism (is-this-a-rectangle-2))
+
+(m:run-mechanism rect-demo-2)
+(specifying-bar m:bar:d:a .6742252545577186)
+(initializing-direction m:bar:d:a-dir (direction 4.382829365403101))
+(initializing-point m:bar:d:a-p1 (0 0))
+(specifying-joint m:joint:c:b:a 2.65583669872538)
+\end{img-example}
+
+
 \subsection{Bar and Joint Linkages}
 
 Bars have endpoints, directions and length. Joints have a vertex point

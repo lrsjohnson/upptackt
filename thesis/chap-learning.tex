@@ -6,6 +6,33 @@
 The Learning and learning module is one the core elements integrating
 information from the other components of the system. It maintains
 
+\begin{code-example}{Using Definitions}
+(define (what-is term)
+  (pprint (lookup term)))
+
+(define (is-a? term obj)
+  (let ((def (lookup term)))
+    (if (unknown? def)
+        `(,term unknown)
+        ((definition-predicate def) obj))))
+
+(define (show-me term)
+  (let ((def (lookup term)))
+    (if (unknown? def)
+        `(,term unknown)
+        (show-element ((definition-generator def))))))
+
+(define (examine object)
+  (show-element object)
+  (let ((applicable-terms
+         (filter (lambda (term)
+                   (is-a? term object))
+                 (all-known-terms))))
+    applicable-terms))
+\end{code-example}
+
+
+
 \section{Interactions with Learning Module}
 
 The learning module provides the primary interface by which users

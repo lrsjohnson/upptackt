@@ -45,7 +45,12 @@
 \usepackage{textcomp}
 \usepackage{color}
 
-\lstset{numbers=left,numberstyle=\tiny,numbersep=5pt,
+
+\usepackage{tcolorbox}
+\tcbuselibrary{most}
+
+
+\lstdefinestyle{mystyle}{numbers=left,numberstyle=\tiny,numbersep=5pt,
   morekeywords=[1]{define, define-syntax, define-macro, lambda, define-stream, stream-lambda},
   morekeywords=[2]{begin, call-with-current-continuation, call/cc,
     call-with-input-file, call-with-output-file, case, cond,
@@ -54,7 +59,9 @@
     let-values, let*-values,
     and, or, not, delay, force,
     quasiquote, quote, unquote, unquote-splicing,
-    map, fold, syntax, syntax-rules, eval, environment, query },
+    map, fold, syntax, syntax-rules, eval, environment, query,
+    let-geo*, define-record-type,
+ },
   morekeywords=[3]{import, export},
   alsodigit=!\$\%&*+-./:<=>?@^_~,
   sensitive=true,
@@ -69,43 +76,56 @@
   breaklines=true,
   breakatwhitespace=true,
   literate=*{`}{{`}}{1},
+  literate = {\%}{{{\%}}}2,
   showstringspaces=false,breaklines}
 
-\usepackage{tcolorbox}
-\tcbuselibrary{most}
+\lstset{style=mystyle}
 
 %% Actual Code Listings:
 
 
 \newtcblisting[auto counter,number within=chapter]{code-example}[2][]{
 listing only, breakable,
-leftrule=3pt,
-code=\linespread{1},
-listing options={style=tcblatex, basicstyle=\footnotesize\ttfamily},
+code=\linespread{1}\vspace{1em},
+listing options={style=mystyle, basicstyle=\footnotesize\ttfamily},
 fonttitle=\bfseries,
 title=Code Example \thetcbcounter: #2,#1}
 
 \newtcblisting[use counter from=code-example]{repl-example}[2][]{
 listing only, breakable,
-leftrule=3pt,
-code=\linespread{1},
-listing options={style=tcblatex, basicstyle=\footnotesize\ttfamily,
+code=\linespread{1}\vspace{1em},
+listing options={style=mystyle, basicstyle=\footnotesize\ttfamily,
 numbers=none},
 fonttitle=\bfseries,
 title=Interaction Example \thetcbcounter: #2,#1}
 
 \newtcblisting[use counter from=code-example]{img-example}[3][]{
 listing and comment, righthand width=5cm, breakable,
-leftrule=3pt,
-code=\linespread{1},
-listing options={style=tcblatex,numbers=none,
+code=\linespread{1}\vspace{1em},
+listing options={style=mystyle,numbers=none,
 basicstyle=\footnotesize\ttfamily},
 tcbimage comment={#3},
 fonttitle=\bfseries,
-comment style={size=fbox,frame hidden,height=8cm},
+comment style={size=fbox,frame hidden,height=6cm},
 %every listing line*={\textcolor{black}{\small\ttfamily\bfseries => }},
-title=Graphics Example \thetcbcounter: #2,#1
+title=Interaction Example \thetcbcounter: #2,#1
 }
+
+\newtcblisting[use counter from=code-example]{pdf-example}[3][]{
+listing and comment, righthand width=5cm, breakable,
+code=\linespread{1}\vspace{1em},
+listing options={style=mystyle,numbers=none,
+basicstyle=\footnotesize\ttfamily},
+pdf comment={#3},
+fonttitle=\bfseries,
+comment style={frame hidden,
+opacityback=0,
+height=6cm,
+raster columns=2,graphics pages={1,2}},
+%every listing line*={\textcolor{black}{\small\ttfamily\bfseries => }},
+title=Interaction Example \thetcbcounter: #2,#1
+}
+
 
 
 %% End Code Listings

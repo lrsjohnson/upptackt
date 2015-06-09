@@ -8,6 +8,29 @@ figures, we need a way of ``seeing'' these figures in our mind's eye.
 Thus, the perception module is primarily concerned with the task of
 examining the figure and observing interesting properties in figure.
 
+\begin{code-example}{Analyzer Routine}
+(define (analyze figure)
+  (let* ((points (figure-points figure))
+         (angles (figure-angles figure))
+         (linear-elements (figure-linear-elements figure))
+         (segments (figure-segments figure)))
+    (append
+     (extract-relationships points
+                            (list concurrent-points-relationship
+                                  concentric-relationship
+                                  concentric-with-center-relationship))
+     (extract-relationships segments
+                             (list equal-length-relationship))
+     (extract-relationships angles
+                             (list equal-angle-relationship
+                                   supplementary-angles-relationship
+                                   complementary-angles-relationship))
+     (extract-relationships linear-elements
+                             (list parallel-relationship
+                                   concurrent-relationship
+                                   perpendicular-relationship)))))
+\end{code-example}
+
 \subsection{Extracting segments and angles}
 
 The observation module also builds and traverses a

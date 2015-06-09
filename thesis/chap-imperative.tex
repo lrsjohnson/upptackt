@@ -5,20 +5,69 @@
 
 The first module is an imperative system for performing geometry
 constructions. This is the typical input method for generating
-coordinate-backed instances of figures and thus declares.
+coordinate-backed instances of figures.
 
-We will first discuss the basic underlying structures that comprise
-figures, then describe the higher-order language used to specify
-construction steps.
+I first discuss the basic structures and constructions that comprise figures,
+then describe the higher-order language used to specify construction
+steps.
+
+\section{Construction Interface}
+
+\begin{code-example}{Sample Construction}
+(define (angle-bisector-distance)
+  (let-geo* (((a (r-1 v r-2)) (random-angle))
+             (ab (angle-bisector a))
+             (p (random-point-on-ray ab))
+             ((s-1 (p b)) (perpendicular-to r-1 p))
+             ((s-2 (p c)) (perpendicular-to r-2 p)))
+     (figure a r-1 r-2 ab p s-1 s-2)))
+\end{code-example}
 
 \section{Basic Structures}
+
+The basic structures
+
+\begin{code-example}{Basic Structures}
+(define-record-type <point>
+  (make-point x y)
+  point? "hi"
+  (x point-x)
+  (y point-y))
+
+(define-record-type <segment>
+  (%segment p1 p2)
+  segment?
+  (p1 segment-endpoint-1)
+  (p2 segment-endpoint-2))
+
+(define-record-type <line>
+  (%make-line point dir)
+  line?
+  (point line-point) ;; Point on the line
+  (dir line-direction))
+\end{code-example}
+
+\begin{code-example}{Angle and Circle Structures}
+(define-record-type <angle>
+  (make-angle dir1 vertex dir2)
+  angle?
+  (dir1 angle-arm-1)
+  (vertex angle-vertex)
+  (dir2 angle-arm-2))
+
+(define-record-type <circle>
+  (make-circle center radius)
+  circle?
+  (center circle-center)
+  (radius circle-radius))
+\end{code-example}
 
 \subsection{Points}
 
 Points form the basis of most elements. Throughout the system, points
 are labeled and used to identify other elements.
 
-\section{Linear Elements}
+\subsection{Linear Elements}
 
 The linear elements of Segments, Lines, and Rays are built upon
 points. Initially the internal representation of lines were that of
