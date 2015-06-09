@@ -327,7 +327,8 @@ These bar and linkage mechanisms can be used to represent the
 topologies of several geometry figures. Bars correspond to segments
 and joints correspond to angles. Example \ref{arbitrary-tri}
 demonstrates the set of linkages necessary to specify the topology of
-a triangle.
+a triangle. The \texttt{m:establish-polygon-topology} procedure
+simplifies the specification of a closed polygon of joints.
 
 \begin{code-example}
 [label=arbitrary-tri]
@@ -346,22 +347,50 @@ a triangle.
    (m:establish-polygon-topology 'a 'b 'c)))
 \end{code-example}
 
-When solving the mechanism
+In example \ref{run-arbitrary-tri}, Once joints b and c have had their angles specified, propagation
+sets the angle of joint a to a unique value. The only parameter
+to specify is the length of one of the bars. The two
+\texttt{initializing-} steps don't affect the resulting shape but
+determine its position and orientation on the canvas.
+
+In this case, joint angles are specified first. The ordering of what
+is specified is guided by a heuristic that helps all of the examples
+shown in this chapter converge to solutions. The heuristic generally
+prefers specifying the most constrained values first. In some
+scenarios, specifying values in the wrong order can yield premature
+contradictions. A planned future extension will attempt to recover
+from such situations more gracefully by trying other orderings of
+specifying components.
 
 \begin{pdf-example}
 [label=run-arbitrary-tri]
 {Solving the Triangle}{images/arbitrary-triangle.pdf}
 => (m:run-mechanism (arbitrary-triangle))
 
-(specifying-joint m:joint:c:b:a .41203408293499)
+(specifying-joint-angle m:joint:c:b:a .41203408293499)
 (initializing-direction m:joint:c:b:a-dir-1 (direction 3.888926311421853))
-(specifying-joint m:joint:a:c:b 1.8745808264593105)
+(specifying-joint-angle m:joint:a:c:b 1.8745808264593105)
 (initializing-point m:bar:c:a-p1 (0 0))
 (specifying-bar-length m:bar:c:a .4027149730292784)
 \end{pdf-example}
 
+Example \ref{solve-i-t} shows the solving steps involved in solving an
+isoceles triangle from the fact that its base angles are
+congruent. Notice that the only two values that must be specified are
+one joint angle and one bar length. The rest is handled by propagation.
 
-\begin{pdf-example}{Constraint Solving for Isoceles Triangle}
+The values used in the propagation involves representing the partial
+information of where points and angles can be. A specified angle
+constrains a point to a ray and a specified length constrains a point
+to be on a circle. As information about a point is merged from several
+sources, intersecting these rays and circles yields unique solutions
+for where the points must exist. Although not as dynamic, these
+representations correspond to physically wiggling and extending the
+bars until they reach one another.
+
+\begin{pdf-example}
+[label=solve-i-t]
+{Constraint Solving for Isoceles Triangle}
 {images/isoceles.pdf}
 (define (isoceles-triangle-by-angles)
   (m:mechanism
@@ -371,32 +400,17 @@ When solving the mechanism
 
 => (m:run-mechanism  isoceles-triangle-by-angles)
 
-(specifying-joint m:joint:c:b:a .6219719886662947)
+(specifying-joint-angle m:joint:c:b:a .6219719886662947)
 (initializing-direction m:joint:c:b:a-dir-1 (direction .9330664240883363))
 (initializing-point m:bar:b:c-p1 (0 0))
 (specifying-bar-length m:bar:b:c .3557699722973674)
 \end{pdf-example}
 
-\begin{code-example}
-{Rectangle Constraints Example}
-(define (is-this-a-rectangle-2)
-  (m:mechanism
-   (m:establish-polygon-topology 'a 'b 'c 'd)
-   (m:c-length-equal (m:bar 'a 'd)
-                     (m:bar 'b 'c))
-   (m:c-right-angle (m:joint 'd))
-   (m:c-angle-equal (m:joint 'a)
-                    (m:joint 'c))))
-\end{code-example}
-
-\begin{pdf-example}{Solved Constraints}{images/rect-demo.pdf}
-=> (m:run-mechanism (is-this-a-rectangle-2))
-
-(specifying-bar-length m:bar:d:a .6742252545577186)
-(initializing-direction m:bar:d:a-dir (direction 4.382829365403101))
-(initializing-point m:bar:d:a-p1 (0 0))
-(specifying-joint m:joint:c:b:a 2.65583669872538)
-\end{pdf-example}
+Example~\ref{pl-by-angles} continues our analysis of properties of the
+parallelogram. In this case, our constraint solver is able to build
+figures given the fact that its opposite angles are equal. The fact
+that these all happen to be parallelograms will be used by the
+learning module to produce a simpler definition for a parallelogram.
 
 \begin{pdf-example}
 [label=pl-by-angles]
@@ -412,16 +426,50 @@ When solving the mechanism
 
 => (m:run-mechanism parallelogram-by-angles)
 
-(specifying-joint m:joint:c:b:a 1.6835699856637936)
+(specifying-joint-angle m:joint:c:b:a 1.6835699856637936)
 (initializing-angle m:joint:c:b:a-dir-1 (direction 1.3978162819212452))
 (initializing-point m:bar:a:b-p1 (0 0))
 (specifying-bar-length m:bar:a:b .8152792207652096)
 (specifying-bar-length m:bar:b:c .42887899934327023)
 \end{pdf-example}
 
+As a more complicated example, Example~\ref{is-rect-2} demonstrates
+the constraint solving from the middle ``Is this a rectangle?''
+question from Chapter \ref{chap:motivation}. Try working this
+constraint problem by hand. As we see in \ref{solve-rect}, solutions
+are not all rectangles. Chapter \ref{chap:declarative} includes a more
+detailed walkthrough of how this example is solved.
+
+\begin{code-example}
+[label=is-rect-2]
+{Rectangle Constraints Example}
+(define (is-this-a-rectangle-2)
+  (m:mechanism
+   (m:establish-polygon-topology 'a 'b 'c 'd)
+   (m:c-length-equal (m:bar 'a 'd)
+                     (m:bar 'b 'c))
+   (m:c-right-angle (m:joint 'd))
+   (m:c-angle-equal (m:joint 'a)
+                    (m:joint 'c))))
+\end{code-example}
+
+\begin{pdf-example}
+[label=solve-rect]
+{Solved Constraints}{images/rect-demo.pdf}
+=> (m:run-mechanism (is-this-a-rectangle-2))
+
+(specifying-bar-length m:bar:d:a .6742252545577186)
+(initializing-direction m:bar:d:a-dir (direction 4.382829365403101))
+(initializing-point m:bar:d:a-p1 (0 0))
+(specifying-joint-angle m:joint:c:b:a 2.65583669872538)
+\end{pdf-example}
+
 Finally, in addition to solving constraints of the angles and sides
 for a single polygon, the mechanism system allows for the creation of
-arbitrary topologies of bars and linkages.
+arbitrary topologies of bars and linkages. In the following examples,
+we build the topology of a quadrilaterals whose diagonals intersect at
+a point e and explore the effects of various constraints on these
+diagonal segments.
 
 \begin{code-example}
 [label=quad-diagonals]
@@ -480,7 +528,15 @@ A user representing the teacher can interact with the system by
 querying what it knows, teaching it new terms, and asking it to apply
 its knowledge to new situations.
 
-\begin{repl-example}{Querying Terms}
+Example~\ref{querying} shows that the system begins with some
+knowledge of primitive objects (point, line, ray), and the most basic
+polygon terms (triangle, quadrilateral). However, upon startup, it
+knows nothing about higher-level terms such as trapezoids,
+parallelograms, or isoceles triangles.
+
+\begin{repl-example}
+[label=querying]
+{Querying Terms}
 => (what-is 'trapezoid)
 unknown
 
@@ -492,22 +548,46 @@ primitive-definition
           ((n-sides-3 identity)))
 \end{repl-example}
 
+A user can create an investigation to help the system learn a new
+definition by creating a procedure that creates random elements
+satisfying that definition. Example~\ref{rand-trp} shows the full
+range of trapezoids created via the \texttt{random-trapezoid}
+procedure.
+
 \begin{pdf-example}
-[comment style={frame hidden,opacityback=0,
+[label=rand-trp,
+comment style={frame hidden,opacityback=0,
 raster columns=3,graphics pages={1,2,3}}]
 {Random Figures}{images/rand-trp.pdf}
 => (show-element (random-trapezoid))
 \end{pdf-example}
 
+The learning module can interface with the perception module to obtain
+about the given element. In this case (\ref{analyze-trapezoid}), we
+see the full dependencies of the elements under consideration instead
+of simply their names.
+
 \begin{repl-example}
+[label=analyze-trapezoid]
+{Analyzing an Element}
 => (pprint (analyze-element (random-trapezoid)))
 
-((supplementary (angle a) (angle d))
- (supplementary (angle b) (angle c))
- (parallel (segment a b) (segment c d)))
+((supplementary (polygon-angle 0 <premise>) (polygon-angle 3 <premise>))
+ (supplementary (polygon-angle 1 <premise>) (polygon-angle 2 <premise>))
+ (parallel (polygon-segment 0 1 <premise>) (polygon-segment 2 3 <premise>)))
 \end{repl-example}
 
+With these abilities, the system can be taught new definitions by
+providing a term ('pl for parallelogram) and a generator procedure
+that produces instances of that element. As shown in example
+\ref{learn-pl}, after being instructed to learn what a parallelogram
+is from the \texttt{random-parallelogram} procedure, when queried for
+a definition, we're given the term, then the base definition of this
+element, then all properties known to be true of such objects.
+
 \begin{repl-example}
+[label=learn-pl]
+{Learning Parallelogram Definition}
 => (learn-term 'pl random-parallelogram)
 done
 
@@ -536,12 +616,31 @@ done
             (polygon-segment 3 0 <premise>))))
 \end{repl-example}
 
-\begin{repl-example}{Testing Definitions}
+To use such learned knowledge, we can use \texttt{is-a?} to test
+whether other elements are satisfy the definition of the term. As
+shown in example \ref{test-def}, results are correctly returned for
+any polygon that satisfies the observed properties. In cases where the
+properties are not satisfied, the system reports the failed
+conjectures or classifications (e.g. an equaliteral triangle is not a
+parallelogram: It failed the necessary classification that it must be
+a quadrilateral because it didn't have 4 sides).
+
+\begin{repl-example}
+[label=test-def]
+{Testing Definitions}
 => (is-a? 'pl (random-parallelogram))
 #t
 
 => (is-a? 'pl (random-rectangle))
 #t
+
+=> (is-a? 'pl (polygon-from-points
+                (make-point 0 0)
+                (make-point 1 0)
+                (make-point 2 1)
+                (make-point 1 1)))
+#t
+
 
 => (is-a? 'pl (random-trapezoid))
 (failed-conjecture
@@ -557,7 +656,20 @@ done
 (failed-classification quadrilateral)
 \end{repl-example}
 
-\begin{repl-example}{Building on Definitions}
+Learning individual definitions is nice, but cool properties arise
+when definitions build one another. When a new term is learned, the
+system checks other related terms for overlapping properties to
+determine where the new definition fits in the lattice of terms. In
+example \ref{build-def}, we see that after learning definitions of
+kites and rhombuses, the resulting definition of a rhombus is that it
+a parallelogram and kite that satisfies two additional
+properties. Later, after learning a rectangle, amazingly, the system
+shows us that the definition of a square is just a rhombus and
+rectangle with no additional properties.
+
+\begin{repl-example}
+[label=build-def]
+{Building on Definitions}
 => (learn-term 'kite random-kite)
 done
 
@@ -583,7 +695,7 @@ done
 \end{repl-example}
 
 Finally, the fun example that integrates all of these systems is
-learning simple definitions for these terms. In these examples,
+learning simpler definitions for these terms. In these examples,
 \texttt{get-simple-definitions} takes a known term, looks up the known
 observations and properties for that term, and tests using all
 reasonable subsets of those properties as constraints via the
@@ -626,10 +738,10 @@ constraints of base angles equal or sides equal are sufficient.
    (equal-angle (angle b) (angle c)))))
 \end{repl-example}
 
-In parallelogram example \ref{pl-definitions}, some subsets are omitted because the
-constraint solver wasn't able to solve a diagram given those
-constraints (to be improved / retried more gracefully in the
-future). However, the results still show some interesting valid
+In the parallelogram example \ref{pl-definitions}, some subsets are
+omitted because the constraint solver wasn't able to solve a diagram
+given those constraints (to be improved / retried more gracefully in
+the future). However, the results still show some interesting valid
 definitions such as the pair of equal opposite angles as explored in
 Example~\ref{pl-by-angles} or equal length opposite sides and
 correctly mark several sets of invalid definitions as not being
@@ -637,7 +749,7 @@ specific enough.
 
 \begin{repl-example}
 [label=pl-definitions]
-{Learning Parallelogram Definitions}
+{Learning Simple Parallelogram Definitions}
 => (get-simple-definitions 'pl)
 
 ((invalid-definition ())
@@ -685,4 +797,5 @@ about what properties the insufficient diagram is violating to use as
 a possible addition to the constraint set. Further extensions could
 involve generalizing this get-simple-definitions to support other
 topologies for the initial properties (such as the quadrilaterals
-specified by their diagonal properties in Example~\ref{quad-diagonals}.
+being fully specified by their diagonal properties as in
+Example~\ref{quad-diagonals})

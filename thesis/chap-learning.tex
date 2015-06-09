@@ -31,8 +31,6 @@ information from the other components of the system. It maintains
     applicable-terms))
 \end{code-example}
 
-
-
 \section{Interactions with Learning Module}
 
 The learning module provides the primary interface by which users
@@ -57,6 +55,33 @@ that term.
 
 \subsection{Learning Definitions}
 
+\begin{code-listing}{Learning a new term}
+(define (learn-term term object-generator)
+  (let ((v (lookup term)))
+    (if (not (eq? v 'unknown))
+        (pprint `(already-known ,term))
+        (let ((example (name-polygon (object-generator))))
+          (let* ((base-terms (examine example))
+                 (simple-base-terms (simplify-base-terms base-terms))
+                 (base-definitions (map lookup base-terms))
+                 (base-conjectures (flatten (map definition-conjectures
+                                                 base-definitions)))
+                 (fig (figure (with-dependency '<premise> example)))
+                 (observations (analyze-figure fig))
+                 (conjectures (map conjecture-from-observation observations))
+                 (simplified-conjectures
+                  (simplify-conjectures conjectures base-conjectures)))
+            (pprint conjectures)
+            (let ((new-def
+                   (make-restrictions-definition
+                    term
+                    simple-base-terms
+                    simplified-conjectures
+                    object-generator)))
+              (add-definition! *current-student* new-def)
+              'done))))))
+\end{code-listing}
+
 To learn a new definition, the system must be given the name of the
 term being learned as well as a procedure that will generate arbitrary
 instances of that definition. To converge to the correct definition,
@@ -66,9 +91,26 @@ parallelograms, not just rectangles). However, reconciling mixed
 information about what constitutes a term could be an interesting
 extension.
 
-\begin{verbatim}
-(learn-term 'parallelogram random-parallelogram)
-\end{verbatim}
+\begin{code-listing}{Building Predicates for Definitions}
+(define (build-predicate-for-definition s def)
+  (let ((classifications (definition-classifications def))
+        (conjectures (definition-conjectures def)))
+    (let ((classification-predicate
+           (lambda (obj)
+             (every
+              (lambda (classification)
+                (or ((definition-predicate (student-lookup s classification))
+                     obj)
+                    (begin (if *explain*
+                               (pprint `(failed-classification
+                                         ,classification)))
+                           #f)))
+              classifications))))
+      (lambda args
+        (and (apply classification-predicate args)
+             (every (lambda (o) (satisfies-conjecture o args))
+                    conjectures))))))
+\end{code-listing}
 
 \subsection{Applying Learned Properties}
 
@@ -76,10 +118,65 @@ To apply the learned conjectures, the learning system can use its
 repository of geometry knowledge to tell you what a given figure is or
 to point out old vs. new properties seen in a specific figure:
 
-\begin{verbatim}
-(analyze-figure figure)
-(examine (random-rhombus))
-\end{verbatim}
+
+\subsection{Simplifying Definitions}
+
+To Simplify definitions, we interface with the constraint solver
+observations->figure to convert our observationsback into a figure.
+
+\begin{code-listing}{Simplifying Definitions}
+(define (get-simple-definitions term)
+  (let ((def (lookup term)))
+    (if (unknown? def)
+        (error "Unknown term" term))
+    (let* ((object ((definition-generator def)))
+           (observations
+            (filter
+             observation->constraint
+             (all-observations
+              (figure (name-polygon object))))))
+      (map
+       (lambda (obs-subset)
+         (pprint obs-subset)
+         (let* ((topology (topology-for-object object))
+                (new-figure
+                 (observations->figure topology obs-subset)))
+           (if new-figure
+               (let ((new-polygon
+                      (polygon-from-figure new-figure)))
+                 (pprint new-polygon)
+                 (if (is-a? term new-polygon)
+                     (list 'valid-definition
+                           obs-subset)
+                     (list 'invalid-definition
+                           obs-subset)))
+               (list 'unknown-definition
+                     obs-subset))))
+       (all-subsets observations)))))
+\end{code-listing}
+
+
+
+\begin{code-listing}{Converting Observations to a Figure}
+(define (observations->figure topology observations)
+  (initialize-scheduler)
+  (pprint (observations->constraints observations))
+  (let ((m (apply
+            m:mechanism
+            (list
+             topology
+             (observations->constraints observations)))))
+    (m:build-mechanism m)
+    (if (not (m:solve-mechanism m))
+        (begin
+          (pp "Could not solve mechanism")
+          #f)
+        (let ((f (m:mechanism->figure m)))
+          (pp "Solved!")
+          (show-figure f)
+          f))))
+\end{code-listing}
+
 
 \subsection{Performing Investigations}
 
@@ -114,4 +211,4 @@ Based on dependencies, we replace the lowest-level random dependencies
 with arbitrary pattern elements \texttt{(? s1 ,segment)} for
 instance. Then, when new conjectures are being considered, we attempt
 to pattern match based on existing elements to see if there is a
-redundant observation.
+redundant observation. TODO.

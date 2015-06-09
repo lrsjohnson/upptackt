@@ -57,6 +57,28 @@ The Mechanism in our declarative system is analogous to Figure,
 grouping elements. Also computes various caching and lookup tables to
 more easily access elements.
 
+\begin{code-listing}
+(define (m:build-mechanism m)
+  (m:identify-vertices m)
+  (m:assemble-linkages (m:mechanism-bars m)
+                       (m:mechanism-joints m))
+  (m:apply-mechanism-constraints m)
+  (m:apply-slices m))
+
+(define (m:solve-mechanism m)
+  (m:initialize-solve)
+  (let lp ()
+    (run)
+    (cond ((m:mechanism-contradictory? m)
+           (m:draw-mechanism m c)
+           #f)
+          ((not (m:mechanism-fully-specified? m))
+           (if (m:specify-something m)
+               (lp)
+               (error "Couldn't find anything to specify.")))
+          (else 'mechanism-built))))
+\end{code-listing}
+
 \section{Partial Information}
 
 \subsection{Regions}
@@ -83,7 +105,47 @@ System uses propagators to solve these mechanism constraints.
 
 Direction, dx, dy, length, thetas. ``Bars'' + ``Joints''
 
+\begin{code-listing}{Basic Bar Constraints}
+(define (m:make-bar bar-id)
+  (let ((bar-key (m:make-bar-name-key bar-id)))
+    (let ((p1 (m:make-point (symbol bar-key '-p1)))
+          (p2 (m:make-point (symbol bar-key '-p2))))
+      (name! p1 (symbol bar-key '-p1))
+      (name! p2 (symbol bar-key '-p2))
+      (let ((v (m:make-vec bar-key)))
+        (c:+ (m:point-x p1)
+             (m:vec-dx v)
+             (m:point-x p2))
+        (c:+ (m:point-y p1)
+             (m:vec-dy v)
+             (m:point-y p2))
+        (let ((bar (%m:make-bar p1 p2 v)))
+          (m:p1->p2-bar-propagator p1 p2 bar)
+          (m:p2->p1-bar-propagator p2 p1 bar)
+          bar)))))
+\end{code-listing}
+
 \subsection{Higher Order Constraints}
+
+\begin{code-listing}{User Constraints}
+(define-record-type <m:constraint>
+  (m:make-constraint type args constraint-procedure)
+  m:constraint?
+  (type m:constraint-type)
+  (args m:constraint-args)
+  (constraint-procedure m:constraint-procedure))
+
+(define (m:c-length-equal bar-id-1 bar-id-2)
+  (m:make-constraint
+   'm:c-length-equal
+   (list bar-id-1 bar-id-2)
+   (lambda (m)
+     (let ((bar-1 (m:lookup m bar-id-1))
+           (bar-2 (m:lookup m bar-id-2)))
+       (c:id
+        (m:bar-length bar-1)
+        (m:bar-length bar-2))))))
+\end{code-listing}
 
 Angle sum of polygon, or scan through polygon and ensure that the
 angles don't not match. Example is equilateral triangle, for
@@ -117,3 +179,26 @@ Converts between figures and symbolic relationships.
 \subsubsection{Establish Polygon Topology}
 
 Nice techniques for establishing polygon topology.
+
+\begin{code-listing}{Establishing Topology}
+(define (m:establish-polygon-topology . point-names)
+  (if (< (length point-names) 3)
+      (error "Min polygon size: 3"))
+  (let ((extended-point-names
+         (append point-names
+                 (list (car point-names) (cadr point-names)))))
+    (let ((bars
+           (map (lambda (p1-name p2-name)
+                  (m:make-named-bar p1-name p2-name))
+                point-names
+                (cdr extended-point-names)))
+          (joints
+           (map (lambda (p1-name vertex-name p2-name)
+                  (m:make-named-joint p1-name vertex-name p2-name))
+                (cddr extended-point-names)
+                (cdr extended-point-names)
+                point-names)))
+      (append bars joints
+              (list (m:polygon-sum-slice
+                     (map m:joint-name joints)))))))
+\end{code-listing}

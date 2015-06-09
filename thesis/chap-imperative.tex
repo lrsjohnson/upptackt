@@ -90,6 +90,19 @@ the diagram.
 
 \subsection{Math Support}
 
+\begin{code-listing}{Directions}
+(define (subtract-directions d2 d1)
+  (if (direction-equal? d1 d2)
+      0
+      (fix-angle-0-2pi (- (direction-theta d2)
+                          (direction-theta d1)))))
+
+(define (direction-perpendicular? d1 d2)
+  (let ((difference (subtract-directions d1 d2)))
+    (or (close-enuf? difference (/ pi 2))
+        (close-enuf? difference (* 3 (/ pi 2))))))
+\end{code-listing}
+
 Some ``core'' math structures to help these calculations: Direction
 represents a direction in [0, 2pi], fixes principal value [0, 2pi],
 and support various operations for direction intervals (basic
@@ -119,6 +132,28 @@ components for use in the analysis stages.
 \section{Construction Operations}
 
 \subsection{Traditional constructions}
+
+\begin{code-listing}{Perpendiculars}
+(define (perpendicular linear-element point)
+  (let* ((direction (->direction linear-element))
+         (rotated-direction (rotate-direction-90 direction)))
+    (make-line point rotated-direction)))
+
+;;; endpoint-1 is point, endpoint-2 is on linear-element
+(define (perpendicular-to linear-element point)
+  (let ((pl (perpendicular linear-element point)))
+    (let ((i (intersect-linear-elements pl (->line linear-element))))
+      (make-segment point i))))
+
+(define (angle-bisector a)
+  (let* ((d1 (angle-arm-1 a))
+         (d2 (angle-arm-2 a))
+         (vertex (angle-vertex a))
+         (radians (angle-measure a))
+         (half-angle (/ radians 2))
+         (new-direction (add-to-direction d2 half-angle)))
+    (make-ray vertex new-direction)))
+\end{code-listing}
 
 Midpoint, perpendicular line, bisectors
 
@@ -214,3 +249,20 @@ The system integrates with Scheme's graphics system for the X Window
 System to display the figures for the users. The graphical viewer can
 include labels and highlight specific elements, as well as display
 animations representing the ``wiggling'' of the diagram.
+
+\begin{code-listing}{Drawing}
+(define (draw-figure figure canvas)
+  (set-coordinates-for-figure figure canvas)
+  (clear-canvas canvas)
+  (for-each
+   (lambda (element)
+     (canvas-set-color canvas (element-color element))
+     ((draw-element element) canvas))
+   (all-figure-elements figure))
+  (for-each
+   (lambda (element)
+     (canvas-set-color canvas (element-color element))
+     ((draw-label element) canvas))
+   (all-figure-elements figure))
+  (graphics-flush (canvas-g canvas)))
+\end{code-listing}

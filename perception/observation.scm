@@ -28,3 +28,7 @@
 
 (define (print-observations obs-list)
   (map print-observation obs-list))
+
+(define (observation-with-premises obs)
+  (cons (observation-relationship obs)
+        (map element-dependencies->list (observation-args obs))))

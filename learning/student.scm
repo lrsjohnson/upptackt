@@ -136,9 +136,10 @@
 (define (analyze-element element)
   (if (polygon? element)
       (name-polygon element))
-  (let ((fig (figure element)))
+  (let ((fig (figure (with-dependency '<premise> element))))
     (show-figure fig)
-    (analyze-figure fig)))
+    (let ((obs-list (analyze-figure fig)))
+      (map observation-with-premises obs-list))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Initializing Student ;;;;;;;;;;;;;;;;;;;;;;;;
 
