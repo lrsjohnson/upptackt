@@ -26,5 +26,5 @@
 
 (defhandler print print-observation observation?)
 
-(define (format-observations obs-list)
-  (pprint obs-list))
+(define (print-observations obs-list)
+  (map print-observation obs-list))

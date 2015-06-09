@@ -109,7 +109,7 @@ analyzed.
              ((s-2 (p c)) (perpendicular-to r-2 p)))
      (figure a r-1 r-2 ab p s-1 s-2)))
 
-=> (show-figure (angle-bisector-distance
+=> (show-figure (angle-bisector-distance))
 \end{pdf-example}
 
 \begin{pdf-example}
@@ -144,19 +144,101 @@ analyzed.
 => (show-figure (inscribed-circumscribed))
 \end{pdf-example}
 
+The sample images shown alongside these constructions represent images
+from separate executions of the figure. An additional method for
+viewing and displaying involves ``running an animation'' of these
+constructions in which several instances of the figure are created and
+displayed, incrementally wiggling each random choice. In generating
+and wiggling the random values, some effort is taken to avoid
+degenerate cases or instances where points are too close to one
+another, as such cases lead to floating-point errors in the numerical
+analysis.
+
 \section{Perception and Observation}
 
-\begin{repl-example}{Simple Analysis}
+Given the imperative construction module that enables the
+specification and construction of geometry figures, the second module
+focuses on perception and extracting interesting observations from
+these figures.
+
+Example \ref{simple-analysis} demonstrates the interface for obtaining
+observations from a figure. An observation is a structure that
+associates a relationship (concurrent, equal length, parallel) with
+objects in the figure that satisfy the relationship. Relationships are
+represented as predicates over typed n-tuples and are checked against
+all such n-tuples found in the figure under analysis. For example, the
+perpendicular relationship is checked against all pairs of linear elements
+in the figure.
+
+The observation objects are complex structures that maintain
+properties of the underlying relationships and references to the
+original objects under consideration. However, my custom printer
+\texttt{print-observations} displays them in a more
+human-readable format.
+
+\begin{repl-example}
+[label=simple-analysis]
+{Simple Analysis}
 => (all-observations (triangle-with-perp-bisectors))
 
 (#[observation 77] #[observation 78] #[observation 79] #[observation 80])
 
-=> (pprint (all-observations (triangle-with-perp-bisectors)))
+=> (print-observations (all-observations (triangle-with-perp-bisectors)))
 
 ((concurrent pb1 pb2 pb3)
  (perpendicular pb1 (segment a b))
  (perpendicular pb2 (segment b c))
  (perpendicular pb3 (segment c a)))
+\end{repl-example}
+
+The fact that the perpendicular bisector of a segment is equal to that
+segment isn't very interesting. Thus, as shown in Example
+\ref{interesting-analysis}, the analysis module also provides an
+interface for reporting only the interesting observations. Currently,
+information about the interesting relationships formed by a
+perpendicular bisector are specified alongside instructions for how to
+perform the operation, but a further extension of the learning module
+could try to infer inductively which properties result from various
+construction operations.
+
+\begin{repl-example}
+[label=interesting-analysis]
+{Interesting Analysis}
+=> (print-observations (interesting-observations
+                         (triangle-with-perp-bisectors)))
+
+((concurrent pb1 pb2 pb3))
+\end{repl-example}
+
+For an example with more relationships, Example
+\ref{parallelogram-analysis} demonstrates the observations and
+relationships found in a figure with a random parallelogram. These
+analysis results will be used again later when we demonstrate the
+system learning definitions for polygons. Note that although the
+segments, angles, and points were not explicitly listed in the figure,
+they are extracted from the polygon that is listed. Extensions to the
+observation model can extract additional points and segments not
+explicitly listed in the original figure.
+
+\begin{repl-example}
+[label=parallelogram-analysis]
+{Parallelogram Analysis}
+(define (parallelogram-figure)
+  (let-geo* (((p (a b c d)) (random-parallelogram)))
+    (figure p)))
+
+=> (pprint (all-observations (parallelogram-figure)))
+
+((equal-length (segment a b) (segment c d))
+ (equal-length (segment b c) (segment d a))
+ (equal-angle (angle a) (angle c))
+ (equal-angle (angle b) (angle d))
+ (supplementary (angle a) (angle b))
+ (supplementary (angle a) (angle d))
+ (supplementary (angle b) (angle c))
+ (supplementary (angle c) (angle d))
+ (parallel (segment a b) (segment c d))
+ (parallel (segment b c) (segment d a)))
 \end{repl-example}
 
 \section{Mechanism-based Declarative Constraint Solver}
@@ -187,7 +269,10 @@ further implementation details.
 \subsection{Bars and Joints}
 
 Example~\ref{simple-mechanism} demonstrates the specification of a
-very simple mechanism.
+very simple mechanism. Mechanisms are created by specifying the bars
+and joints involved as well as any additional constraints that must be
+satisfied. This example mechanism is composed of two bars with one
+joint between them that is constrained to be a right angle.
 
 \begin{code-example}
 [label=simple-mechanism]
@@ -200,16 +285,40 @@ very simple mechanism.
    (m:c-right-angle (m:joint 'b))))
 \end{code-example}
 
+Building a mechanism involves first assembling the bars and joints
+together so that the named points are identified with one
+another. Initially, each bar has unknown length and direction, each
+joint has an unknown angle, and each endpoint has unknown
+position. Constraints for the bar and joint properties are introduced
+alongside any explicitly specified constraints.
+
+Solving the mechanism involves repeatedly selecting position, lengths,
+angles, and directions that are not fully specified and selecting
+values within the domain of that value's current partial
+information. As values are specified, the wiring of the propagator
+model propagates further partial information to other values.
+
+The printed statements in Example \ref{solving-simple-mechanism}
+demonstrate that solving the simple mechanism above involves
+specifying the location of point a, then specifying the length of bar
+a-b and the direction from a that the bar extends. After those
+specifications, the joint angle is constrained to be a right angle and
+the location of point b is known by propagating information about
+point a and bar a-b's position and length. Thus, the only remaining
+property to fully specify the figure is the bar length of bar
+b-c. After building and solving the mechanism, run-mechanism converts
+it into a figure using the underlying primitives and displays it:
+
 \begin{pdf-example}
 [label=solving-simple-mechanism]
-{Solving the Simple Mechanism}
+{Solving the Very Simple Mechanism}
 {images/simple-mechanism.pdf}
 => (m:run-mechanism simple-mechanism)
 
 (initializing-point m:bar:a:b-p1 (0 0))
-(specifying-bar m:bar:a:b .5644024854677596)
+(specifying-bar-length m:bar:a:b .5644024854677596)
 (initializing-direction m:bar:a:b-dir (direction 4.999857164003272))
-(specifying-bar m:bar:b:c 1.1507815910257295)
+(specifying-bar-length m:bar:b:c 1.1507815910257295)
 \end{pdf-example}
 
 \subsection{Geometry Examples}
@@ -242,7 +351,7 @@ When solving the mechanism
 (initializing-direction m:joint:c:b:a-dir-1 (direction 3.888926311421853))
 (specifying-joint m:joint:a:c:b 1.8745808264593105)
 (initializing-point m:bar:c:a-p1 (0 0))
-(specifying-bar m:bar:c:a .4027149730292784)
+(specifying-bar-length m:bar:c:a .4027149730292784)
 \end{pdf-example}
 
 
@@ -259,7 +368,7 @@ When solving the mechanism
 (specifying-joint m:joint:c:b:a .6219719886662947)
 (initializing-direction m:joint:c:b:a-dir-1 (direction .9330664240883363))
 (initializing-point m:bar:b:c-p1 (0 0))
-(specifying-bar m:bar:b:c .3557699722973674)
+(specifying-bar-length m:bar:b:c .3557699722973674)
 \end{pdf-example}
 
 \begin{code-example}
@@ -277,7 +386,7 @@ When solving the mechanism
 \begin{pdf-example}{Solved Constraints}{images/rect-demo.pdf}
 => (m:run-mechanism (is-this-a-rectangle-2))
 
-(specifying-bar m:bar:d:a .6742252545577186)
+(specifying-bar-length m:bar:d:a .6742252545577186)
 (initializing-direction m:bar:d:a-dir (direction 4.382829365403101))
 (initializing-point m:bar:d:a-p1 (0 0))
 (specifying-joint m:joint:c:b:a 2.65583669872538)
@@ -298,17 +407,26 @@ When solving the mechanism
 (specifying-joint m:joint:c:b:a 1.6835699856637936)
 (initializing-angle m:joint:c:b:a-dir-1 (direction 1.3978162819212452))
 (initializing-point m:bar:a:b-p1 (0 0))
-(specifying-bar m:bar:a:b .8152792207652096)
-(specifying-bar m:bar:b:c .42887899934327023)
+(specifying-bar-length m:bar:a:b .8152792207652096)
+(specifying-bar-length m:bar:b:c .42887899934327023)
 \end{pdf-example}
 
 \section{Learning Module}
 
-\begin{repl-example}
-=> (what-is 'square)
+Finally, given these modules for performing constructions, observing
+interesting symbolic relationships, and rebuilding figures that
+satisfy such relationship, a learning module interfaces with these
+properties to emulate a student that is actively learning geometry.
+
+A user representing the teacher can interact with the system by
+querying what it knows, teaching it new terms, and asking it to apply
+its knowledge to new situations.
+
+\begin{repl-example}{Querying Terms}
+=> (what-is 'trapezoid)
 unknown
 
-=> (what-is line)
+=> (what-is 'line)
 primitive-definition
 
 => (what-is 'triangle)

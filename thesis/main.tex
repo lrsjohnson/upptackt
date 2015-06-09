@@ -99,6 +99,13 @@ numbers=none},
 fonttitle=\bfseries,
 title=Interaction Example \thetcbcounter: #2,#1}
 
+\newtcblisting[use counter from=code-example]{code-listing}[2][]{
+listing only, breakable,
+code=\linespread{1}\vspace{1em},
+listing options={style=mystyle, basicstyle=\footnotesize\ttfamily},
+fonttitle=\bfseries,
+title=Code Listing \thetcbcounter: #2,#1}
+
 \newtcblisting[use counter from=code-example]{img-example}[3][]{
 listing and comment, righthand width=5cm, breakable,
 code=\linespread{1}\vspace{1em},
