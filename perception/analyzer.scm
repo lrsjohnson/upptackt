@@ -64,6 +64,26 @@
         (relationship-predicate relationship)
         elements)))
 
+;;;;;;;;;;;;;;;;;;;;;; Interesting Observations ;;;;;;;;;;;;;;;;;;;;;;
+
+(define (interesting-observations figure-proc)
+  (set! *obvious-observations* '())
+  (let ((all-obs (all-observations (figure-proc))))
+    (pprint *obvious-observations*)
+    (pprint all-obs)
+    (set-difference all-obs *obvious-observations*
+                    observation-equal?)))
+
+(define *obvious-observations* #f)
+
+(define (save-obvious-observation! obs)
+  (if *obvious-observations*
+      (begin
+        (pprint obs)
+        (set! *obvious-observations*
+              (cons obs
+                    *obvious-observations*)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;; Cross products, pairs ;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; General proceudres for generating pairs

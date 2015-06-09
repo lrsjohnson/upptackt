@@ -88,8 +88,12 @@
 
 (define (perpendicular-bisector segment)
   (let ((midpt (segment-midpoint segment)))
-    (perpendicular (segment->line segment)
-                   midpt)))
+    (let ((pb (perpendicular (segment->line segment)
+                             midpt)))
+      (save-obvious-observation!
+       (make-observation perpendicular-relationship
+                         (list pb segment)))
+      pb)))
 
 (define (angle-bisector a)
   (let* ((d1 (angle-arm-1 a))

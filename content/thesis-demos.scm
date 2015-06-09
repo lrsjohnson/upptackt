@@ -88,3 +88,7 @@
    (m:make-named-bar 'b 'c)
    (m:make-named-joint 'a 'b 'c)
    (m:c-right-angle (m:joint 'b))))
+
+(define (parallelogram-figure)
+  (let-geo* (((p (a b c d)) (random-parallelogram)))
+    (figure p)))

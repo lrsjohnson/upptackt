@@ -25,3 +25,6 @@
    (map print (observation-args obs))))
 
 (defhandler print print-observation observation?)
+
+(define (format-observations obs-list)
+  (pprint obs-list))
