@@ -38,7 +38,14 @@
 (define (quad-diagonals)
   (m:mechanism
    ;; Setup abcd with e in the middle:
-   (quadrilateral-with-diagonals-intersection 'a 'b 'c 'd 'e)
+   ;(quadrilateral-with-diagonals-intersection 'a 'b 'c 'd 'e)
+
+   (m:establish-polygon-topology 'a 'b 'e)
+   (m:establish-polygon-topology 'b 'c 'e)
+   (m:establish-polygon-topology 'c 'd 'e)
+   (m:establish-polygon-topology 'd 'a 'e)
+   (m:c-line-order 'c 'e 'a)
+   (m:c-line-order 'b 'e 'd)
 
    ;; Right Angle in Center:
    (m:c-right-angle (m:joint 'b 'e 'c))

@@ -12,11 +12,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Main Interface ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (simplify-definition
-         n-sides
-         observations)
-  #f)
-
 (define (observations->constraints observations)
   (filter identity (map observation->constraint observations)))
 
@@ -57,12 +52,13 @@
         ((= n-sides 4)
          (m:establish-polygon-topology 'a 'b 'c 'd))))
 
-(define (observations->figure n-sides observations)
+(define (observations->figure topology observations)
   (initialize-scheduler)
+  (pprint (observations->constraints observations))
   (let ((m (apply
             m:mechanism
-            (cons
-             (establish-polygon-topology-for-n-gon n-sides)
+            (list
+             topology
              (observations->constraints observations)))))
     (m:build-mechanism m)
     (if (not (m:solve-mechanism m))
@@ -73,3 +69,28 @@
           (pp "Solved!")
           (show-figure f)
           f))))
+
+(define (topology-for-object obj)
+  (if (polygon? obj)
+      (establish-polygon-topology-for-n-gon
+       (polygon-n-points obj))
+      (error "Object isn't a polygon")))
+
+(define (polygon-from-figure figure)
+  (let ((all-points (figure-points figure)))
+    (let lp ((i 1)
+             (pts '()))
+      (let ((p (find-point all-points
+                           (nth-letter-symbol i))))
+        (if p
+            (lp (+ i 1)
+                (append pts (list p)))
+            (apply polygon-from-points pts))))))
+
+(define (find-point points name)
+  (let ((pts (filter
+              (lambda (p)
+                (eq? (element-name p) name))
+              points)))
+    (and (not (null? pts))
+         (car pts))))

@@ -114,7 +114,7 @@ analyzed.
 
 \begin{pdf-example}
 [label=incircle-circumcircle-fig]
-{Incircle and Circumcircle}
+{Inscribed and Circumscribed Circles}
 {images/incenter-circumcenter.pdf}
 (define (inscribed-circumscribed)
   (let-geo* (((t (a b c)) (random-triangle))
@@ -323,6 +323,12 @@ it into a figure using the underlying primitives and displays it:
 
 \subsection{Geometry Examples}
 
+These bar and linkage mechanisms can be used to represent the
+topologies of several geometry figures. Bars correspond to segments
+and joints correspond to angles. Example \ref{arbitrary-tri}
+demonstrates the set of linkages necessary to specify the topology of
+a triangle.
+
 \begin{code-example}
 [label=arbitrary-tri]
 {Describing an Arbitrary Triangle}
@@ -409,6 +415,54 @@ When solving the mechanism
 (initializing-point m:bar:a:b-p1 (0 0))
 (specifying-bar-length m:bar:a:b .8152792207652096)
 (specifying-bar-length m:bar:b:c .42887899934327023)
+\end{pdf-example}
+
+Finally, in addition to solving constraints of the angles and sides
+for a single polygon, the mechanism system allows for the creation of
+arbitrary topologies of bars and linkages.
+
+\begin{code-example}{More Involved Topologies for Constraint Solving}
+(define (m:quadrilateral-with-intersecting-diagonals a b c d e)
+  (list (m:establish-polygon-topology a b e)
+        (m:establish-polygon-topology b c e)
+        (m:establish-polygon-topology c d e)
+        (m:establish-polygon-topology d a e)
+        (m:c-line-order c e a)
+        (m:c-line-order b e d)))
+\end{code-example}
+
+\begin{pdf-example}
+{Kites from Diagonal Properties}
+{images/kite-diag.pdf}
+(define (kite-from-diagonals)
+  (m:mechanism
+   (m:quadrilateral-with-intersecting-diagonals 'a 'b 'c 'd 'e)
+   (m:c-right-angle (m:joint 'b 'e 'c)) ;; Right Angle in Center
+   (m:c-length-equal (m:bar 'c 'e) (m:bar 'a 'e))))
+
+=> (m:run-mechanism kite-from-diagonals)
+\end{pdf-example}
+
+\begin{pdf-example}
+{Isoceles Trapezoids from Diagonals}
+{images/it-diag.pdf}
+(define (isoceles-trapezoid-from-diagonals)
+  (m:mechanism
+   (m:quadrilateral-with-intersecting-diagonals 'a 'b 'c 'd 'e)
+   (m:c-length-equal (m:bar 'a 'e) (m:bar 'b 'e))
+   (m:c-length-equal (m:bar 'c 'e) (m:bar 'd 'e))))
+
+=> (m:run-mechanism isoceles-trapezoid-from-diagonals)
+\end{pdf-example}
+
+\begin{pdf-example}
+{Parallelograms from Diagonal Properties}
+{images/pl-diag.pdf}
+(define (parallelogram-from-diagonals)
+  (m:mechanism
+   (m:quadrilateral-with-intersecting-diagonals 'a 'b 'c 'd 'e)
+   (m:c-length-equal (m:bar 'a 'e) (m:bar 'c 'e))
+   (m:c-length-equal (m:bar 'b 'e) (m:bar 'd 'e))))
 \end{pdf-example}
 
 \section{Learning Module}
@@ -522,4 +576,65 @@ done
 
 => (what-is 'sq)
 (sq (rh rectangle) ())
+\end{repl-example}
+
+\begin{repl-example}
+{Learning Simple Definitions}
+
+=> (what-is 'isoceles-triangle)
+
+(i-t
+ (triangle)
+ ((equal-length (polygon-segment 0 1 <premise>)
+                (polygon-segment 2 0 <premise>))
+  (equal-angle (polygon-angle 1 <premise>) (polygon-angle 2 <premise>))))
+
+=> (get-simple-definitions 'isoceles-triangle)
+
+((invalid-definition ())
+ (valid-definition
+  ((equal-length (segment a b) (segment c a))))
+ (valid-definition
+  ((equal-angle (angle b) (angle c))))
+ (valid-definition
+  ((equal-length (segment a b) (segment c a))
+   (equal-angle (angle b) (angle c)))))
+
+=> (get-simple-definitions 'pl)
+
+((invalid-definition ())
+ (invalid-definition ((equal-length (segment a b) (segment c d))))
+ (unknown-definition ((equal-length (segment b c) (segment d a))))
+ (invalid-definition ((equal-angle (angle a) (angle c))))
+ (invalid-definition ((equal-angle (angle b) (angle d))))
+ (valid-definition
+  ((equal-length (segment a b) (segment c d))
+   (equal-length (segment b c) (segment d a))))
+ (invalid-definition
+  ((equal-length (segment b c) (segment d a))
+   (equal-angle (angle b) (angle d))))
+ (valid-definition
+  ((equal-angle (angle a) (angle c))
+   (equal-angle (angle b) (angle d))))
+ (valid-definition
+  ((equal-length (segment a b) (segment c d))
+   (equal-length (segment b c) (segment d a))
+   (equal-angle (angle a) (angle c))))
+ (valid-definition
+  ((equal-length (segment a b) (segment c d))
+   (equal-length (segment b c) (segment d a))
+   (equal-angle (angle b) (angle d))))
+ (valid-definition
+  ((equal-length (segment a b) (segment c d))
+   (equal-angle (angle a) (angle c))
+   (equal-angle (angle b) (angle d))))
+ (valid-definition
+  ((equal-length (segment b c) (segment d a))
+   (equal-angle (angle a) (angle c))
+   (equal-angle (angle b) (angle d))))
+ (valid-definition
+  ((equal-length (segment a b) (segment c d))
+   (equal-length (segment b c) (segment d a))
+   (equal-angle (angle a) (angle c))
+   (equal-angle (angle b) (angle d)))))
 \end{repl-example}

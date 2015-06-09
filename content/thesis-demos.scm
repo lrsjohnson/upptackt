@@ -92,3 +92,31 @@
 (define (parallelogram-figure)
   (let-geo* (((p (a b c d)) (random-parallelogram)))
     (figure p)))
+
+(define (m:quadrilateral-with-intersecting-diagonals a b c d e)
+  (list (m:establish-polygon-topology a b e)
+        (m:establish-polygon-topology b c e)
+        (m:establish-polygon-topology c d e)
+        (m:establish-polygon-topology d a e)
+        (m:c-line-order c e a)
+        (m:c-line-order b e d)))
+
+(define (kite-from-diagonals)
+  (m:mechanism
+   (m:quadrilateral-with-intersecting-diagonals 'a 'b 'c 'd 'e)
+   (m:c-right-angle (m:joint 'b 'e 'c)) ;; Right Angle in Center
+   (m:c-length-equal (m:bar 'c 'e) (m:bar 'a 'e))))
+
+(define (isoceles-trapezoid-from-diagonals)
+  (m:mechanism
+   (m:quadrilateral-with-intersecting-diagonals 'a 'b 'c 'd 'e)
+
+   (m:c-length-equal (m:bar 'a 'e) (m:bar 'b 'e))
+   (m:c-length-equal (m:bar 'c 'e) (m:bar 'd 'e))))
+
+(define (parallelogram-from-diagonals)
+  (m:mechanism
+   (m:quadrilateral-with-intersecting-diagonals 'a 'b 'c 'd 'e)
+
+   (m:c-length-equal (m:bar 'a 'e) (m:bar 'c 'e))
+   (m:c-length-equal (m:bar 'b 'e) (m:bar 'd 'e))))

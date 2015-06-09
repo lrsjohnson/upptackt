@@ -163,7 +163,6 @@
                  (conjectures (map conjecture-from-observation observations))
                  (simplified-conjectures
                   (simplify-conjectures conjectures base-conjectures)))
-            (run-figure (lambda () (figure example)))
             (pprint conjectures)
             (let ((new-def
                    (make-restrictions-definition
@@ -173,3 +172,32 @@
                     object-generator)))
               (add-definition! *current-student* new-def)
               'done))))))
+
+(define (get-simple-definitions term)
+  (let ((def (lookup term)))
+    (if (unknown? def)
+        (error "Unknown term" term))
+    (let* ((object ((definition-generator def)))
+           (observations
+            (filter
+             observation->constraint
+             (all-observations
+              (figure (name-polygon object))))))
+      (map
+       (lambda (obs-subset)
+         (pprint obs-subset)
+         (let* ((topology (topology-for-object object))
+                (new-figure
+                 (observations->figure topology obs-subset)))
+           (if new-figure
+               (let ((new-polygon
+                      (polygon-from-figure new-figure)))
+                 (pprint new-polygon)
+                 (if (is-a? term new-polygon)
+                     (list 'valid-definition
+                           obs-subset)
+                     (list 'invalid-definition
+                           obs-subset)))
+               (list 'unknown-definition
+                     obs-subset))))
+       (all-subsets observations)))))
