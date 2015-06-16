@@ -51,15 +51,22 @@
 (define (identity x) x)
 
 ;;; ps1 \ ps2
-(define (set-difference set1 set2 member-predicate)
-  (define delp (delete-member-procedure list-deletor member-predicate))
+(define (set-difference set1 set2 equality-predicate)
+  (define delp (delete-member-procedure list-deletor equality-predicate))
   (let lp ((set1 set1)
            (set2 set2))
     (if (null? set2)
-        set1
+        (dedupe-by equality-predicate set1)
         (let ((e (car set2)))
           (lp (delp e set1)
               (cdr set2))))))
+
+(define (subset? small-set big-set equality-predicate)
+  (let ((sd (set-difference small-set big-set equality-predicate)))
+    (null? sd)))
+
+(define (eq-subset? small-set big-set)
+  (subset? small-set big-set eq?))
 
 (define (set-intersection set1 set2 member-predicate)
   (let lp ((set1 (dedupe member-predicate set1))
@@ -122,6 +129,23 @@
                (dedupe member-predicate (cdr elements))
                (cons b1 (dedupe member-predicate (cdr elements))))))))
 
+;;; supplanted-by-prediate takes two args: an element under consideration
+;;; and an existing element in the list. If true, the first element
+;;; will be removed from the list.
+(define (remove-supplants supplanted-by-predicate elements)
+  (define member-predicate (member-procedure
+                            supplanted-by-predicate))
+  (let lp ((elements-tail elements)
+           (elements-head '()))
+    (if (null? elements-tail)
+        elements-head
+        (let ((el (car elements-tail))
+              (new-tail (cdr elements-tail)))
+          (lp new-tail
+              (if (or (member-predicate el new-tail)
+                      (member-predicate el elements-head))
+                  elements-head
+                  (cons el elements-head)))))))
 
 (define (partition-into-equivalence-classes elements equivalence-predicate)
   (let lp ((equivalence-classes '())

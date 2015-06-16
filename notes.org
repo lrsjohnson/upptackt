@@ -2,6 +2,7 @@
 ** Priorities / Short-term goals
 *** Cleanup
     - [ ] Annotate Analyzer, Animate
+    - [ ] equality-predicate vs. member-predicate for utils
     - [ ] "Random Quadrilaterals" - Fix randomness
 *** Construction from Constraints
     - [ ] Ordering of value instantiation <------

@@ -1,6 +1,7 @@
 ;;; load.scm -- Load learning module
 (for-each (lambda (f) (load f))
-          '("definitions"
+          '("lattice"
+            "definitions"
             "student"
             "conjecture"
             "simplifier"
