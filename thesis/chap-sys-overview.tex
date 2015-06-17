@@ -100,7 +100,8 @@ following chapters.
 \includegraphics[width=0.9\textwidth]{diagrams/Representations.eps}
 \end{center}
 
-\noindent {\bf System Overview: Given construction steps for an
+\begin{spacing}{1}
+\noindent {\bf{}System Overview:} Given construction steps for an
   investigation an external teacher wishes the student perform, the
   system first (1) uses its imperative construction module to
   execute these construction steps and build an analytic instance of
@@ -112,7 +113,8 @@ following chapters.
   determine which are essential in the original diagram. Finally (4),
   a learning module will monitor the overall process, omit
   already-known results, and assemble a repository of known
-  definitions, properties, and theorems.}
+  definitions, properties, and theorems.
+\end{spacing}
 
 %% Other Stuff:
 
@@ -125,14 +127,14 @@ perception module to notice interesting properties, and a learning
 module to analyze information from the other modules and integrate it
 into new definition and theorem discoveries.
 
-\section{Sample Interaction}
+\section{Steps in a Typical Interaction}
 
 This core system provides an interpreter to accept input of
 construction instructions, an analytic geometry system that can create
 instances of such constructions, a pattern-finding process to discover
 ``interesting properties'', and an interface for reporting findings.
 
-\subsection{Interpreting Construction Steps}
+\subsection{Interpreting Construction Instructions}
 
 The first step in such explorations is interpreting an input of the
 diagram to be explored.  To avoid the problems involved with solving
@@ -173,8 +175,6 @@ interesting properties, it will reconstruct the diagram using
 different choices and observe if the observed properties hold true
 across many instances of a diagram.
 
-\subsection{Simplifying Definitions and Known Facts}
-
 \subsection{Reporting Findings}
 
 Finally, once the system has discovered some interesting properties
@@ -188,8 +188,3 @@ do so, the construction process interacts with properties known in the
 learning module to maintain a list of facts that can be reasoned from
 construction assumptions so that these can be omitted in the final
 reporting.
-
-\section{Example Interaction}
-
-[For now see walkthrough in the ``results'' chapter. Will add a good,
-  simple example here]

@@ -3,19 +3,34 @@
 
 \section{Overview}
 
-The final module is a declarative geometric constraint solver. Given
-a user-specified topology of the diagram and various constraints, this
-system is able to solve those constraints and instantiate a diagram
-that satisfies them if possible.
+The third module is a declarative geometric constraint solver. Given a
+user-specified topology of a diagram and various constraints on
+segments and angles, this module solves the specification and if
+possible, instantiates a figure that satisfies the constraints.
 
-This system is implemented using propagators, involved the creation of
-new partial information about point regions and direction intervals,
-and focuses on a
+The solver is implemented using propagators, uses new types of partial
+information about point regions and direction intervals, and focuses
+on emulating the mental process of wiggling constrained figures in the
+mind's eye. The physical nature of this process is captured by forming
+analogies between geometry diagrams and mechanical linkages of bars
+and joints.
 
-Future efforts involve a backtrack-search mechanism if constraints
-fail, and a system of initializing the diagram with content from an
-existing figure, kicking out and wiggling arbitrary premises, and
-seeing how the resulting diagram properties respond.
+After providing a brief overview of the mechanical analogies and quick
+background on the propagator system, I examine an example of the
+system solving a set of constraints for an under-constrained
+rectangle. Then, I describe the module implementation, starting with
+the new partial information representations and linkage constraints
+before explaining how mechanisms are assembled and solved. Finally,
+some limitations and extensions are discussed.
+
+%% Outline
+%% - Mechanical Analogies
+%% - Propagator System
+%% - Partial Information Structures
+%% - Linkages
+%% - Building a Mechanism
+%% - Solving a Mechanism
+%% - Discussion
 
 \section{Mechanical Analogies}
 
@@ -202,3 +217,10 @@ Nice techniques for establishing polygon topology.
               (list (m:polygon-sum-slice
                      (map m:joint-name joints)))))))
 \end{code-listing}
+
+\section{Extensions}
+
+Future efforts involve an improved backtrack-search mechanism if
+constraints fail, and a system of initializing the diagram with
+content from an existing figure, kicking out and wiggling arbitrary
+premises, and seeing how the resulting diagram properties respond.

@@ -5,15 +5,27 @@
 
 The first module is an imperative system for performing geometry
 constructions. This is the typical input method for generating
-coordinate-backed instances of figures.
+coordinate-backed, analytic instances of figures.
 
-I first discuss the basic structures and constructions that comprise figures,
-then describe the higher-order language used to specify construction
-steps.
+The construction system is comprised of a large, versatile library of
+useful utility and construction procedures for creating figures. To
+appropriately focus the discussion of this module, I will concentrate
+on the implementation of structures and procedures necessary for the
+sample construction seen in Example \ref{sample-construction}.  Full
+code and more usage examples are provided in Appendix \ref{chap:code}.
 
-\section{Construction Interface}
+In doing so, I will first describe the basic structures and essential
+utility procedures before presenting some higher-level construction
+procedures, polygons, and figures. Then, I will Then, I will explore
+the use of randomness in the system and examine how construction
+language macros handle names, dependencies, and multiple assignment of
+components.  Finally, I will briefly discuss the interface and
+implementation for animating and displaying figures.
 
-\begin{code-example}{Sample Construction}
+\begin{pdf-example}
+[label=sample-construction]
+{Sample Construction}
+{images/angle-bisector-distance.pdf}
 (define (angle-bisector-distance)
   (let-geo* (((a (r-1 v r-2)) (random-angle))
              (ab (angle-bisector a))
@@ -21,16 +33,33 @@ steps.
              ((s-1 (p b)) (perpendicular-to r-1 p))
              ((s-2 (p c)) (perpendicular-to r-2 p)))
      (figure a r-1 r-2 ab p s-1 s-2)))
-\end{code-example}
+
+=> (show-figure (angle-bisector-distance))
+\end{pdf-example}
+
+%% Outline
+%% - Basic Structures and essential Utilities (code + line-from-points...)
+%% - Randomness
+%% - Higher-order Objects (Polygons, Figure)
+%% - let-geo* Names and Dependencies
+%% - Animation / Graphics.
 
 \section{Basic Structures}
 
-The basic structures
+The basic structures in the imperative construction system are points,
+segments, rays, lines, angles, and circles. These structures, as with
+all structures in the system are implemented using Scheme record
+structures as seen in Listings \ref{basic-structures} and
+\ref{angle-circle-structs}. In the internal representations, lines and
+segments are directioned. Predicates exist to allow other procedures
+to work with or ignore these directions.
 
-\begin{code-example}{Basic Structures}
+\begin{code-listing}
+[label=basic-structures]
+{Basic Structures}
 (define-record-type <point>
   (make-point x y)
-  point? "hi"
+  point?
   (x point-x)
   (y point-y))
 
@@ -45,9 +74,11 @@ The basic structures
   line?
   (point line-point) ;; Point on the line
   (dir line-direction))
-\end{code-example}
+\end{code-listing}
 
-\begin{code-example}{Angle and Circle Structures}
+\begin{code-listing}
+[label=angle-circle-structs]
+{Angle and Circle Structures}
 (define-record-type <angle>
   (make-angle dir1 vertex dir2)
   angle?
@@ -60,7 +91,313 @@ The basic structures
   circle?
   (center circle-center)
   (radius circle-radius))
+\end{code-listing}
+
+\subsection{Creating Elements}
+
+Elements can be created explicitly using the underlying
+\texttt{make-*} constructors defined with the record types. However,
+several higher-order constructors are provided to simplify
+construction as shown in Listings~\ref{line-from-points}
+and~\ref{angle-from}.  In \texttt{angle-from-lines}, we make use of
+the fact that lines are directioned to uniquely specify an angle.  As
+with the angle construction case, in several instances, we use generic
+operations to handle mixed types of geometry elements.
+
+\begin{code-listing}
+[label=line-from-points]
+{Higher-order Constructors}
+(define (line-from-points p1 p2)
+  (make-line p1 (direction-from-points p1 p2)))
+
+\end{code-listing}
+
+\begin{code-listing}
+[label=angle-from]
+{Generic Constructors for Creating Angles}
+(define angle-from (make-generic-operation 2 'angle-from))
+
+(define (angle-from-lines l1 l2)
+  (let ((d1 (line->direction l1))
+        (d2 (line->direction l2))
+        (p (intersect-lines l1 l2)))
+    (make-angle d1 p d2)))
+(defhandler angle-from angle-from-lines line? line?)
+\end{code-listing}
+
+\subsection{Essential Math Utilities}
+
+Several math utility structures support these constructors and other
+geometry procedures. One particularly useful abstraction is a
+\texttt{direction} that fixes a direction in the interval $[0, 2
+  \pi]$. Listing~\ref{directions} provides a taste of some operations
+using such abstractions.
+
+\begin{code-listing}
+[label=directions]
+{Directions}
+(define (subtract-directions d2 d1)
+  (if (direction-equal? d1 d2)
+      0
+      (fix-angle-0-2pi (- (direction-theta d2)
+                          (direction-theta d1)))))
+
+(define (direction-perpendicular? d1 d2)
+  (let ((difference (subtract-directions d1 d2)))
+    (or (close-enuf? difference (/ pi 2))
+        (close-enuf? difference (* 3 (/ pi 2))))))
+\end{code-listing}
+
+\section{Higher-order Procedures and Structures}
+
+Higher-order construction procedures and structures are built upon
+these basic elements and utilities. Listing~\ref{perpendiculars} shows
+the implementation of the perpendicular constructions used in the
+sample figure.
+
+\begin{code-listing}
+[label=perpendiculars]
+{Perpendicular Constructions}
+;; Constructs line through point perpendicular to linear-element
+(define (perpendicular linear-element point)
+  (let* ((direction (->direction linear-element))
+         (rotated-direction (rotate-direction-90 direction)))
+    (make-line point rotated-direction)))
+
+;;; Constructs perpendicular segment from point to linear-element
+(define (perpendicular-to linear-element point)
+  (let ((pl (perpendicular linear-element point)))
+    (let ((i (intersect-linear-elements pl (->line linear-element))))
+      (make-segment point i))))
+\end{code-listing}
+
+Although traditional constructions generally avoid using rulers and
+protractors, Listing~\ref{angle-bisector} shows the implementation of
+the \texttt{angle-bisector} procedure from our sample figure that uses
+measurements to simplify construction.
+
+\begin{code-listing}
+[label=angle-bisector]
+{Angle Bisector Construction}
+(define (angle-bisector a)
+  (let* ((d2 (angle-arm-2 a))
+         (vertex (angle-vertex a))
+         (radians (angle-measure a))
+         (half-angle (/ radians 2))
+         (new-direction (add-to-direction d2 half-angle)))
+    (make-ray vertex new-direction)))
+\end{code-listing}
+
+\subsection{Polygons and Figures}
+
+Polygons record structures contain an ordered list of points in
+counter-clockwise order, and provide procedures such as
+\texttt{polygon-point-ref} or \texttt{polygon-segment} to obtain
+particular points, segments, and angles specified by indices.
+
+Figures are simple groupings of geometry elements and provide
+procedures for extracting all points, segments, angles,
+and lines contained in the figure, including ones extracted from within
+polygons or subfigures.
+
+\section{Random Choices}
+
+To allow figures to represent general spaces of diagrams, random
+choices are commonly used to instantiate diagrams. In our sample
+figure, we use \texttt{random-angle} and \texttt{random-point-on-ray},
+implementations of which are shown in
+listing~\ref{random-angle-measure}. Underlying these procedures are
+calls to Scheme's random function over a specified range ($[0, 2\pi]$
+for \texttt{random-angle-measure}, for instance). Since infinite
+ranges are not well supported and to ensure the figures stay
+reasonable legible for a human viewer,
+\texttt{extend-ray-to-max-segment} clips a ray at the current working
+canvas so a point on the ray can be selected within the working
+canvas.
+
+\begin{code-listing}
+[label=randomness]
+{Random Constructors}
+(define (random-angle)
+  (let* ((v (random-point))
+         (d1 (random-direction))
+         (d2 (add-to-direction
+              d1
+              (rand-angle-measure))))
+    (make-angle d1 v d2)))
+
+(define (random-point-on-ray r)
+  (random-point-on-segment
+   (extend-ray-to-max-segment r)))
+
+(define (random-point-on-segment seg)
+  (let* ((p1 (segment-endpoint-1 seg))
+         (p2 (segment-endpoint-2 seg))
+         (t (safe-rand-range 0 1.0))
+         (v (sub-points p2 p1)))
+    (add-to-point p1 (scale-vec v t))))
+
+(define (safe-rand-range min-v max-v)
+  (let ((interval-size (max 0 (- max-v min-v))))
+    (rand-range
+     (+ min-v (* 0.1 interval-size))
+     (+ min-v (* 0.9 interval-size)))))
+\end{code-listing}
+
+Other random elements are created by combining these random choices,
+such as the random parallelogram in Listing
+\ref{random-parallelogram}.
+
+\begin{code-listing}
+[label=random-parallelogram]
+{Random Parallelogram}
+(define (random-parallelogram)
+  (let* ((r1 (random-ray))
+         (p1 (ray-endpoint r1))
+         (r2 (rotate-about (ray-endpoint r1)
+                           (rand-angle-measure)
+                           r1))
+         (p2 (random-point-on-ray r1))
+         (p4 (random-point-on-ray r2))
+         (p3 (add-to-point
+              p2
+              (sub-points p4 p1))))
+    (polygon-from-points p1 p2 p3 p4)))
+\end{code-listing}
+
+\subsection{Backtracking}
+
+The module currently only provides limited support for avoiding
+degenerate cases, or cases where randomly selected points happen to be
+very nearly on top of existing points. Several random choices use
+\texttt{safe-rand-range} (seen in Listing \ref{randomness}) to avoid
+the edge cases of ranges, but further extensions could improve this
+system to periodically check for unintended relationships and
+backtrack to choose other values.
+
+\section{Construction Language Support}
+
+To simplify specification of figures, the module provides the
+\texttt{leg-geo*} macro which allows for a multiple-assignment-like
+extraction of components from elements and automatically tags
+resulting elements with their variable names for future
+reference. Listing~\ref{letgeo-expansion} shows the expansion of a
+simple usage of \texttt{let-geo*} and
+listing~\ref{component-assignment} shows some of the macros' implementation.
+
+\begin{code-example}
+[label=letgeo-expansion]
+{Expansion of let-geo* macro}
+(let-geo* (((a (r-1 v r-2)) (random-angle)))
+  (figure a r-1 r-2 ...))
+
+(let* ((a (random-angle))
+       (r-1 (element-component a 0))
+       (v   (element-component a 1))
+       (r-2 (element-component a 2)))
+  (set-element-name! a   'a)
+  (set-element-name! r-1 'r-1)
+  (set-element-name! v   'v)
+  (set-element-name! r-2 'r-2)
+  (figure a r-1 r-2 ...))
 \end{code-example}
+
+\begin{code-listing}
+[label=component-assignment]
+{Multiple and Component Assignment}
+(define (expand-compound-assignment lhs rhs)
+  (if (not (= 2 (length lhs)))
+      (error "Malformed compound assignment LHS (needs 2 elements): " lhs))
+  (let ((key-name (car lhs))
+        (component-names (cadr lhs)))
+    (if (not (list? component-names))
+        (error "Component names must be a list:" component-names))
+    (let ((main-assignment (list key-name rhs))
+          (component-assignments (make-component-assignments
+                                  key-name
+                                  component-names)))
+      (cons main-assignment
+            component-assignments))))
+
+(define (make-component-assignments key-name component-names)
+  (map (lambda (name i)
+         (list name `(element-component ,key-name ,i)))
+       component-names
+       (iota (length component-names))))
+\end{code-listing}
+
+Once expanded, a generic \texttt{element-component} operator shown in
+Listing~\ref{element-component} defines what components are extracted
+from what elements (endpoints for segments, vertices for polygons,
+(ray, angle, ray) for angles).
+
+\begin{code-listing}
+[label=element-component]
+{Generic Element Component Handlers}
+(declare-element-component-handler polygon-point-ref polygon?)
+
+(declare-element-component-handler
+ (component-procedure-from-getters
+  ray-from-arm-1
+  angle-vertex
+  ray-from-arm-2)
+ angle?)
+\end{code-listing}
+
+\section{Graphics and Animation}
+
+The system integrates with Scheme's graphics system for the X Window
+System to display the figures for the users. The graphical viewer can
+include labels and highlight specific elements, as well as display
+animations representing the ``wiggling'' of the
+diagram. Implementations of core procedures of these components are
+shown in Listings~\ref{draw-figure} and~\ref{animation}.
+
+\begin{code-listing}
+[label=draw-figure]
+{Drawing Figures}
+(define (draw-figure figure canvas)
+  (set-coordinates-for-figure figure canvas)
+  (clear-canvas canvas)
+  (for-each
+   (lambda (element)
+     (canvas-set-color canvas (element-color element))
+     ((draw-element element) canvas))
+   (all-figure-elements figure))
+  (for-each
+   (lambda (element)
+     (canvas-set-color canvas (element-color element))
+     ((draw-label element) canvas))
+   (all-figure-elements figure))
+  (graphics-flush (canvas-g canvas)))
+\end{code-listing}
+
+To animate a figure, constructions can call \texttt{animate} with a
+procedure f that takes an argument in $[0, 1]$. When the animation is
+run, the system will use fluid variables to iteratively wiggle each
+successive random choice through its range of
+$[0,1]$. \texttt{animate-range} provides an example where a user can
+specify a range to wiggle over.
+
+\begin{code-listing}
+[label=animation]
+{Animation}
+(define (animate f)
+  (let ((my-index *next-animation-index*))
+    (set! *next-animation-index* (+ *next-animation-index* 1))
+    (f (cond ((< *animating-index* my-index) 0)
+             ((= *animating-index* my-index) *animation-value*)
+             ((> *animating-index* my-index) 1)))))
+
+(define (animate-range min max)
+  (animate (lambda (v)
+             (+ min
+                (* v (- max min))))))
+\end{code-listing}
+
+%% Old Stuff:
+
+\if false
 
 \subsection{Points}
 
@@ -87,28 +424,6 @@ elements to determine which ``quadrant'' of the angle is desired.
 Given a figure, methods exist to extract angles from the diagrams in
 analysis rather than specifying each angle of interest while creating
 the diagram.
-
-\subsection{Math Support}
-
-\begin{code-listing}{Directions}
-(define (subtract-directions d2 d1)
-  (if (direction-equal? d1 d2)
-      0
-      (fix-angle-0-2pi (- (direction-theta d2)
-                          (direction-theta d1)))))
-
-(define (direction-perpendicular? d1 d2)
-  (let ((difference (subtract-directions d1 d2)))
-    (or (close-enuf? difference (/ pi 2))
-        (close-enuf? difference (* 3 (/ pi 2))))))
-\end{code-listing}
-
-Some ``core'' math structures to help these calculations: Direction
-represents a direction in [0, 2pi], fixes principal value [0, 2pi],
-and support various operations for direction intervals (basic
-intersection, adding, shifting, etc). Currently all represented by
-single theta value, could generalize via generics to dx, dy, or theta
-depending on computation source.
 
 \section{Higher-level structures}
 
@@ -216,8 +531,8 @@ the dependencies.
 
 \subsection{Forcing higher-level random dependenceis}
 
-"Inverts" the dependency tree that would otherwise usually go
-down to points. set-dependency! as random-square. When given an
+``Inverts'' the dependency tree that would otherwise usually go
+down to points. Or set-dependency! as random-square. When given an
 element by the teacher, generally we don't know how the construction
 was performed.
 
@@ -233,7 +548,7 @@ scheme procedures that return the desired figures.
 \subsection{Macros}
 
 I created a let-geo* special form that is similar to Scheme's (let
-...) form, but sets the element names as specified so they can be more
+\ldots) form, but sets the element names as specified so they can be more
 easily referred to later.
 
 \subsection{Multiple Assignment}
@@ -266,3 +581,7 @@ animations representing the ``wiggling'' of the diagram.
    (all-figure-elements figure))
   (graphics-flush (canvas-g canvas)))
 \end{code-listing}
+
+\section{Discussion}
+
+\fi

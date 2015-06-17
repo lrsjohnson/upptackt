@@ -1,14 +1,148 @@
 \chapter{Perception Module}
 \label{chap:observer}
 
+%% Outline
+%% - Relationships
+%% - Observations
+%% - Full Analysis Procedure
+%% - Auxillary Segments
+%% - Discussion
+
 \section{Overview}
 
-Given a module that executes construction steps to build analytic
-figures, we need a way of ``seeing'' these figures in our mind's eye.
-Thus, the perception module is primarily concerned with the task of
-examining the figure and observing interesting properties in figure.
+The perception module focuses on ``seeing'' figures in our mind's eye.
+Given analytic figures represented using structures of the imperative
+construction module, the perception module is concerned with finding
+and reporting interesting relationships seen in the figure. In a
+generate-and-test-like fashion, it is rather liberal in the
+observations it returns. The module attempts to omit completely
+obvious properties, but leaves the filtering of new discoveries to the
+learning module (discussed further in Chapter~\ref{chap:learning}).
 
-\begin{code-listing}{Analyzer Routine}
+To explain the module, I will first describe the implementation of
+underlying relationship and observation structures before examining
+the full analyzer routine. I will conclude with a discussion of
+extensions to the module, including some attempted techniques used to
+extract auxillary relationships from figures.
+
+\section{Relationships}
+
+Relationships are the primary structure defining what constitutes an
+interesting observation in a figure. Relationships are represented as
+predicates over typed n-tuples and are checked against all such
+n-tuples found in the figure under analysis.
+
+\begin{code-listing}
+[label=relationship-structure]
+{Relationships}
+(define-record-type <relationship>
+  (%make-relationship type arity predicate)
+  relationship?
+  (type relationship-type)
+  (arity relationship-arity)
+  (predicate relationship-predicate))
+
+(define equal-length-relationship
+  (%make-relationship 'equal-length 2 segment-equal-length?))
+
+(define concurrent-relationship
+  (%make-relationship 'concurrent 3 concurrent?))
+
+(define concentric-relationship
+  (%make-relationship 'concentric 4 concentric?))
+...
+\end{code-listing}
+
+Listing~\ref{relationship-structure} displays some representative
+relationships.  The relationship predicates can be arbitrary Scheme
+procedures and often use constructions and utilities from the
+underlying imperative system as seen with \texttt{concurrent?}
+(Listing~\ref{concurrent}) and \texttt{concurrent?}
+(Listing~\ref{concentric}). Concurrent is checked over all 3-tuples of
+linear elements (lines, rays, segments) and Concentric is checked
+against all 4-tuples of points.
+
+\begin{code-listing}
+[label=concurrent]
+{Concurrent Relationship}
+(define (concurrent? l1 l2 l3)
+  (let ((i-point (intersect-linear-elements-no-endpoints l1 l2)))
+    (and i-point
+         (on-element? i-point l3)
+         (not (element-endpoint? i-point l3)))))
+\end{code-listing}
+
+\begin{code-listing}
+[label=concentric]
+{Concentric Relationship}
+(define (concentric? p1 p2 p3 p4)
+  (and (distinct? p1 p2 p3 p4)
+       (let ((pb-1 (perpendicular-bisector
+                    (make-segment p1 p2)))
+             (pb-2 (perpendicular-bisector
+                    (make-segment p2 p3)))
+             (pb-3 (perpendicular-bisector
+                    (make-segment p3 p4))))
+         (concurrent? pb-1 pb-2 pb-3))))
+\end{code-listing}
+
+\subsection{What is Interesting?}
+The system currently checks for concurrent, parallel, and
+perpendicular linear elements, segments of equal length, supplementary
+and complementary angles, angles of equal measure, coincident and
+concentric points, and three concentric points with a fourth as its
+center. These relationships covered most of the basic observations
+used in our investigations, but further relationships can be easily
+added.
+
+\section{Observations}
+
+Observations (Listing~\ref{obs}) are structures used to report the
+analyzer's findings. They combine the relevant relationship structure
+with the actual element arguments from the figure that satisfy that
+relationship. Maintaining references to the actual figure elements
+allows helper procedures to print names or extract dependencies as
+needed.
+
+\begin{code-listing}
+[label=obs]
+{Observations}
+(define-record-type <observation>
+  (make-observation relationship args)
+  observation?
+  (relationship observation-relationship)
+  (args observation-args))
+\end{code-listing}
+
+An important question with observations is to determine when they
+are equivalent to one another, to avoid reporting redundant or
+uninteresting relationships. Listing~\ref{eqv-obs}
+
+\begin{code-listing}
+[label=eqv-obs]
+{Equivalent Observations}
+(define (observations-eqivalent? obs1 obs2)
+  (and (eq? (observation-relationship obs1)
+            (observation-relationship obs2))
+       (let ((rel-eqv-test
+              (relationship-equivalence-predicate
+               (observation-relationship obs1)))
+             (args1 (observation-args obs1))
+             (args2 (observation-args obs2)))
+         (rel-eqv-test args1 args2))))
+\end{code-listing}
+
+\section{Analysis Procedure}
+
+Given these relationship and observation structures,
+Listing~\ref{analyzer} presents the main analyzer routine in this
+module. After extracting various types of elements from the figure, it
+examines the relationships relevant for each set of elements and
+gathers all resulting observations.
+
+\begin{code-listing}
+[label=analyzer]
+{Analyzer Routine}
 (define (analyze figure)
   (let* ((points (figure-points figure))
          (angles (figure-angles figure))
@@ -31,7 +165,16 @@ examining the figure and observing interesting properties in figure.
                                    perpendicular-relationship)))))
 \end{code-listing}
 
+The workhorses of \texttt{extract-relationships} and
+\texttt{report-n-wise} shown in Listing~\ref{extract-relationships}
+generate the relevant n-tuples and report observations for those that
+satisfy the relationship under consideration. For these homogeneous
+cases, \texttt{all-n-tuples} returns all (unordered) subsets of size
+$n$ as lists.
+
 \begin{code-listing}
+[label=extract-relationships]
+{Extracting Relationships}
 (define (extract-relationship elements relationship)
   (map (lambda (tuple)
          (make-observation relationship tuple))
@@ -45,41 +188,45 @@ examining the figure and observing interesting properties in figure.
     (filter (nary-predicate n predicate) tuples)))
 \end{code-listing}
 
+\section{Extensions}
+
+The analysis routine was initially one large, arbitrarily complicated
+procedure in which individual checks were added. This reformulation
+to use relationships and observations has simplified the complexity.
+
+In addition, further efforts described below explored extracting
+relationships for elements not explicitly specified in a figure, such
+as auxiliary segments between all pairs of points in the figure,
+treating all intersections as points, or extracting angles. These are
+areas for future work.
+
+\subsection{Auxiliary Segments}
+
+In some circumstances, the system can insert and consider segments
+between all pairs of points. Although this can sometimes produce
+interesting results, it can often lead to too many elements being
+considered. This option is off by default but could be extended and
+enabled in a self-exploration mode.
+
+\subsection{Extracting Angles}
+
+In addition, I briefly explored a system in which the construction
+module also maintains a graph-like representation of the connectedness
+and adjacencies in the figure. In addition to the complexity of
+determining which angles to keep, keeping track of ``obvious''
+relationships between such extracted angles due to parallel lines, for
+instance, is quite a challenge.
+
+%% Initial Stuff:
+
+\if false
+
 \subsection{Extracting segments and angles}
 
 The observation module also builds and traverses a
 graph-representation of the object of connectedness and adjacencies to
 extract more segments and angles, or include intersections of elements
 in its investigation.
-
-\subsubsection{Auxillary Segments}
-
-In some circumstances, the system can insert and consider segments
-between all pairs of points. Although this can sometimes produce
-interesting results, it can often lead to too many elements being
-considered. This option is off by default but can be enabled in a
-self-exploration mode.
-
-\subsection{What is Interesting?}
-
-Concurrent points, collinear points, equal angles,
-supplementary/complementary angles, parallel, perpendicular elements,
-concentric points, (future:) ratios between measurements, etc.
-
-\begin{code-listing}{Relationships}
-(define-record-type <relationship>
-  (%make-relationship type arity predicate)
-  relationship?
-  (type relationship-type)
-  (arity relationship-arity)
-  (predicate relationship-predicate))
-
-(define equal-length-relationship
-  (%make-relationship 'equal-length 2 segment-equal-length?))
-
-(define concurrent-relationship
-  (%make-relationship 'concurrent 3 concurrent?))
-\end{code-listing}
 
 \subsection{Removing Obvious Properties}
 
@@ -100,4 +247,7 @@ Other examples include ``branch'' relations. [REF: Chen, Song,
 \section{Representations}
 
 A ``Relationship'' object represents a type of relationship, a
-``Observation'' object refers to a specific observation seen in a figure.
+``Observation'' object refers to a specific observation seen in a
+figure.
+
+\fi

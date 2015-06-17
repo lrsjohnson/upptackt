@@ -3,8 +3,29 @@
 
 \section{Overview}
 
-The Learning and learning module is one the core elements integrating
-information from the other components of the system. It maintains
+As the final module, the learning module integrates information from
+the other modules and provides the primary, top-level interface for
+interacting with the system. It provides means for users to query its
+knowledge and provide investigations for the system to carry
+out. Through performing such investigations, the learning module
+formulates conjectures based on its observations and maintains a
+repository of information representing a student's understanding of
+geometry concepts.
+
+I will first discuss the interface for interacting with the
+system. Then, after describing the structures for representing and
+storing definitions and conjectures, I demonstrate how the system
+module new terms and conjectures. Finally, I will explain the cyclic
+interaction between the imperative and declarative modules used to
+simplify definitions and discuss some limitations and future
+extensions.
+
+%% Outline
+%% - Interface (what-is, etc.) / Student
+%% - Definitions and Conjectures, Lattice
+%% - Learning terms and conjectures
+%% - Simplifying definitions
+%% - Discussion
 
 \begin{code-example}{Using Definitions}
 (define (what-is term)

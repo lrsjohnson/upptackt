@@ -1,4 +1,5 @@
 \chapter{Code Listings}
+\label{chap:code}
 
 This chapter contains code listings. In addition to the code here,
 propagator system from GJS... cite other sources form GJS / scmutils
@@ -7,13 +8,18 @@ propagator system from GJS... cite other sources form GJS / scmutils
 \lstlistoflistings
 
 \lstdefinestyle{includes}{
-  basicstyle=\scriptsize\ttfamily,
+  numbers=left,
+  xleftmargin=0.3in,
+  basicstyle=\fontsize{8pt}{9pt}\ttfamily,
 }
 
 
 \newcommand{\includecode}[2][c]{\newpage\lstinputlisting[caption=#2, style=includes]{code/#2}}
 % ...
 \linespread{1}
+
+\begin{landscape}
+\begin{multicols}{2}
 \includecode{load.scm}
 \includecode{main.scm}
 
@@ -56,6 +62,7 @@ propagator system from GJS... cite other sources form GJS / scmutils
 
 \includecode{learning/load.scm}
 \includecode{learning/core-knowledge.scm}
+\includecode{learning/lattice.scm}
 \includecode{learning/definitions.scm}
 \includecode{learning/conjecture.scm}
 \includecode{learning/simplifier.scm}
@@ -75,7 +82,8 @@ propagator system from GJS... cite other sources form GJS / scmutils
 \includecode{lib/eq-properties.scm}
 \includecode{lib/ghelper.scm}
 % ...
-
+\end{multicols}
+\end{landscape}
 
 \clearpage
 \newpage
