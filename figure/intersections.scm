@@ -177,6 +177,7 @@
 (defhandler on-element? on-segment? point? segment?)
 (defhandler on-element? on-line? point? line?)
 (defhandler on-element? on-ray? point? ray?)
+(defhandler on-element? on-circle? point? circle?)
 
 ;;;;;;;;;;;;;;;;;;;;;;; Element Endpoint Test ;;;;;;;;;;;;;;;;;;;;;;;;
 

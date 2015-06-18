@@ -43,3 +43,8 @@
        (close-enuf?
         (circle-radius c1)
         (circle-radius c2))))
+
+(define (on-circle? p c)
+  (close-enuf?
+   (distance p (circle-center c))
+   (circle-radius c)))
