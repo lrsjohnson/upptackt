@@ -20,7 +20,7 @@
   (analyze (figure-proc)))
 
 (define (analyze-figure figure)
-  (all-observations figure))
+  (all-observations (lambda () figure)))
 
 ;;; Given a figure, report what's interesting
 (define (analyze figure)

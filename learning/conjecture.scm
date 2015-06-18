@@ -34,7 +34,7 @@
            (print conj2)))
 
 ;;; Whether
-(define (satisfies-conjecture conj premise-instances)
+(define (satisfies-conjecture? conj premise-instances)
   (let ((new-args
          (map
           (lambda (construction-proc)

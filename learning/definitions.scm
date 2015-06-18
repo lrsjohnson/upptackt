@@ -28,11 +28,25 @@
   (and (definition? def)
        (null? (definition-classifications def))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;; Using Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (definition-holds? def obj)
+  (let ((classifications (definition-classifications def))
+        (conjectures (definition-conjectures def)))
+    (and (every
+          (lambda (classification-term)
+            (is-a? classification-term obj))
+          classifications)
+         ((definition-predicate def) obj)
+         (every (lambda (conjecture)
+                  (satisfies-conjecture? conjecture (list obj)))
+                conjectures))))
+
 ;;;;;;;;;;;;;;;;;;;;;; Higher-order Definitions ;;;;;;;;;;;;;;;;;;;;;;
 
 (define (make-restrictions-definition
          name classifications conjectures generator)
-  (%make-definition name classifications conjectures #f generator))
+  (%make-definition name classifications conjectures true-proc generator))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Formatting ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

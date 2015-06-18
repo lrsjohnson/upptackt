@@ -5,4 +5,5 @@
             "student"
             "conjecture"
             "simplifier"
-            "core-knowledge"))
+            "core-knowledge"
+            "interface"))
