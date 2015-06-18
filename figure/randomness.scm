@@ -39,6 +39,12 @@
          (v (internal-rand-range min (- max wiggle-amount))))
     (animate-range v (+ v wiggle-amount))))
 
+(define (safe-rand-range min-v max-v)
+  (let ((interval-size (max 0 (- max-v min-v))))
+    (rand-range
+     (+ min-v (* 0.1 interval-size))
+     (+ min-v (* 0.9 interval-size)))))
+
 ;;; Random Values - distances, angles
 
 (define (rand-theta)
@@ -106,7 +112,7 @@
 (define (random-point-on-segment seg)
   (let* ((p1 (segment-endpoint-1 seg))
          (p2 (segment-endpoint-2 seg))
-         (t (rand-range 0.0 1.0))
+         (t (rand-range 0.05 1.0))
          (v (sub-points p2 p1)))
     (add-to-point p1 (scale-vec v t))))
 
@@ -131,6 +137,13 @@
          (t (rand-range 0.05 1.0))
          (v (sub-points sp2 sp1)))
     (add-to-point sp1 (scale-vec v t))))
+
+
+#|
+(define (random-point-on-ray r)
+  (random-point-on-segment
+   (ray-extend-to-max-segment r)))
+|#
 
 (define (random-point-on-circle c)
   (let ((dir (random-direction)))
@@ -209,7 +222,7 @@
          (d2 (add-to-direction
               d1
               (rand-angle-measure))))
-    (smallest-angle (make-angle d1 v d2))))
+    (make-angle d1 v d2)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Random Polygons ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

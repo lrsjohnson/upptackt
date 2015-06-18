@@ -69,6 +69,33 @@
          `(set-element-name! ,s (quote ,s)))
        symbols))
 
+;;;;;;;;;;;;;;;;;;;;;;;; Setting Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (args-from-premise args)
+  (map (lambda (arg)
+         `((element-source ,arg) p))
+       args))
+
+(define (dependencies-from-args args)
+  (map (lambda (arg)
+         `(element-dependency ,arg))
+       args))
+
+(define (set-dependency-expressions assignments)
+  (map (lambda (a)
+         (let ((name (car a))
+               (value (cadr a)))
+           (let ((proc (car value))
+                 (args (cdr value)))
+             `(set-source! ,name
+                           (lambda (p)
+                             (,proc ,@(args-from-premise args))))
+             `(set-dependency-if-unknown! ,name
+                               (list (quote ,proc)
+                                     ,@args)))))
+       assignments))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; let-geo* ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Syntax for setting names for geometry objects declared via let-geo
@@ -79,8 +106,10 @@
            (body (caddr exp)))
        (let ((new-assignments (expand-assignments assignments))
              (variable-names (variables-from-assignments assignments)))
-         (let ((result`(let*
-                           ,new-assignments
-                         ,@(set-name-expressions variable-names)
-                         ,body)))
+         (let ((result `(let*
+                            ,new-assignments
+                          ,@(set-name-expressions variable-names)
+                          ,@(set-dependency-expressions new-assignments)
+                          ,body)))
+           (pp result)
            result))))))

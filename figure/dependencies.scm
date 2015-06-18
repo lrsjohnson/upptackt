@@ -24,12 +24,20 @@
 
 (define (element-source element)
   (or (eq-get element 'source)
-      '*unknown-source*))
+      (lambda (p) element)))
+
+(define (from-new-premise new-premise element)
+  ((element-source element)
+   new-premise))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Setitng Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (set-dependency! element dependency)
   (eq-put! element 'dependency dependency))
+
+(define (set-dependency-if-unknown! element dependency)
+  (if (dependency-unknown? element)
+      (set-dependency! element dependency)))
 
 (define (with-dependency dependency element)
   (set-dependency! element dependency)
@@ -42,19 +50,15 @@
       element))
 ;;;;;;;;;;;;;;;;;;;;;;;; Unknown Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define *unknown-dependency* (list '*unknown-dependency*))
-(define (unknown-dependency? x)
-  (eq? x *unknown-dependency*))
+(define dependency-unknown? (notp dependency-known?))
 
-(define (dependency-unknown? element)
-  (unknown-dependency? (element-dependency element)))
-
-(define dependency-known? (notp dependency-unknown?))
+(define (dependency-known? element)
+  (eq-get element 'dependency))
 ;;;;;;;;;;;;;;;;;;;;;;; Accessing Dependencies ;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (element-dependency element)
   (or (eq-get element 'dependency)
-      *unknown-dependency*))
+      element))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Random Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (make-random-dependency tag)
