@@ -59,9 +59,14 @@
           (known-terms))))
     (remove-supplants more-specific? satisfying-terms)))
 
-(define (show-definitions-lattice)
+(define (show-definition-lattice)
   (show-lattice
    (student-lattice *current-student*)))
+
+(define (show-definition-sublattice term)
+  (show-lattice-from-key
+   (student-lattice *current-student*)
+   term))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Applying ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

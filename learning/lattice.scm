@@ -63,6 +63,8 @@
     (%make-lattice node-partial-order-proc root
                    node-index)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Index by Key ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (lattice-node-by-key lattice key)
   (hash-table/get
    (lattice-node-index lattice)
@@ -77,6 +79,38 @@
   (hash-table/datum-list
    (lattice-node-index lattice)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;; Querying Lattice ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (sublattice-nodes-from-key lattice key)
+  (sublattice-nodes-from-node
+   lattice
+   (lattice-node-by-key lattice key)))
+
+(define (sublattice-nodes-from-node lattice start-node)
+  (let ((visited '()))
+    (define (visited? node)
+      (memq (lattice-node-key node) visited))
+    (define (mark-visited node)
+      (set! visited (cons (lattice-node-key node) visited)))
+    (define (get-unvisited-children node)
+          (let ((unvisited-children
+                 (filter (notp visited?)
+                         (lattice-node-children node))))
+            (for-each mark-visited unvisited-children)
+            unvisited-children))
+    (mark-visited start-node)
+    (let lp ((agenda (list start-node))
+             (sublattice-nodes (list start-node)))
+      (if (null? agenda)
+          sublattice-nodes
+          (let ((node (car agenda)))
+            (let ((unvisited-children
+                   (get-unvisited-children node)))
+              (lp (append (cdr agenda) unvisited-children)
+                  (append sublattice-nodes unvisited-children))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;; Adding to Lattice ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (define (add-lattice-node lattice new-node)
   (if (lattice-node-by-key lattice (lattice-node-key new-node))
@@ -89,17 +123,17 @@
         (define (visited? node)
           (memq (lattice-node-key node) visited))
         (define (mark-visited node)
-          (set! visited (cons node visited)))
+          (set! visited (cons (lattice-node-key node) visited)))
         (define (ancestor-of-new-node? node)
           ((lattice-partial-order-proc lattice)
            node new-node))
         (define (descendent-of-new-node? node)
           ((lattice-partial-order-proc lattice)
            new-node node))
-        (define (get-unvisited-children node)
+        (define (get-unvisited-children children)
           (let ((unvisited-children
                  (filter (notp visited?)
-                         (lattice-node-children node))))
+                         children)))
             (for-each mark-visited unvisited-children)
             unvisited-children))
         (define (save-as-parent parent-node)
@@ -107,18 +141,18 @@
           (let lp ((agenda (list parent-node)))
             (if (null? agenda) 'done
                 (let ((node (car agenda)))
-                  (let ((unvisited-children
-                         (get-unvisited-children node)))
+                  (let ((children (lattice-node-children node)))
                     (let ((descendent-children
                            (filter descendent-of-new-node?
-                                   unvisited-children))
+                                   children))
                           (nondescendent-children
                            (filter (notp descendent-of-new-node?)
-                                   unvisited-children)))
+                                   children)))
                       (add-lattice-node-children!
                        new-node descendent-children)
                       (lp (append (cdr agenda)
-                                  nondescendent-children))))))))
+                                  (get-unvisited-children
+                                   nondescendent-children)))))))))
         (define (clean-children node)
           (let ((children (dedupe-by eq? (lattice-node-children node))))
             (set-lattice-node-children!
@@ -155,23 +189,83 @@
                         (clean-parents child-node))
                       children-of-new-node)
             (clean-children new-node)
-            (clean-parents new-node)
-            ))
+            (clean-parents new-node)))
         (let lp ((agenda (list (lattice-root lattice))))
           (if (null? agenda)
               (update-parent-child-pointers)
               (let ((node (car agenda)))
-                (let ((unvisited-children
-                       (get-unvisited-children
-                        node)))
+                (let ((children (lattice-node-children node)))
                   (let ((ancestor-children
                          (filter ancestor-of-new-node?
-                                 unvisited-children)))
+                                 children)))
                     (if (null? ancestor-children)
                         (begin (save-as-parent node)
                                (lp (cdr agenda)))
                         (lp (append (cdr agenda)
-                                    ancestor-children)))))))))))
+                                    (get-unvisited-children
+                                     ancestor-children))))))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;; Dot Visualization ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Replace - with _
+(define (dot-encode-symbol symbol)
+  (list->string
+   (map (lambda (char)
+          (if (char=? char #\-)
+              #\_
+              char))
+        (string->list (symbol->string symbol)))))
+
+(define (lattice-node->string node)
+  (let ((key (lattice-node-key node))
+        (content (lattice-node-content node)))
+    (string-append
+     (symbol->string key)
+     (if (not (eq? key content))
+         (with-output-to-string
+           (lambda ()
+             (write-string "\n")
+             (write (print content))))
+         ""))))
+
+(define (lattice-nodes->dot-string lattice-nodes)
+  (string-append
+   "digraph G {"
+   (apply
+    string-append
+    (append-map
+     (lambda (node)
+       (let ((node-key (lattice-node-key node)))
+        (cons
+         (string-append
+          (dot-encode-symbol node-key)
+          "[label=\"" (lattice-node->string node) "\"];\n")
+         (map (lambda (child-node)
+                (string-append
+                 (dot-encode-symbol node-key)
+                 " -> "
+                 (dot-encode-symbol (lattice-node-key child-node))
+                 ";\n"))
+              (lattice-node-children node)))))
+     lattice-nodes))
+   "}\n"))
+
+(define (show-lattice-nodes lattice-nodes)
+  (let ((dot-string (lattice-nodes->dot-string lattice-nodes)))
+    (call-with-output-file "/tmp/lattice.dot"
+      (lambda (dot-file)
+        (write-string dot-string dot-file)))
+    (run-shell-command "rm /tmp/lattice.png")
+    (run-shell-command "dot -Tpng -o /tmp/lattice.png /tmp/lattice.dot")
+    (run-shell-command "open /tmp/lattice.png")))
+
+(define (show-lattice lattice)
+  (show-lattice-nodes (lattice-nodes lattice)))
+
+(define (show-lattice-from-key lattice key)
+  (show-lattice-nodes
+   (sublattice-nodes-from-key lattice key)))
+
 
 ;;; Example:
 
@@ -217,42 +311,3 @@
 (g (1 2 3) (d e) (h))
 (h (1 2 3 4) (g f) ())
 |#
-
-;;; Replace - with _
-(define (dot-encode-symbol symbol)
-  (list->string
-   (map (lambda (char)
-          (if (char=? char #\-)
-              #\_
-              char))
-        (string->list (symbol->string symbol)))))
-
-(define (lattice->dot-string lattice)
-  (string-append
-   "digraph G {"
-   (apply
-    string-append
-    (append-map
-     (lambda (node)
-       (let ((node-key (lattice-node-key node)))
-        (cons
-         (string-append
-          (dot-encode-symbol node-key)
-          "[label=\"" (symbol->string node-key) "\"];\n")
-         (map (lambda (parent-node)
-                (string-append
-                 (dot-encode-symbol (lattice-node-key parent-node))
-                 " -> "
-                 (dot-encode-symbol node-key)
-                 ";\n"))
-              (lattice-node-parents node)))))
-     (lattice-nodes lattice)))
-   "}\n"))
-
-(define (show-lattice lattice)
-  (let ((dot-string (lattice->dot-string lattice)))
-    (call-with-output-file "/tmp/lattice.dot"
-      (lambda (dot-file)
-        (write-string dot-string dot-file)))
-    (run-shell-command "dot -Tpng -o /tmp/lattice.png /tmp/lattice.dot")
-    (run-shell-command "open /tmp/lattice.png")))
