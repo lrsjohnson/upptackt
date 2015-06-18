@@ -437,7 +437,7 @@ reserved.\par\permission}}
 \def\supervisor#1#2{\setbox\@titlesupervisor\vbox
   {\unvbox\@titlesupervisor \vskip 10pt% plus 1fil minus 1fil
   \def\baselinestretch{1}\large
-  \signature{Certified by}{#1 \\ #2, Thesis Supervisor \\ \@thesisdate}}
+  \signature{Certified by}{#1 \\ #2, Thesis Supervisor}}
   \setbox\@abstractsupervisor\vbox{\unvbox\@abstractsupervisor
   \vskip\baselineskip \def\baselinestretch{1}\@normalsize
   \par\noindent Thesis Supervisor: #1 \\ Title: #2}}
@@ -469,7 +469,7 @@ at the
 \@copyrightnotice
 \par
 \vskip 3\baselineskip
-\signature{Author}{\@department \\ \@thesisdate \vspace{1.5em}}
+\signature{Author}{\@department \\ \@thesisdate}
 \par
 \vfill
 \unvbox\@titlesupervisor
