@@ -35,10 +35,13 @@
 
 (define (example-object term)
   ((definition-generator (lookup term))))
+
 (define (more-specific? more-specific-term less-specific-term )
   (let ((more-specific-obj (example-object more-specific-term)))
     (show-element more-specific-obj)
     (is-a? less-specific-term more-specific-obj)))
+
+(define less-specific? (flip-args more-specific?))
 
 ;;;;;;;;;;;;;;;;;;;;;;; Definitions Interface ;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -51,15 +54,15 @@
   (let ((def (lookup term)))
     (show-element ((definition-generator def)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Applying ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (define (examine object)
-  (show-element object)
-  (let ((applicable-terms
-         (filter (lambda (term)
-                   (internal-is-a? term object))
-                 (all-known-terms))))
-    applicable-terms))
+  (let ((satisfying-terms
+         (filter
+          (lambda (term)
+            (is-a? term object))
+          (known-terms))))
+    (remove-supplants more-specific? satisfying-terms)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Applying ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (analyze-element element)
   (if (polygon? element)
