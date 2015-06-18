@@ -1,9 +1,15 @@
 \chapter{Code Listings}
 \label{chap:code}
 
-This chapter contains code listings. In addition to the code here,
-propagator system from GJS... cite other sources form GJS / scmutils
-(ghelper, eq-properties)...
+This chapter contains code listings for the thesis presented in this
+thesis. Code is implemented using MIT Scheme 9.2
+
+\section{Repository Structure}
+
+\section{External Dependencies}
+
+GJS Propagator system, some scmutils, ghelper, eq-properties.
+
 
 \lstlistoflistings
 
@@ -14,9 +20,14 @@ propagator system from GJS... cite other sources form GJS / scmutils
 }
 
 
-\newcommand{\includecode}[2][c]{\newpage\lstinputlisting[caption=#2, style=includes]{code/#2}}
+\newcommand{\includecode}[2][c]{\lstinputlisting[caption=#2, style=includes]{code/#2}}
 % ...
 \linespread{1}
+
+% Reset them at the end of this chapter!
+\addtolength{\oddsidemargin}{-.4in}
+\addtolength{\evensidemargin}{-.4in}
+\addtolength{\textwidth}{0.8in}
 
 \begin{landscape}
 \begin{multicols}{2}
@@ -84,6 +95,13 @@ propagator system from GJS... cite other sources form GJS / scmutils
 % ...
 \end{multicols}
 \end{landscape}
+
+
+
+% Reset Margins
+\addtolength{\oddsidemargin}{.4in}
+\addtolength{\evensidemargin}{.4in}
+\addtolength{\textwidth}{-0.8in}
 
 \clearpage
 \newpage
