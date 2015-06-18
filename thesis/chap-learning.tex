@@ -27,6 +27,14 @@ extensions.
 %% - Simplifying definitions
 %% - Discussion
 
+\section{Interface with Student}
+
+The learning module provides the primary interface by which users
+interact with the system. As such, it provides means by which users
+can both query the system to discover and use what it has known, as
+well as to teach the system information by suggesting investigations
+it should undertake.
+
 \begin{code-example}{Using Definitions}
 (define (what-is term)
   (pprint (lookup term)))
@@ -52,14 +60,6 @@ extensions.
     applicable-terms))
 \end{code-example}
 
-\section{Interactions with Learning Module}
-
-The learning module provides the primary interface by which users
-interact with the system. As such, it provides means by which users
-can both query the system to discover and use what it has known, as
-well as to teach the system information by suggesting investigations
-it should undertake.
-
 \subsection{Querying}
 
 A simple way of interacting with the learning module is to ask it for
@@ -70,11 +70,23 @@ that object from its classification. Further querying can present all
 known properties of the named object as well as theorems involving
 that term.
 
-\begin{verbatim}
-(what-is 'rhombus)
-\end{verbatim}
+\section{Representing Definitions and Conjectures}
 
-\subsection{Learning Definitions}
+Discoveries are represented within a lattice of premises (discoveries
+about quadrilaterals < discoveries about rhombuses < discoveries about
+squares, but are separate from discoveries about circles or segments).
+
+
+\section{Learning new Terms and Conjectures}
+
+To learn a new definition, the system must be given the name of the
+term being learned as well as a procedure that will generate arbitrary
+instances of that definition. To converge to the correct definition,
+that random procedure should present a wide diversity of instances
+(i.e. the random-parallelogram procedure should produce all sorts of
+parallelograms, not just rectangles). However, reconciling mixed
+information about what constitutes a term could be an interesting
+extension.
 
 \begin{code-listing}{Learning a new term}
 (define (learn-term term object-generator)
@@ -103,14 +115,7 @@ that term.
               'done))))))
 \end{code-listing}
 
-To learn a new definition, the system must be given the name of the
-term being learned as well as a procedure that will generate arbitrary
-instances of that definition. To converge to the correct definition,
-that random procedure should present a wide diversity of instances
-(i.e. the random-parallelogram procedure should produce all sorts of
-parallelograms, not just rectangles). However, reconciling mixed
-information about what constitutes a term could be an interesting
-extension.
+\subsection{Predicates from Observations}
 
 \begin{code-listing}{Building Predicates for Definitions}
 (define (build-predicate-for-definition s def)
@@ -133,17 +138,20 @@ extension.
                     conjectures))))))
 \end{code-listing}
 
-\subsection{Applying Learned Properties}
+\subsection{Performing Investigations}
 
-To apply the learned conjectures, the learning system can use its
-repository of geometry knowledge to tell you what a given figure is or
-to point out old vs. new properties seen in a specific figure:
+Investigations are similar to analyzing various figures above except
+that they have the intent of the analysis results being placed in the
+geometry knowledge repository. This separation also allows for
+dependence information about where properties were derived from.
 
+Given the lattice structure of definitions, an interesting question when exploring
+new investigations is whether the given
 
-\subsection{Simplifying Definitions}
+\section{Simplifying Definitions}
 
 To Simplify definitions, we interface with the constraint solver
-observations->figure to convert our observationsback into a figure.
+observations->figure to convert our observations back into a figure.
 
 \begin{code-listing}{Simplifying Definitions}
 (define (get-simple-definitions term)
@@ -176,8 +184,6 @@ observations->figure to convert our observationsback into a figure.
        (all-subsets observations)))))
 \end{code-listing}
 
-
-
 \begin{code-listing}{Converting Observations to a Figure}
 (define (observations->figure topology observations)
   (initialize-scheduler)
@@ -198,38 +204,14 @@ observations->figure to convert our observationsback into a figure.
           f))))
 \end{code-listing}
 
+\section{Discussion}
 
-\subsection{Performing Investigations}
+%% Old Stuff:
 
-Investigations are similar to analyzing various figures above except
-that they have the intent of the analysis results being placed in the
-geometry knowledge repository. This separation also allows for
-dependence information about where properties were derived from.
+\if false
+
 
 \section{Representing Discoveries}
 
-Discoveries are represented within a lattice of premises (discoveries
-about quadrilaterals < discoveries about rhombuses < discoveries about
-squares, but are separate from discoveries about circles or segments).
 
-\subsection{Placement of discoveries}
-
-Given this lattice structure, an interesting question when exploring
-new properties
-
-\subsection{Ordering of discoveries}
-
-An issue with this system is that often discoveries can be in slightly
-different formats. As such, for each relationship, we establish a
-consistent ordering of elements and use pattern matching to
-
-For example, assertions about equality of segments |AB| = |CD| are
-independent of the ordering of points within the elements.
-
-\subsection{Pattern Matching against existing conjectures}
-
-Based on dependencies, we replace the lowest-level random dependencies
-with arbitrary pattern elements \texttt{(? s1 ,segment)} for
-instance. Then, when new conjectures are being considered, we attempt
-to pattern match based on existing elements to see if there is a
-redundant observation. TODO.
+\fi

@@ -34,10 +34,15 @@ some limitations and extensions are discussed.
 
 \section{Mechanical Analogies}
 
-The geometry constraint solver - physical manipulation, simulation,
+The geometry constraint solver: physical manipulation, simulation,
 and ``wiggling''.
 
-\section{Example}
+\section{Propagator System}
+
+GJS / Radul Propagator System
+
+\section{Example of Solving Geometric Constraints}
+
 \begin{code-example}{Rectangle Constraints Example}{images/rect-demo-2.png}
 (define (is-this-a-rectangle-2)
   (m:mechanism
@@ -59,42 +64,7 @@ and ``wiggling''.
 (specifying-joint m:joint:c:b:a 2.65583669872538)
 \end{img-example}
 
-
-\subsection{Bar and Joint Linkages}
-
-Bars have endpoints, directions and length. Joints have a vertex point
-and two directions. Currently, most joints are directioned and have
-max value of 180 degrees.
-
-\subsection{Mechanism}
-
-The Mechanism in our declarative system is analogous to Figure,
-grouping elements. Also computes various caching and lookup tables to
-more easily access elements.
-
-\begin{code-listing}
-(define (m:build-mechanism m)
-  (m:identify-vertices m)
-  (m:assemble-linkages (m:mechanism-bars m)
-                       (m:mechanism-joints m))
-  (m:apply-mechanism-constraints m)
-  (m:apply-slices m))
-
-(define (m:solve-mechanism m)
-  (m:initialize-solve)
-  (let lp ()
-    (run)
-    (cond ((m:mechanism-contradictory? m)
-           (m:draw-mechanism m c)
-           #f)
-          ((not (m:mechanism-fully-specified? m))
-           (if (m:specify-something m)
-               (lp)
-               (error "Couldn't find anything to specify.")))
-          (else 'mechanism-built))))
-\end{code-listing}
-
-\section{Partial Information}
+\section{Partial Information Structures}
 
 \subsection{Regions}
 
@@ -111,6 +81,12 @@ subtracting intervals of direction and thetas gets complicated at times.
 
 Challenges with intersection, multiple segments. Eventually just
 return nothing is okay.
+
+\section{Bar and Joint Linkages}
+
+Bars have endpoints, directions and length. Joints have a vertex point
+and two directions. Currently, most joints are directioned and have
+max value of 180 degrees.
 
 \section{Propagator Constraints}
 
@@ -140,7 +116,7 @@ Direction, dx, dy, length, thetas. ``Bars'' + ``Joints''
           bar)))))
 \end{code-listing}
 
-\subsection{Higher Order Constraints}
+\subsection{User-specified Constraints}
 
 \begin{code-listing}{User Constraints}
 (define-record-type <m:constraint>
@@ -168,34 +144,15 @@ instance... Could also observe always ``60 degrees'' as an interesting
 fact and put that in as a constraint. They're alebgraically quite
 similar, but my propagators currently don't perform symbolic algebra.
 
-\section{Solving: Specification Ordering}
+\subsection{Building Mechanisms}
 
-Given a wired diagram, process is repeatedly specifying values for elements
+The Mechanism in our declarative system is analogous to Figure,
+grouping elements. Also computes various caching and lookup tables to
+more easily access elements.
 
-\subsection{Anchored vs. Specified vs. Initialized}
-
-\section{Backtracking}
-
-If it can't build a figure with a given set of specifications, it will
-first try some neighboring values, then backtrack and try a new value
-for the previous element. After a number of failed attempts, it will
-abort and claim that at this time, it is unable to build a diagram
-satisfying the constraints.
-
-(This doesn't mean that it is impossible: Add analysis/info about what
-it can/can't solve)
-
-\section{Interfacing with existing diagrams}
-
-Converts between figures and symbolic relationships.
-
-\section{Specification Interface}
-
-\subsubsection{Establish Polygon Topology}
-
-Nice techniques for establishing polygon topology.
-
-\begin{code-listing}{Establishing Topology}
+\begin{code-listing}
+[label=est-topo]
+{Establishing Topology}
 (define (m:establish-polygon-topology . point-names)
   (if (< (length point-names) 3)
       (error "Min polygon size: 3"))
@@ -217,6 +174,52 @@ Nice techniques for establishing polygon topology.
               (list (m:polygon-sum-slice
                      (map m:joint-name joints)))))))
 \end{code-listing}
+
+\begin{code-listing}
+{Building Mechanisms}
+(define (m:build-mechanism m)
+  (m:identify-vertices m)
+  (m:assemble-linkages (m:mechanism-bars m)
+                       (m:mechanism-joints m))
+  (m:apply-mechanism-constraints m)
+  (m:apply-slices m))
+\end{code-listing}
+
+\section{Solving Mechanisms}
+
+\begin{code-listing}
+[label=solve-mechanism]
+{Solving Mechanisms}
+(define (m:solve-mechanism m)
+  (m:initialize-solve)
+  (let lp ()
+    (run)
+    (cond ((m:mechanism-contradictory? m)
+           (m:draw-mechanism m c)
+           #f)
+          ((not (m:mechanism-fully-specified? m))
+           (if (m:specify-something m)
+               (lp)
+               (error "Couldn't find anything to specify.")))
+          (else 'mechanism-built))))
+\end{code-listing}
+
+Given a wired diagram, process is repeatedly specifying values for elements
+
+\subsection{Backtracking}
+
+If it can't build a figure with a given set of specifications, it will
+first try some neighboring values, then backtrack and try a new value
+for the previous element. After a number of failed attempts, it will
+abort and claim that at this time, it is unable to build a diagram
+satisfying the constraints.
+
+(This doesn't mean that it is impossible: Add analysis/info about what
+it can/can't solve)
+
+\subsection{Interfacing with existing diagrams}
+
+Converts between figures and symbolic relationships.
 
 \section{Extensions}
 
