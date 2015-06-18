@@ -217,3 +217,42 @@
 (g (1 2 3) (d e) (h))
 (h (1 2 3 4) (g f) ())
 |#
+
+;;; Replace - with _
+(define (dot-encode-symbol symbol)
+  (list->string
+   (map (lambda (char)
+          (if (char=? char #\-)
+              #\_
+              char))
+        (string->list (symbol->string symbol)))))
+
+(define (lattice->dot-string lattice)
+  (string-append
+   "digraph G {"
+   (apply
+    string-append
+    (append-map
+     (lambda (node)
+       (let ((node-key (lattice-node-key node)))
+        (cons
+         (string-append
+          (dot-encode-symbol node-key)
+          "[label=\"" (symbol->string node-key) "\"];\n")
+         (map (lambda (parent-node)
+                (string-append
+                 (dot-encode-symbol (lattice-node-key parent-node))
+                 " -> "
+                 (dot-encode-symbol node-key)
+                 ";\n"))
+              (lattice-node-parents node)))))
+     (lattice-nodes lattice)))
+   "}\n"))
+
+(define (show-lattice lattice)
+  (let ((dot-string (lattice->dot-string lattice)))
+    (call-with-output-file "/tmp/lattice.dot"
+      (lambda (dot-file)
+        (write-string dot-string dot-file)))
+    (run-shell-command "dot -Tpng -o /tmp/lattice.png /tmp/lattice.dot")
+    (run-shell-command "open /tmp/lattice.png")))
