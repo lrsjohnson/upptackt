@@ -13,11 +13,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;; Relationship Structure ;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <relationship>
-  (%make-relationship type arity predicate)
+  (%make-relationship type arity predicate equivalence-predicate)
   relationship?
   (type relationship-type)
   (arity relationship-arity)
-  (predicate relationship-predicate))
+  (predicate relationship-predicate)
+  (equivalence-predicate relationship-equivalence-predicate))
 
 (define print-relationship relationship-type)
 
@@ -33,40 +34,51 @@
 ;;; Segments:
 
 (define equal-length-relationship
-  (%make-relationship 'equal-length 2 segment-equal-length?))
+  (%make-relationship 'equal-length 2 segment-equal-length?
+                      (set-equivalent-procedure segment-equivalent?)))
 
 ;;; Angles:
 (define equal-angle-relationship
-  (%make-relationship 'equal-angle 2 angle-measure-equal?))
+  (%make-relationship 'equal-angle 2 angle-measure-equal?
+                      (set-equivalent-procedure angle-equivalent?)))
 
 (define supplementary-angles-relationship
-  (%make-relationship 'supplementary 2 supplementary-angles?))
+  (%make-relationship 'supplementary 2 supplementary-angles?
+                      (set-equivalent-procedure angle-equivalent?)))
 
 (define complementary-angles-relationship
-  (%make-relationship 'complementary 2 complementary-angles?))
+  (%make-relationship 'complementary 2 complementary-angles?
+                      (set-equivalent-procedure angle-equivalent?)))
 
 ;;; Linear elements:
 (define perpendicular-relationship
-  (%make-relationship 'perpendicular 2 perpendicular?))
+  (%make-relationship 'perpendicular 2 perpendicular?
+                      (set-equivalent-procedure linear-element-equivalent?)))
 
 (define parallel-relationship
-  (%make-relationship 'parallel 2 parallel?))
+  (%make-relationship 'parallel 2 parallel?
+                      (set-equivalent-procedure linear-element-equivalent?)))
 
 (define concurrent-relationship
-  (%make-relationship 'concurrent 3 concurrent?))
+  (%make-relationship 'concurrent 3 concurrent?
+                      (set-equivalent-procedure linear-element-equivalent?)))
 
 ;;; Points:
 (define concurrent-points-relationship
-  (%make-relationship 'concurrent 2 point-equal?))
+  (%make-relationship 'concurrent 2 point-equal?
+                      (set-equivalent-procedure point-equal?)))
 
 (define concentric-relationship
-  (%make-relationship 'concentric 4 concentric?))
+  (%make-relationship 'concentric 4 concentric?
+                      (set-equivalent-procedure point-equal?)))
 
 (define concentric-with-center-relationship
   (%make-relationship 'concentric-with-center
-                      4 concentric-with-center?))
+                      4 concentric-with-center?
+                      (set-equivalent-procedure point-equal?)))
 
 ;;; Polygons:
 (define (make-polygon-n-sides-relationship n)
   (%make-relationship (symbol 'n-sides- n)
-                      1 (ngon-predicate n)))
+                      1 (ngon-predicate n)
+                      eq?))

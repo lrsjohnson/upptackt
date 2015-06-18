@@ -19,7 +19,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Segments ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <segment>
-  (%segment p1 p2)
+  (make-segment p1 p2)
   segment?
   (p1 segment-endpoint-1)
   (p2 segment-endpoint-2))
@@ -28,9 +28,13 @@
   (lambda (s)
     (if (named? s)
         (element-name s)
-        `(segment ,(print (segment-endpoint-1 s))
-                  ,(print (segment-endpoint-2 s)))))
+        `(*segment* ,(print (segment-endpoint-1 s))
+                    ,(print (segment-endpoint-2 s)))))
   segment?)
+
+(define (segment-endpoints s)
+  (list (segment-endpoint-1 s)
+        (segment-endpoint-2 s)))
 
 #|
 (define (set-segment-dependency! segment dependency)
@@ -58,8 +62,8 @@
 
 (defhandler generic-element-name
   (lambda (seg)
-    `(segment ,(element-name (segment-endpoint-1 seg))
-              ,(element-name (segment-endpoint-2 seg))))
+    `(*segment* ,(element-name (segment-endpoint-1 seg))
+                ,(element-name (segment-endpoint-2 seg))))
   segment?)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Lines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -82,19 +86,6 @@
 (define (line-from-point-direction p dir)
   (make-line p dir))
 
-;;; TODO, use for equality tests?
-(define (line-offset line)
-  (let ((direction (direction-from-points p1 p2))
-        (x1 (point-x p1))
-        (y1 (point-y p1))
-        (x2 (point-x p2))
-        (y2 (point-y p2)))
-    (let ((offset (/ (- (* x2 y1)
-                        (* y2 x1))
-                     (distance p1 p2))))
-      (%make-line direction offset))))
-
-;;; TODO: Figure out dependencies for these
 (define (two-points-on-line line)
   (let ((point-1 (line-point line)))
    (let ((point-2 (add-to-point
@@ -190,13 +181,37 @@
    (point-equal? (segment-endpoint-2 s1)
                  (segment-endpoint-2 s2))))
 
-(define (segment-equal-ignore-direction? s1 s2)
-  (or (segment-equal? s1 s2)
-      (segment-equal? s1 (flip-segment s2))))
+;;; Regardless of ordering or point naming, refers to the same pair of
+;;; point locations.
+(define (segment-equivalent? s1 s2)
+  (set-equivalent?
+   (segment-endpoints s1)
+   (segment-endpoints s2)
+   point-equal?))
 
 (define (segment-equal-length? seg-1 seg-2)
   (close-enuf? (segment-length seg-1)
                (segment-length seg-2)))
+
+(define (ray-equal? r1 r2)
+  (and (point-equal?
+        (ray-endpoint r1)
+        (ray-endpoint r2))
+       (direction-equal?
+        (ray-direction r1)
+        (ray-direction r2))))
+
+;;; Ignores line point and direction
+(define (line-equivalent? l1 l2)
+  (and (or (on-line? (line-point l1) l2)
+           (on-line? (line-point l2) l1))
+       (or
+        (direction-equal?
+         (line-direction l1)
+         (line-direction l2))
+        (direction-opposite?
+         (line-direction l1)
+         (line-direction l2)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Conversions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -239,3 +254,19 @@
 (defhandler ->line identity line?)
 (defhandler ->line segment->line segment?)
 (defhandler ->line ray->line ray?)
+
+(define linear-element-equivalent?
+  (make-generic-operation 2 'linear-element-equivalent?
+                          false-proc))
+
+(defhandler linear-element-equivalent?
+  segment-equivalent?
+  segment? segment?)
+
+(defhandler linear-element-equivalent?
+  ray-equal?
+  ray? ray?)
+
+(defhandler linear-element-equivalent?
+  line-equivalent?
+  line? line?)

@@ -92,7 +92,7 @@
                              midpt)))
       (save-obvious-observation!
        (make-observation perpendicular-relationship
-                         (list pb segment)))
+                         (list segment pb)))
       pb)))
 
 (define (angle-bisector a)

@@ -16,14 +16,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Main Interface ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (all-observations figure)
-  (analyze figure))
+(define (all-observations figure-proc)
+  (analyze (figure-proc)))
 
 (define (analyze-figure figure)
   (all-observations figure))
 
 ;;; Given a figure, report what's interesting
-(define (all-observations figure)
+(define (analyze figure)
   (number-figure-random-dependencies! figure)
   (let* ((points (figure-points figure))
          (angles (figure-angles figure))
@@ -68,18 +68,15 @@
 
 (define (interesting-observations figure-proc)
   (set! *obvious-observations* '())
-  (let ((all-obs (all-observations (figure-proc))))
-    (pprint *obvious-observations*)
-    (pprint all-obs)
+  (let ((all-obs (all-observations figure-proc)))
     (set-difference all-obs *obvious-observations*
-                    observation-equal?)))
+                    observation-equivalent?)))
 
 (define *obvious-observations* #f)
 
 (define (save-obvious-observation! obs)
   (if *obvious-observations*
       (begin
-        (pprint obs)
         (set! *obvious-observations*
               (cons obs
                     *obvious-observations*)))))

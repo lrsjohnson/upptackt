@@ -171,10 +171,9 @@
   (let ((p1 (random-point))
         (p2 (random-point)))
     (let ((seg (make-segment p1 p2)))
-      (set-segment-dependency!
-       seg
-       (make-random-dependency 'random-segment))
-      seg)))
+      (with-dependency
+       (make-random-dependency 'random-segment)
+       seg))))
 
 (define (random-ray)
   (let ((p (random-point)))

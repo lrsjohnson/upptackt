@@ -32,3 +32,13 @@
 (define (observation-with-premises obs)
   (cons (observation-relationship obs)
         (map element-dependencies->list (observation-args obs))))
+
+(define (observation-equivalent? obs1 obs2)
+  (and (eq? (observation-relationship obs1)
+            (observation-relationship obs2))
+       (let ((rel-eqv-test
+              (relationship-equivalence-predicate
+               (observation-relationship obs1)))
+             (args1 (observation-args obs1))
+             (args2 (observation-args obs2)))
+         (rel-eqv-test args1 args2))))

@@ -33,9 +33,18 @@
   ray-from-arm-2)
  angle?)
 
+(define (angle-equivalent? a1 a2)
+  (and (point-equal?
+        (angle-vertex a1)
+        (angle-vertex a2))
+       (set-equivalent?
+        (list (angle-arm-1 a1) (angle-arm-2 a1))
+        (list (angle-arm-1 a2) (angle-arm-2 a2))
+        direction-equal?)))
+
 (defhandler generic-element-name
   (lambda (angle)
-    `(angle ,(element-name (angle-vertex angle))))
+    `(*angle* ,(element-name (angle-vertex angle))))
   angle?)
 
 (defhandler print

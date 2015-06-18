@@ -33,3 +33,13 @@
      center
      (vec-from-direction-distance
       dir radius))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (circle-equivalent? c1 c2)
+  (and (point-equal?
+        (circle-center c1)
+        (circle-center c2))
+       (close-enuf?
+        (circle-radius c1)
+        (circle-radius c2))))

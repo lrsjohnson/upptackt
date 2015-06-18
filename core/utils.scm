@@ -65,6 +65,14 @@
   (let ((sd (set-difference small-set big-set equality-predicate)))
     (null? sd)))
 
+(define (set-equivalent? set1 set2 equality-predicate)
+  (and (subset? set1 set2 equality-predicate)
+       (subset? set2 set1 equality-predicate)))
+
+(define (set-equivalent-procedure equality-predicate)
+  (lambda (set1 set2)
+    (set-equivalent? set1 set2 equality-predicate)))
+
 (define (eq-subset? small-set big-set)
   (subset? small-set big-set eq?))
 
