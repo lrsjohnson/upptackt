@@ -31,14 +31,11 @@
 (define (learn-term term object-generator)
   ((student-learn-term *current-student*) term object-generator))
 
-
-
 (define (example-object term)
   ((definition-generator (lookup term))))
 
 (define (more-specific? more-specific-term less-specific-term )
   (let ((more-specific-obj (example-object more-specific-term)))
-    (show-element more-specific-obj)
     (is-a? less-specific-term more-specific-obj)))
 
 (define less-specific? (flip-args more-specific?))
@@ -61,6 +58,10 @@
             (is-a? term object))
           (known-terms))))
     (remove-supplants more-specific? satisfying-terms)))
+
+(define (show-definitions-lattice)
+  (show-lattice
+   (student-lattice *current-student*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Applying ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -86,5 +87,5 @@
 
 (define (initialize-student)
   (let ((s (make-student)))
-    (provide-core-knowledge s)
-    (set! *current-student* s)))
+    (set! *current-student* s)
+    (provide-core-knowledge s)))

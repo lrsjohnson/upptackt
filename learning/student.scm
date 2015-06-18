@@ -29,7 +29,11 @@
 (define (add-definition! s def)
   (hash-table/put! (student-definitions s)
                    (definition-name def)
-                   def))
+                   def)
+  (add-lattice-node
+   (student-lattice s)
+   (make-lattice-node (definition-name def)
+                      (definition-name def))))
 
 (define (lookup-definition s name)
   (hash-table/get (student-definitions s)
@@ -39,7 +43,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Lattice ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (make-student-lattice)
-  #f)
+  (make-lattice less-specific?
+                (make-lattice-node 'object 'object)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Student Interface ;;;;;;;;;;;;;;;;;;;;;;;;;;
 

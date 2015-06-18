@@ -18,8 +18,10 @@
 
 (define primitive-definitions
   (list
+   (make-primitive-definition 'object true-proc true-proc)
    (make-primitive-definition 'point point? random-point)
    (make-primitive-definition 'line line? random-line)
+   (make-primitive-definition 'ray ray? random-ray)
    (make-primitive-definition 'segment segment? random-segment)
    (make-primitive-definition 'polygon polygon? random-polygon)
    (make-primitive-definition 'circle circle? random-circle)
