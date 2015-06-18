@@ -19,8 +19,11 @@
   (x point-x)
   (y point-y))
 
+
 (define (print-point p)
-  `(point ,(point-x p) ,(point-y p)))
+    (if (named? p)
+        (element-name p)
+        `(point ,(point-x p) ,(point-y p))))
 
 (defhandler print
   print-point point?)

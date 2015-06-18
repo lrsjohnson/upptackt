@@ -177,3 +177,11 @@
    (lambda (n)
      (all-n-tuples n elements))
    (iota (+ (length elements) 1))))
+
+(define (memoize-function f)
+  (let ((cache (make-key-weak-eq-hash-table)))
+    (lambda (arg)
+      (hash-table/intern!
+       cache
+       arg
+       (lambda () (f arg))))))

@@ -24,6 +24,15 @@
   (p1 segment-endpoint-1)
   (p2 segment-endpoint-2))
 
+(defhandler print
+  (lambda (s)
+    (if (named? s)
+        (element-name s)
+        `(segment ,(print (segment-endpoint-1 s))
+                  ,(print (segment-endpoint-2 s)))))
+  segment?)
+
+#|
 (define (set-segment-dependency! segment dependency)
   (set-dependency! segment dependency)
   (set-dependency!
@@ -33,10 +42,6 @@
    (segment-endpoint-2 segment)
    `(segment-endpoint-2 segment)))
 
-(defhandler print
-  element-name
-  segment?)
-
 ;;; Alternate, helper constructors
 
 (define (make-segment p1 p2)
@@ -44,11 +49,7 @@
     (with-dependency
      `(segment ,p1 ,p2)
      seg)))
-
-(define (make-auxiliary-segment p1 p2)
-  (with-dependency
-   `(aux-segment ,p1 ,p2)
-   (make-segment p1 p2)))
+|#
 
 (declare-element-component-handler
  (component-procedure-from-getters segment-endpoint-1

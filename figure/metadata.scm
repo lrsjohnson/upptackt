@@ -14,6 +14,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Names ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (set-element-name! element name)
+  (if (and (named? element)
+           (not (eq? (element-name element)
+                     name)))
+      (error "Reassining element name:"
+             (list element (element-name element) name)))
   (eq-put! element 'name name)
   element)
 
@@ -29,4 +34,4 @@
                           (lambda (el) *unnamed*)))
 
 (define (named? element)
-  (not (is-unnamed? (element-name element-name))))
+  (not (is-unnamed? (element-name element))))

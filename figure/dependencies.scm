@@ -19,7 +19,7 @@
   (eq-put! element 'source source))
 
 (define (with-source source element)
-  (set-source! element source)
+  (set-source! element (memoize-function source))
   element)
 
 (define (element-source element)
@@ -50,10 +50,11 @@
       element))
 ;;;;;;;;;;;;;;;;;;;;;;;; Unknown Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define dependency-unknown? (notp dependency-known?))
-
 (define (dependency-known? element)
   (eq-get element 'dependency))
+
+(define dependency-unknown? (notp dependency-known?))
+
 ;;;;;;;;;;;;;;;;;;;;;;; Accessing Dependencies ;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (element-dependency element)
