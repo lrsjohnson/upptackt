@@ -33,7 +33,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Setitng Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (set-dependency! element dependency)
-  (eq-put! element 'dependency dependency))
+  (if (not (number? element))
+      (eq-put! element 'dependency dependency)))
 
 (define (set-dependency-if-unknown! element dependency)
   (if (dependency-unknown? element)

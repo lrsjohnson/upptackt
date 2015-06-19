@@ -85,7 +85,7 @@
   (let ((def (lookup term)))
     (definition-holds? def obj)))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Initializing Student ;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;; Learning Terms ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (learn-term term object-generator)
   (if (term-known? term)
@@ -106,6 +106,14 @@
               object-generator)))
         (add-definition! new-def)
         'done))))
+
+(define (all-conjectures-for-term term)
+  (let* ((ancestor-terms (ancestor-terms term))
+         (ancestor-defs (map lookup ancestor-terms))
+         (ancestor-conjectures
+          (append-map definition-conjectures ancestor-defs)))
+    (append (definition-conjectures (lookup term))
+            ancestor-conjectures)))
 
 (define (update-definition-classificiations term)
   (let* ((def (lookup term))
@@ -142,6 +150,8 @@
     (update-definition-classificiations new-term)
     (for-each update-definition-classificiations
               child-terms)))
+
+;;;;;;;;;;;;;;;;;;;;; Performing Investigations ;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;; Simplifying Definitions ;;;;;;;;;;;;;;;;;;;;;;;
 

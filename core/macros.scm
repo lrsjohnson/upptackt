@@ -115,5 +115,5 @@
                           ,@(set-name-expressions variable-names)
                           ,@(set-dependency-expressions new-assignments)
                           ,@body)))
-           (pp result) ;; Uncomment to debug macro expansion
+           ;;(pp result) ;; Uncomment to debug macro expansion
            (close-syntax result env)))))))
