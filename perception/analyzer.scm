@@ -17,13 +17,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Main Interface ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (all-observations figure-proc)
-  (analyze (figure-proc)))
-
-(define (analyze-figure figure)
-  (all-observations (lambda () figure)))
+  (analyze-figure (figure-proc)))
 
 ;;; Given a figure, report what's interesting
-(define (analyze figure)
+(define (analyze-figure figure)
   (number-figure-random-dependencies! figure)
   (let* ((points (figure-points figure))
          (angles (figure-angles figure))
@@ -66,10 +63,39 @@
 
 ;;;;;;;;;;;;;;;;;;;;;; Interesting Observations ;;;;;;;;;;;;;;;;;;;;;;
 
+(define (polygon-observations polygons)
+  (append-map (lambda (poly)
+                (map (lambda (term)
+                       (make-observation
+                        (make-polygon-term-relationship term)
+                        (list poly)))
+                     (examine poly)))
+              polygons))
+
+(define (polygon-implied-observations polygons)
+  (append-map
+   (lambda (poly)
+     (append-map (lambda (term)
+            (observations-implied-by-term term poly))
+          (examine poly)))
+   polygons))
+
 (define (interesting-observations figure-proc)
   (set! *obvious-observations* '())
-  (let ((all-obs (all-observations figure-proc)))
-    (set-difference all-obs *obvious-observations*
+  (let* ((fig (figure-proc))
+         (all-obs (analyze-figure fig))
+         (a (pp "Done extracting all Observations"))
+         (polygons (figure-polygons fig))
+         (polygon-observations
+          (polygon-observations polygons))
+         (a (pp "Done determining polygon Observatsions"))
+         (polygon-implied-observations
+          (polygon-implied-observations polygons))
+         (b (pp "Done determining implied Observatsions")))
+    (set-difference (append all-obs
+                            polygon-observations)
+                    (append *obvious-observations*
+                            polygon-implied-observations)
                     observation-equivalent?)))
 
 (define *obvious-observations* #f)

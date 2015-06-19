@@ -132,8 +132,8 @@
   (let* ((ancestor-terms (ancestor-terms term))
          (ancestor-defs (map lookup ancestor-terms))
          (ancestor-conjectures
-          (append-map definition-conjectures ancestor-defs)))
-    (append (definition-conjectures (lookup term))
+          (append-map definition-specific-conjectures ancestor-defs)))
+    (append (definition-specific-conjectures (lookup term))
             ancestor-conjectures)))
 
 (define (update-definitions-from-lattice terms)
@@ -176,6 +176,14 @@
                          (definition-lattice)
                          term)))
     (delq term (map lattice-node-key ancestor-nodes))))
+
+;;;;;;;;;;;;;;;;;;;; Getting Implied Observations ;;;;;;;;;;;;;;;;;;;;
+
+(define (observations-implied-by-term term object)
+  (let ((conjectures (all-conjectures-for-term term)))
+    (map (lambda (conjecture)
+           (observation-from-conjecture conjecture (list object)))
+         conjectures)))
 
 ;;;;;;;;;;;;;;;;;;;;; Performing Investigations ;;;;;;;;;;;;;;;;;;;;;;
 

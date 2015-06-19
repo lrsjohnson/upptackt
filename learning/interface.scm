@@ -26,15 +26,19 @@
   ((definition-generator (lookup term))))
 
 (define (more-specific? more-specific-term less-specific-term )
-  (let ((more-specific-obj (example-object more-specific-term)))
-    (is-a? less-specific-term more-specific-obj)))
+  (let ((more-specific-obj (example-object more-specific-term))
+        (less-specific-obj (example-object less-specific-term)))
+    (and (is-a? less-specific-term more-specific-obj)
+         (not (is-a? more-specific-term less-specific-obj)))))
 
 (define less-specific? (flip-args more-specific?))
 
 (define (more-specific-nonrecursive?
          more-specific-term less-specific-term )
-  (let ((more-specific-obj (example-object more-specific-term)))
-    (is-a-nonrecursive? less-specific-term more-specific-obj)))
+  (let ((more-specific-obj (example-object more-specific-term))
+        (less-specific-obj (example-object less-specific-term)))
+    (and (is-a-nonrecursive? less-specific-term more-specific-obj)
+         (not (is-a-nonrecursive? more-specific-term less-specific-obj)))))
 
 (define less-specific-nonrecursive?
   (flip-args more-specific-nonrecursive?))

@@ -51,6 +51,9 @@
           (append-map (lambda (polygon) (polygon-angles polygon))
                       (figure-filter polygon? figure))))
 
+(define (figure-polygons figure)
+  (figure-filter polygon? figure))
+
 (define (figure-segments figure)
   (append (figure-filter segment? figure)
           (append-map (lambda (polygon) (polygon-segments polygon))

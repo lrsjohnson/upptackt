@@ -82,3 +82,9 @@
   (%make-relationship (symbol 'n-sides- n)
                       1 (ngon-predicate n)
                       eq?))
+
+(define (make-polygon-term-relationship polygon-term)
+  (%make-relationship polygon-term
+                      1
+                      (lambda (obj) (is-a? polygon-term obj))
+                      eq?))

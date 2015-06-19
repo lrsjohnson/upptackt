@@ -36,18 +36,13 @@
 (define conjecture-equivalent? conjecture-equal?)
 
 ;;; Whether
-(define (satisfies-conjecture? conj premise-instances)
-  (let ((new-args
-         (map
-          (lambda (construction-proc)
-            (construction-proc premise-instances))
-          (conjecture-construction-procedures conj)))
-        (rel (conjecture-relationship conj)))
-    (or (relationship-holds rel new-args)
-        #f
-        (begin (if *explain*
-                   (pprint `(failed-conjecture ,conj)))
-               #f))))
+
+
+(define (satisfies-conjecture? conj premise-instance)
+  (or (observation-from-conjecture conj premise-instance)
+      (begin (if *explain*
+                 (pprint `(failed-conjecture ,conj)))
+             #f)))
 
 
 (define (conjecture-from-observation obs)
@@ -57,6 +52,14 @@
    (map element-source (observation-args obs))
    (observation-relationship obs)))
 
+(define (observation-from-conjecture conj premise-instance)
+  (let ((new-args (map
+                   (lambda (construction-proc)
+                     (construction-proc premise-instance))
+                   (conjecture-construction-procedures conj)))
+        (rel (conjecture-relationship conj)))
+    (and (relationship-holds rel new-args)
+         (make-observation rel new-args))))
 
 ;;; Removing redundant conjectures
 

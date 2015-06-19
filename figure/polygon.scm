@@ -30,6 +30,14 @@
   (and (polygon? obj)
        (= n (polygon-n-points obj))))
 
+(defhandler print
+  (lambda (p)
+    (if (named? p)
+        (element-name p)
+        `(*polygon* ,@(map print (polygon-points p)))))
+  polygon?)
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Polygon Points ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Internal reference for polygon points
