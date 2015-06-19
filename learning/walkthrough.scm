@@ -105,7 +105,7 @@
 (what-is 'three-equal-trapezoid)
 
 
-;;; (run-investigation (equidiagonal-investigation))
-;;; (run-investigation (orhtodiagonal-investigation))
+;;; (run-investigation (diagonal-investigation))
+;;; (run-investigation (midsegment-investigation))
 
 ;;; (show-definition-lattice)

@@ -177,6 +177,12 @@
                          term)))
     (delq term (map lattice-node-key ancestor-nodes))))
 
+(define (descendent-terms term)
+  (let ((descendent-nodes (sublattice-nodes
+                           (definition-lattice)
+                           term)))
+    (delq term (map lattice-node-key descendent-nodes))))
+
 ;;;;;;;;;;;;;;;;;;;; Getting Implied Observations ;;;;;;;;;;;;;;;;;;;;
 
 (define (observations-implied-by-term term object)

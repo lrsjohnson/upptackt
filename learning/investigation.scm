@@ -5,9 +5,9 @@
 ;;; Investigation Type
 
 (define-record-type <investigation>
-  (make-investigation premise-term figure-proc)
+  (make-investigation starting-premise figure-proc)
   investigation?
-  (premise-term investigation-premise)
+  (starting-premise investigation-starting-premise)
   (figure-proc investigation-figure-procedure))
 
 
@@ -15,17 +15,7 @@
 Example:
 |#
 
-(define (orhtodiagonal-investigation)
-  (make-investigation
-   'orthodiagonal
-   (lambda (premise)
-     (let-geo*
-         ((((a b c d)) premise)
-          (diag-1 (make-segment a c))
-          (diag-2 (make-segment b d)))
-       (figure premise diag-1 diag-2)))))
-
-(define (equidiagonal-investigation)
+(define (diagonal-investigation)
   (make-investigation
    'equidiagonal
    (lambda (premise)
@@ -35,11 +25,34 @@ Example:
           (diag-2 (make-segment b d)))
        (figure premise diag-1 diag-2)))))
 
+(define (midsegment-investigation)
+  (make-investigation
+   'quadrilateral
+   (lambda (premise)
+     (let-geo*
+         ((((a b c d)) premise)
+          (e (midpoint a b))
+          (f (midpoint b c))
+          (g (midpoint c d))
+          (h (midpoint d a))
+          (midsegment-1 (make-segment e g))
+          (midsegment-2 (make-segment f h)))
+       (figure premise midsegment-1 midsegment-2)))))
+
 (define (run-investigation investigation)
-  (let* ((premise-term (investigation-premise investigation))
-         (premise-def (lookup premise-term))
-         (figure-proc
+  (let* ((starting-term
+          (investigation-starting-premise investigation)))
+    (for-each (lambda (descendent-term)
+                (run-investigation-for-term
+                 investigation descendent-term))
+              (cons starting-term
+                    (descendent-terms starting-term)))))
+
+(define (run-investigation-for-term investigation premise-term)
+  (pprint `(investigating ,premise-term))
+  (let* ((figure-proc
           (investigation-figure-procedure investigation))
+         (premise-def (lookup premise-term))
          (example (example-object premise-term)))
     (set-as-premise! example)
     (let* ((all-obs (all-observations (lambda () (figure-proc example))))
