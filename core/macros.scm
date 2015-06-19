@@ -73,7 +73,7 @@
 
 (define (args-from-premise args)
   (map (lambda (arg)
-         `((element-source ,arg) p))
+         `(from-new-premise p ,arg))
        args))
 
 (define (dependencies-from-args args)
@@ -82,18 +82,22 @@
        args))
 
 (define (set-dependency-expressions assignments)
-  (map (lambda (a)
-         (let ((name (car a))
-               (value (cadr a)))
+  (append-map
+   (lambda (a)
+     (let ((name (car a))
+           (value (cadr a)))
+       (if (list? value)
            (let ((proc (car value))
                  (args (cdr value)))
-             `(set-source! ,name
-                           (lambda (p)
-                             (,proc ,@(args-from-premise args))))
-             `(set-dependency-if-unknown! ,name
-                               (list (quote ,proc)
-                                     ,@args)))))
-       assignments))
+             `((set-source! ,name
+                            (lambda (p)
+                              (,proc ,@(args-from-premise args))))
+               (set-dependency-if-unknown! ,name
+                                           (list (quote ,proc)
+                                                 ,@args))))
+           `((set-source! ,name (element-source ,value))
+             (set-dependency-if-unknown! ,name (element-dependency ,value))))))
+   assignments))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; let-geo* ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -103,13 +107,13 @@
   (sc-macro-transformer
    (lambda (exp env)
      (let ((assignments (cadr exp))
-           (body (caddr exp)))
+           (body (cddr exp)))
        (let ((new-assignments (expand-assignments assignments))
              (variable-names (variables-from-assignments assignments)))
          (let ((result `(let*
                             ,new-assignments
                           ,@(set-name-expressions variable-names)
                           ,@(set-dependency-expressions new-assignments)
-                          ,body)))
-           ;;(pp result)
-           result))))))
+                          ,@body)))
+           (pp result) ;; Uncomment to debug macro expansion
+           (close-syntax result env)))))))

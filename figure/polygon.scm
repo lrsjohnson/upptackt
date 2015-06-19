@@ -91,7 +91,7 @@
     (map (lambda (i)
            (let ((j (modulo (+ i 1) n-points)))
             (with-dependency
-             '(polygon-segment ,polygon ,i ,j)
+             `(polygon-segment ,polygon ,i ,j)
              (with-source
               (lambda (p)
                 (polygon-segment (from-new-premise p polygon)
@@ -142,6 +142,5 @@
            (lambda (p)
              (polygon-angle-by-index
               (from-new-premise p polygon) i))
-           angle))
-         (polygon-angle-by-index polygon i))
+           (polygon-angle-by-index polygon i))))
        (iota (polygon-n-points polygon))))

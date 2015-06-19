@@ -48,6 +48,13 @@
   (if (dependency-unknown? element)
       (with-dependency dependency element)
       element))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Premises ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (set-as-premise! element)
+  (set-dependency! element '<premise>)
+  (set-source! element (lambda (p) (car p))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;; Unknown Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (dependency-known? element)
