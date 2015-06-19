@@ -15,9 +15,19 @@
 Example:
 |#
 
-(define (diagonals-investigation)
+(define (orhtodiagonal-investigation)
   (make-investigation
    'orthodiagonal
+   (lambda (premise)
+     (let-geo*
+         ((((a b c d)) premise)
+          (diag-1 (make-segment a c))
+          (diag-2 (make-segment b d)))
+       (figure premise diag-1 diag-2)))))
+
+(define (equidiagonal-investigation)
+  (make-investigation
+   'equidiagonal
    (lambda (premise)
      (let-geo*
          ((((a b c d)) premise)
@@ -42,8 +52,9 @@ Example:
                              conjecture-equivalent?)))
       (set-definition-conjectures!
        premise-def
-       (dedupe-by conjecture-equivalent? (append orig-conjectures
-                                                 investigation-conjectures)))
+       (dedupe-by conjecture-equivalent?
+                  (append orig-conjectures
+                          investigation-conjectures)))
       (show-figure (figure-proc example))
       (remove-definition-lattice-node! premise-term)
       (add-definition-lattice-node! premise-term)

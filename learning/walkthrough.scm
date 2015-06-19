@@ -87,10 +87,25 @@
 (learn-term 'rhombus random-rhombus)
 
 (what-is 'rhombus)
+
+(learn-term 'equidiagonal random-equidiagonal-quadrilateral)
+
+(what-is 'equidiagonal)
+
 (learn-term 'cyclic random-cyclic-quadrilateral)
 
 (what-is 'cyclic)
 
-;;; (run-investigation (diagonals-investigation))
+(learn-term 'isoceles-trapezoid random-isoceles-trapezoid)
+
+(what-is 'isoceles-trapezoid)
+
+(learn-term 'three-equal-trapezoid random-3-equal-trapezoid)
+
+(what-is 'three-equal-trapezoid)
+
+
+;;; (run-investigation (equidiagonal-investigation))
+;;; (run-investigation (orhtodiagonal-investigation))
 
 ;;; (show-definition-lattice)

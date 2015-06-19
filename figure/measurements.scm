@@ -51,11 +51,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;; Measured Elements ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (measured-point-on-ray r dist)
-  (let* ((p1 (ray-p1 r))
-         (p2 (ray-p2 r))
-         (v (sub-points p1 p2))
-         (scaled-v (scale-vec-to-dist v dist)))
-    (add-to-point p1 scaled-v)))
+  (let* ((p1 (ray-endpoint r))
+         (dir (ray-direction r))
+         (v (vec-from-direction-distance
+             dir dist)))
+    (add-to-point p1 v)))
 
 (define (measured-angle-ccw p1 vertex radians)
   (let* ((v1 (sub-points p1 vertex))

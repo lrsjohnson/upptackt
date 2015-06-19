@@ -15,6 +15,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Rotations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; Rotates counterclockwise
 (define (rotate-point-about rot-origin radians point)
   (let ((v (sub-points point rot-origin)))
     (let ((rotated-v (rotate-vec v radians)))
@@ -49,7 +50,7 @@
 (define (translate-point-by vec point)
   (add-to-point point vec))
 
-(define (translate-segment-by vec segment)
+(define (translate-segment-by vec seg)
   (define (translate-point p) (translate-point-by vec p))
   (make-segment (translate-point (segment-endpoint-1 seg))
                 (translate-point (segment-endpoint-2 seg))))
@@ -75,7 +76,7 @@
 (defhandler translate-by translate-line-by vec? line?)
 (defhandler translate-by translate-angle-by vec? angle?)
 
-;;; Reflections
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Reflections ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (reflect-about-line line p)
   (if (on-line? p line)

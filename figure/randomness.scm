@@ -53,6 +53,9 @@
 (define (rand-angle-measure)
   (rand-range (* pi 0.05) (* .95 pi)))
 
+(define (rand-acute-angle-measure)
+  (rand-range (* pi 0.05) (* .45 pi)))
+
 (define (rand-obtuse-angle-measure)
   (rand-range (* pi 0.55) (* .95 pi)))
 
@@ -222,6 +225,22 @@
          (d2 (add-to-direction
               d1
               (rand-angle-measure))))
+    (make-angle d1 v d2)))
+
+(define (random-acute-angle)
+  (let* ((v (random-point))
+         (d1 (random-direction))
+         (d2 (add-to-direction
+              d1
+              (rand-acute-angle-measure))))
+    (make-angle d1 v d2)))
+
+(define (random-obtuse-angle)
+  (let* ((v (random-point))
+         (d1 (random-direction))
+         (d2 (add-to-direction
+              d1
+              (rand-obtuse-angle-measure))))
     (make-angle d1 v d2)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Random Polygons ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -396,3 +415,41 @@
         (if (points-non-overlapping? points)
             (apply polygon-from-points points)
             (lp))))))
+
+(define (random-equidiagonal-quadrilateral)
+  (let* ((s (random-segment))
+         (p1 (random-point-on-segment s))
+         (s-rotated (rotate-randomly-about p1 s))
+         (p2 (random-point-on-segment s-rotated))
+         (s2 (translate-by
+              (sub-points p1 p2)
+              s-rotated)))
+    (polygon-from-points (segment-endpoint-1 s)
+                         (segment-endpoint-1 s2)
+                         (segment-endpoint-2 s)
+                         (segment-endpoint-2 s2))))
+
+(define (random-isoceles-trapezoid)
+  (let* ((a1 (random-obtuse-angle))
+         (p1 (angle-vertex a1))
+         (r1 (ray-from-arm-1 a1))
+         (r2 (ray-from-arm-2 a1))
+         (p4 (random-point-on-ray r2))
+         (p2 (random-point-on-ray r1))
+         (s (make-segment p1 p2))
+         (pb (perpendicular-bisector s))
+         (p3 (reflect-about-line pb p4)))
+    (polygon-from-points p1 p2 p3 p4)))
+
+(define (random-3-equal-trapezoid)
+  (let* ((a1 (random-obtuse-angle))
+         (p1 (angle-vertex a1))
+         (r1 (ray-from-arm-1 a1))
+         (r2 (ray-from-arm-2 a1))
+         (p2 (random-point-on-ray r1))
+         (p4 (measured-point-on-ray
+              r2 (distance p1 p2)))
+         (s (make-segment p1 p2))
+         (pb (perpendicular-bisector s))
+         (p3 (reflect-about-line pb p4)))
+    (polygon-from-points p1 p2 p3 p4)))
