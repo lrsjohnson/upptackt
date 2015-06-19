@@ -6,4 +6,5 @@
             "conjecture"
             "simplifier"
             "core-knowledge"
-            "interface"))
+            "interface"
+            "investigation"))
