@@ -155,8 +155,9 @@
            (make-initialized-list n (lambda (i) (rand-theta)))
            <)))
     (map (lambda (theta)
-           (point-on-circle-in-direction c
-                                         (make-direction theta)))
+           (point-on-circle-in-direction
+            c
+            (make-direction theta)))
          thetas)))
 
 ;;;;;;;;;;;;;;;;;;;;;;; Random Linear Elements ;;;;;;;;;;;;;;;;;;;;;;;
@@ -387,3 +388,11 @@
     (with-dependency
      (make-random-dependency 'random-orthodiagonal-quadrilateral)
      (polygon-from-points a b c d))))
+
+(define (random-cyclic-quadrilateral)
+  (let ((cir (random-circle)))
+    (let lp ()
+      (let ((points (n-random-points-on-circle-ccw cir 4)))
+        (if (points-non-overlapping? points)
+            (apply polygon-from-points points)
+            (lp))))))

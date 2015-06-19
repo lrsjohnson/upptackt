@@ -58,3 +58,7 @@
         (dy (vec-y vec)))
     (make-point (+ x dx)
                 (+ y dy))))
+
+(define (points-non-overlapping? points)
+  (= (length points)
+     (length (dedupe-by point-equal? points))))

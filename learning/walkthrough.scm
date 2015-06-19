@@ -68,6 +68,10 @@
 
 (what-is 'rectangle)
 
+(learn-term 'trapezoid random-trapezoid)
+
+(what-is 'trapezoid)
+
 (learn-term 'square random-square)
 
 (what-is 'square)
@@ -83,3 +87,10 @@
 (learn-term 'rhombus random-rhombus)
 
 (what-is 'rhombus)
+(learn-term 'cyclic random-cyclic-quadrilateral)
+
+(what-is 'cyclic)
+
+;;; (run-investigation (diagonals-investigation))
+
+;;; (show-definition-lattice)
