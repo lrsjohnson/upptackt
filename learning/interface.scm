@@ -31,6 +31,15 @@
 
 (define less-specific? (flip-args more-specific?))
 
+(define (more-specific-nonrecursive?
+         more-specific-term less-specific-term )
+  (let ((more-specific-obj (example-object more-specific-term)))
+    (is-a-nonrecursive? less-specific-term more-specific-obj)))
+
+(define less-specific-nonrecursive?
+  (flip-args more-specific-nonrecursive?))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;; Definitions Interface ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (what-is term)
@@ -47,6 +56,15 @@
          (filter
           (lambda (term)
             (is-a? term object))
+          (known-terms))))
+    (remove-supplants more-specific? satisfying-terms)))
+
+(define (examine-primitive object)
+  (let ((satisfying-terms
+         (filter
+          (lambda (term)
+            (and (primitive-definition? (lookup term))
+                 (is-a? term object)))
           (known-terms))))
     (remove-supplants more-specific? satisfying-terms)))
 

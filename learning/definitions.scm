@@ -13,47 +13,70 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Basic Structure ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <definition>
-  (%make-definition name classifications conjectures predicate generator)
+  (%make-definition name
+                    generator
+                    predicate
+                    all-conjectures
+                    classifications
+                    specific-conjectures)
   definition?
   (name definition-name)
-  (classifications definition-classifications %set-definition-classifications!)
-  (conjectures definition-conjectures set-definition-conjectures!)
+  (generator definition-generator)
   (predicate definition-predicate set-definition-predicate!)
-  (generator definition-generator))
+  (all-conjectures definition-conjectures set-definition-conjectures!)
+  (classifications definition-classifications
+                   set-definition-classifications!)
+  (specific-conjectures definition-specific-conjectures
+                        set-definition-specific-conjectures!))
 
 (define (make-primitive-definition name predicate generator)
-  (%make-definition name '() '()  predicate generator))
+  (%make-definition name generator predicate '() '() '()))
 
 (define (primitive-definition? def)
   (and (definition? def)
-       (null? (definition-classifications def))))
+       (null? (definition-conjectures def))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Using Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (definition-holds? def obj)
   (let ((classifications (definition-classifications def))
-        (conjectures (definition-conjectures def)))
-    (and (every
+        (specific-conjectures (definition-specific-conjectures def)))
+    (and ((definition-predicate def) obj)
+         (every
           (lambda (classification-term)
             (is-a? classification-term obj))
           classifications)
-         ((definition-predicate def) obj)
          (every (lambda (conjecture)
                   (satisfies-conjecture? conjecture (list obj)))
-                conjectures))))
+                specific-conjectures))))
+
+(define (definition-holds-nonrecursive? def obj)
+  (let ((all-conjectures (definition-conjectures def)))
+    (and ((definition-predicate def) obj)
+         (every (lambda (conjecture)
+                  (satisfies-conjecture? conjecture (list obj)))
+                all-conjectures))))
 
 ;;;;;;;;;;;;;;;;;;;;;; Higher-order Definitions ;;;;;;;;;;;;;;;;;;;;;;
 
 (define (make-restrictions-definition
-         name classifications conjectures generator)
-  (%make-definition name classifications conjectures true-proc generator))
+         name
+         generator
+         primitive-predicate
+         conjectures)
+  (%make-definition name
+                    generator
+                    primitive-predicate
+                    conjectures
+                    '()
+                    '()))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Formatting ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (print-definition def)
   (list (definition-name def)
         (definition-classifications def)
-        (map print (definition-conjectures def))))
+        (map print (definition-specific-conjectures def))))
 
 (defhandler print print-definition
   definition?)
