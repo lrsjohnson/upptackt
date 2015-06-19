@@ -60,17 +60,9 @@
 
 ;;;;;;;;;;;;;;; Let's learn some basic quadrilaterals ;;;;;;;;;;;;;;;;
 
-(learn-term 'parallelogram random-parallelogram)
-
-(what-is 'parallelogram)
-
 (learn-term 'kite random-kite)
 
 (what-is 'kite)
-
-(learn-term 'rhombus random-rhombus)
-
-(what-is 'rhombus)
 
 (learn-term 'rectangle random-rectangle)
 
@@ -80,6 +72,14 @@
 
 (what-is 'square)
 
-(learn-term 'ortho random-orthodiagonal-quadrilateral)
+(learn-term 'orthodiagonal random-orthodiagonal-quadrilateral)
 
-(what-is 'ortho)
+(what-is 'orthodiagonal)
+
+(learn-term 'parallelogram random-parallelogram)
+
+(what-is 'parallelogram)
+
+(learn-term 'rhombus random-rhombus)
+
+(what-is 'rhombus)
