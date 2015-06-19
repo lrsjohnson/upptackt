@@ -728,14 +728,11 @@ constraints of base angles equal or sides equal are sufficient.
 
 => (get-simple-definitions 'isoceles-triangle)
 
-((invalid-definition ())
- (valid-definition
-  ((equal-length (segment a b) (segment c a))))
- (valid-definition
-  ((equal-angle (angle b) (angle c))))
- (valid-definition
-  ((equal-length (segment a b) (segment c a))
-   (equal-angle (angle b) (angle c)))))
+((sufficient
+  (((equal-angle (*angle* b) (*angle* c)))
+   ((equal-length (*segment* a b) (*segment* c a)))))
+ (insufficient (()))
+ (unknown ()))
 \end{repl-example}
 
 In the parallelogram example \ref{pl-definitions}, some subsets are
@@ -752,40 +749,17 @@ specific enough.
 {Learning Simple Parallelogram Definitions}
 => (get-simple-definitions 'pl)
 
-((invalid-definition ())
- (invalid-definition ((equal-length (segment a b) (segment c d))))
- (invalid-definition ((equal-angle (angle a) (angle c))))
- (invalid-definition ((equal-angle (angle b) (angle d))))
- (valid-definition
-  ((equal-length (segment a b) (segment c d))
-   (equal-length (segment b c) (segment d a))))
- (invalid-definition
-  ((equal-length (segment b c) (segment d a))
-   (equal-angle (angle b) (angle d))))
- (valid-definition
-  ((equal-angle (angle a) (angle c))
-   (equal-angle (angle b) (angle d))))
- (valid-definition
-  ((equal-length (segment a b) (segment c d))
-   (equal-length (segment b c) (segment d a))
-   (equal-angle (angle a) (angle c))))
- (valid-definition
-  ((equal-length (segment a b) (segment c d))
-   (equal-length (segment b c) (segment d a))
-   (equal-angle (angle b) (angle d))))
- (valid-definition
-  ((equal-length (segment a b) (segment c d))
-   (equal-angle (angle a) (angle c))
-   (equal-angle (angle b) (angle d))))
- (valid-definition
-  ((equal-length (segment b c) (segment d a))
-   (equal-angle (angle a) (angle c))
-   (equal-angle (angle b) (angle d))))
- (valid-definition
-  ((equal-length (segment a b) (segment c d))
-   (equal-length (segment b c) (segment d a))
-   (equal-angle (angle a) (angle c))
-   (equal-angle (angle b) (angle d)))))
+((sufficient
+  (((equal-length (*segment* a b) (*segment* c d))
+    (equal-length (*segment* b c) (*segment* d a)))
+   ((equal-angle (*angle* a) (*angle* c))
+    (equal-angle (*angle* b) (*angle* d)))))
+ (insufficient
+  (((equal-length (*segment* a b) (*segment* c d))
+    (equal-angle (*angle* b) (*angle* d)))))
+ (unknown
+  (((equal-angle (*angle* a) (*angle* c)))
+   ((equal-length (*segment* b c) (*segment* d a))))))
 \end{repl-example}
 
 This simple definitions implementation is still a work in progress and

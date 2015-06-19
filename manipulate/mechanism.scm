@@ -12,6 +12,12 @@
 
 ;;; Code:
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Debug ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define *m:debug* #f)
+
+(define (m:pp msg) (if *m:debug* (pp msg)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;; Mechanism Structure ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <m:mechanism>
@@ -118,26 +124,26 @@
   (if (not *any-dir-specified*)
       (let ((dir (random-direction)))
         (set! *any-dir-specified* #t)
-        (pp `(initializing-direction ,(name cell) ,(print dir)))
+        (m:pp `(initializing-direction ,(name cell) ,(print dir)))
         (m:instantiate cell dir 'first-time-angle))))
 
 (define (m:specify-point-if-first-time point)
   (if (not *any-point-specified*)
       (begin
         (set! *any-point-specified* #t)
-        (pp `(initializing-point ,(name point) (0 0)))
+        (m:pp `(initializing-point ,(name point) (0 0)))
         (m:instantiate-point point 0 0 'first-time-point))))
 
 (define (m:specify-bar bar)
   (let ((v (m:random-bar-length)))
-    (pp `(specifying-bar-length ,(print (m:bar-name bar)) ,v))
+    (m:pp `(specifying-bar-length ,(print (m:bar-name bar)) ,v))
     (m:instantiate (m:bar-length bar) v 'specify-bar)
     (m:specify-angle-if-first-time (m:bar-direction bar))
     (m:specify-point-if-first-time (m:bar-p1 bar))))
 
 (define (m:specify-joint joint)
   (let ((v (m:random-theta-for-joint joint)))
-    (pp `(specifying-joint-angle ,(print (m:joint-name joint)) ,v))
+    (m:pp `(specifying-joint-angle ,(print (m:joint-name joint)) ,v))
     (m:instantiate (m:joint-theta joint) v 'specify-joint)
     (m:specify-angle-if-first-time (m:joint-dir-1 joint))))
 
@@ -284,10 +290,10 @@
   (initialize-scheduler)
   (let ((m (m:mechanism
             (m:establish-polygon-topology 'a 'b 'c 'd))))
-    (pp (m:joint-anchored? (car (m:mechanism-joints m))))
+    (m:pp (m:joint-anchored? (car (m:mechanism-joints m))))
     (m:build-mechanism m)
     (m:solve-mechanism m)
     (let ((f (m:mechanism->figure m)))
       (draw-figure f c)
-      (pp (analyze-figure f)))))
+      (m:pp (analyze-figure f)))))
 |#

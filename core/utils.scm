@@ -196,3 +196,22 @@
        cache
        arg
        (lambda () (f arg))))))
+
+;;; Swaps the elements at indices i and j in the vector
+(define (swap vec i j)
+  (let ((tmp (vector-ref vec i)))
+    (vector-set! vec i (vector-ref vec j))
+    (vector-set! vec j tmp)))
+
+(define (shuffle alts)
+  (let ((alts-vec (list->vector alts))
+        (num-alts (length alts)))
+    (if (= num-alts 0)
+        alts
+        (let lp ((to-index (- num-alts 1)))
+          (cond
+           ((= to-index 0) (vector->list alts-vec))
+           (else (let ((from-index
+                        (random (+ 1 to-index))))
+                   (swap alts-vec from-index to-index)
+                   (lp (- to-index 1)))))))))
