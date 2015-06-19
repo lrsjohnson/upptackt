@@ -371,3 +371,19 @@
     (with-dependency
      (make-random-dependency 'random-trapezoid)
      (polygon-from-points p1 p2 p3 p4))))
+
+(define (random-orthodiagonal-quadrilateral)
+  (let* ((r1 (random-ray))
+         (r2 (rotate-about
+              (ray-endpoint r1)
+              (/ pi 2)
+              r1))
+         (r3 (reverse-ray r1))
+         (r4 (reverse-ray r2))
+         (a (random-point-on-ray r1))
+         (b (random-point-on-ray r2))
+         (c (random-point-on-ray r3))
+         (d (random-point-on-ray r4)))
+    (with-dependency
+     (make-random-dependency 'random-orthodiagonal-quadrilateral)
+     (polygon-from-points a b c d))))

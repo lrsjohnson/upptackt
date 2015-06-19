@@ -79,3 +79,7 @@
 (learn-term 'sq random-square)
 
 (what-is 'sq)
+
+(learn-term 'ortho random-orthodiagonal-quadrilateral)
+
+(what-is 'ortho)

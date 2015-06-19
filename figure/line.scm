@@ -114,6 +114,11 @@
 (define (ray-from-points endpoint p1)
   (make-ray endpoint (direction-from-points endpoint p1)))
 
+(define (reverse-ray ray)
+  (make-ray
+   (ray-endpoint ray)
+   (reverse-direction (ray-direction ray))))
+
 (define (shorten-ray-from-point r p)
   (if (not (on-ray? p r))
       (error "Can only shorten rays from points on the ray"))
