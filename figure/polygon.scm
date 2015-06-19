@@ -44,7 +44,6 @@
 
 ;;; External polygon points including dependencies
 (define (polygon-point polygon i)
-  ;;: TODO: Handle situations where polygon isn't terminal dependency
   (with-dependency ;;-if-unknown
    `(polygon-point ,i ,(element-dependency polygon))
    (with-source
@@ -85,16 +84,19 @@
             (p2 (polygon-point-ref polygon j))
             (segment (make-segment p1 p2)))
        ;;: TODO: Handle situations where polygon isn't terminal dependency
-       (with-dependency
-        `(polygon-segment ,i ,j ,polygon)
-        (with-source
-         (lambda (p) (polygon-segment (car p) i j))
-         segment)))))))
+       segment)))))
 
 (define (polygon-segments polygon)
   (let ((n-points (polygon-n-points polygon)))
     (map (lambda (i)
-           (polygon-segment polygon i (modulo (+ i 1) n-points)))
+           (let ((j (modulo (+ i 1) n-points)))
+            (with-dependency
+             '(polygon-segment ,polygon ,i ,j)
+             (with-source
+              (lambda (p)
+                (polygon-segment (from-new-premise p polygon)
+                                 i j))
+              (polygon-segment polygon i j)))))
          (iota n-points))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Polygon Angles ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -116,11 +118,7 @@
                                      (modulo (+ i 1)
                                              n-points)))
              (angle (angle-from-points a1p v a2p)))
-        (with-dependency
-         `(polygon-angle ,i ,polygon)
-         (with-source
-          (lambda (p) (polygon-angle-by-index (car p) i))
-          angle)))))))
+        angle)))))
 
 (defhandler polygon-angle
   polygon-angle-by-index
@@ -137,5 +135,13 @@
   polygon? point?)
 
 (define (polygon-angles polygon)
-  (map (lambda (i) (polygon-angle-by-index polygon i))
+  (map (lambda (i)
+         (with-dependency
+          `(polygon-angle ,polygon ,i)
+          (with-source
+           (lambda (p)
+             (polygon-angle-by-index
+              (from-new-premise p polygon) i))
+           angle))
+         (polygon-angle-by-index polygon i))
        (iota (polygon-n-points polygon))))

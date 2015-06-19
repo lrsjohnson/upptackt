@@ -92,7 +92,9 @@
       (error "Term already known:" term))
   (let ((example (name-polygon (object-generator))))
     (let* ((classifications (examine example))
-           (fig (figure (with-dependency '<premise> example)))
+           (fig (figure
+                 (with-source (lambda (p) (car p))
+                  (with-dependency '<premise> example))))
            (observations (analyze-figure fig))
            (conjectures (map conjecture-from-observation observations)))
       (pprint conjectures)
