@@ -38,47 +38,47 @@
 
 ;;;;;;;;;;;;;;;;;; Can learn and explain new terms ;;;;;;;;;;;;;;;;;;;
 
-(what-is 'isoc-t)
+(what-is 'isoceles-triangle)
 
-(learn-term 'isoc-t random-isoceles-triangle)
+(learn-term 'isoceles-triangle random-isoceles-triangle)
 
-(what-is 'isoc-t)
+(what-is 'isoceles-triangle)
 
-(is-a? 'isoc-t (random-isoceles-triangle))
+(is-a? 'isoceles-triangle (random-isoceles-triangle))
 
-(is-a? 'isoc-t (random-equilateral-triangle))
+(is-a? 'isoceles-triangle (random-equilateral-triangle))
 
-(is-a? 'isoc-t (random-triangle))
+(is-a? 'isoceles-triangle (random-triangle))
 
-(learn-term 'equi-t random-equilateral-triangle)
+(learn-term 'equilateral-triangle random-equilateral-triangle)
 
-(what-is 'equi-t)
+(what-is 'equilateral-triangle)
 
-(is-a? 'equi-t (random-isoceles-triangle))
+(is-a? 'equilateral-triangle (random-isoceles-triangle))
 
-(is-a? 'equi-t (random-equilateral-triangle))
+(is-a? 'equilateral-triangle (random-equilateral-triangle))
 
 ;;;;;;;;;;;;;;; Let's learn some basic quadrilaterals ;;;;;;;;;;;;;;;;
 
-(learn-term 'pl random-parallelogram)
+(learn-term 'parallelogram random-parallelogram)
 
-(what-is 'pl)
+(what-is 'parallelogram)
 
 (learn-term 'kite random-kite)
 
 (what-is 'kite)
 
-(learn-term 'rh random-rhombus)
+(learn-term 'rhombus random-rhombus)
 
-(what-is 'rh)
+(what-is 'rhombus)
 
 (learn-term 'rectangle random-rectangle)
 
 (what-is 'rectangle)
 
-(learn-term 'sq random-square)
+(learn-term 'square random-square)
 
-(what-is 'sq)
+(what-is 'square)
 
 (learn-term 'ortho random-orthodiagonal-quadrilateral)
 
