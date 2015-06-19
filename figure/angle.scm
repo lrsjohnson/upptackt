@@ -48,7 +48,10 @@
   angle?)
 
 (defhandler print
-  element-name
+  (lambda (a)
+    (if (named? a)
+        (element-name a)
+        `(*angle* ,(print (angle-vertex a)))))
   angle?)
 
 ;;;;;;;;;;;;;;;;;;;;; Transformations on Angles ;;;;;;;;;;;;;;;;;;;;;;

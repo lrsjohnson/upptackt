@@ -56,6 +56,10 @@
   (set-dependency! element '<premise>)
   (set-source! element (lambda (p) (car p))))
 
+(define (as-premise element)
+  (set-as-premise! element)
+  element)
+
 ;;;;;;;;;;;;;;;;;;;;;;;; Unknown Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (dependency-known? element)

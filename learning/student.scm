@@ -105,9 +105,7 @@
       (error "Term already known:" term))
   (let ((example (name-polygon (object-generator))))
     (let* ((primitives (examine-primitive example))
-           (fig (figure
-                 (with-source (lambda (p) (car p))
-                              (with-dependency '<premise> example))))
+           (fig (figure (as-premise example)))
            (observations (analyze-figure fig))
            (conjectures (map conjecture-from-observation observations)))
       (pprint conjectures)
@@ -183,31 +181,28 @@
 
 ;;;;;;;;;;;;;;;;;;;;;; Simplifying Definitions ;;;;;;;;;;;;;;;;;;;;;;;
 
+(define (polygon-from-object-observations object obs-subset)
+  (let* ((topology (topology-for-object object))
+         (new-figure (observations->figure topology obs-subset)))
+    (and new-figure
+         (object-from-new-figure object new-figure))))
+
 (define (get-simple-definitions term)
-  (let ((def (lookup term)))
-    (if (unknown? def)
-        (error "Unknown term" term))
+  (let ((def (lookup term))
+        (simple-def-result (make-simple-definitions-result)))
     (let* ((object ((definition-generator def)))
-           (observations
-            (filter
-             observation->constraint
-             (all-observations
-              (figure (name-polygon object))))))
-      (map
+           (fig (figure (as-premise (name-polygon object))))
+           (all-observations (analyze-figure fig))
+           (eligible-observations
+            (filter observation->constraint
+                    all-observations)))
+      (for-each
        (lambda (obs-subset)
-         (pprint obs-subset)
-         (let* ((topology (topology-for-object object))
-                (new-figure
-                 (observations->figure topology obs-subset)))
-           (if new-figure
-               (let ((new-polygon
-                      (polygon-from-figure new-figure)))
-                 (pprint new-polygon)
-                 (if (is-a? term new-polygon)
-                     (list 'valid-definition
-                           obs-subset)
-                     (list 'invalid-definition
-                           obs-subset)))
-               (list 'unknown-definition
-                     obs-subset))))
-       (all-subsets observations)))))
+         (let ((polygon (polygon-from-object-observations object obs-subset)))
+           ((cond ((false? polygon) mark-unknown-simple-def!)
+                  ((is-a? term polygon) mark-valid-simple-def!)
+                  (else mark-invalid-simple-def!))
+            simple-def-result obs-subset)))
+       (all-subsets eligible-observations))
+      (simplify-definitions-result! simple-def-result)
+      simple-def-result)))
