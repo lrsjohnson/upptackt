@@ -126,6 +126,9 @@
                    (cons element
                          (hash-table/get table key '()))))
 
+(define (dedupe-eq elements)
+  (dedupe-by eq? elements))
+
 (define (dedupe-by equality-predicate elements)
   (dedupe (member-procedure equality-predicate) elements))
 

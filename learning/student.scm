@@ -27,13 +27,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (add-definition! s def)
-  (hash-table/put! (student-definitions s)
-                   (definition-name def)
-                   def)
-  (add-lattice-node
-   (student-lattice s)
-   (make-lattice-node (definition-name def)
-                      (definition-name def))))
+  (let ((term (definition-name def)))
+    (if (lookup-definition s name)
+        (error "Definition already exists for" term))
+    (hash-table/put! (student-definitions s)
+                     term
+                     def)
+    (add-lattice-node
+     (student-lattice s)
+     (make-lattice-node term term))
+    ((student-update-definitions-after-added s)
+     term)))
 
 (define (lookup-definition s name)
   (hash-table/get (student-definitions s)
@@ -86,6 +90,43 @@
              (build-predicate-for-definition s new-def)))
         (add-definition! s new-def)
         'done))))
+
+(define ((student-update-definition-classificiations s)
+         term)
+  (let* ((def ((student-lookup s) term))
+         (current-conjectures (definition-conjectures def))
+         (ancestor-terms ((student-ancestor-terms s) term))
+         (ancestor-defs (map (student-lookup s) ancestor-terms))
+         (ancestor-conjectures
+          (append-map definition-conjectures ancestor-defs))
+         (new-conjectures
+          (set-difference current-conjectures
+                          ancestor-conjectures
+                          conjecture-equal?)))
+    (set-definition-conjectures!
+     def
+     new-conjectures)))
+
+(define ((student-lattice-node s) term)
+  (lattice-node-by-key (student-lattice s) term))
+
+(define ((student-child-terms s) term)
+  (let* ((lattice-node ((student-lattice-node s) term))
+         (child-nodes (lattice-node-children lattice-node)))
+    (map lattice-node-key child-nodes)))
+
+(define ((student-ancestor-terms s) term)
+  (let ((ancestor-nodes (sublattice-nodes-upwards
+                         (student-lattice s)
+                         term)))
+    (delq term (map lattice-node-key ancestor-nodes))))
+
+
+(define ((student-update-definitions-after-added s) new-term)
+  (let* ((child-terms ((student-child-terms s) new-term)))
+    ((student-update-definition-classificiations s) new-term)
+    (for-each (student-update-definition-classificiations s)
+              child-terms)))
 
 ;;;;;;;;;;;;;;;;;;;;;; Simplifying Definitions ;;;;;;;;;;;;;;;;;;;;;;;
 

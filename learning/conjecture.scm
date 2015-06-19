@@ -33,6 +33,8 @@
   (equal? (print conj1)
            (print conj2)))
 
+(define conjecture-equivalent? conjecture-equal?)
+
 ;;; Whether
 (define (satisfies-conjecture? conj premise-instances)
   (let ((new-args

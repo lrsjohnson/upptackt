@@ -81,33 +81,39 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Querying Lattice ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (sublattice-nodes-from-key lattice key)
-  (sublattice-nodes-from-node
-   lattice
-   (lattice-node-by-key lattice key)))
+;;; Sublattice downwards from node
+(define (sublattice-nodes lattice start-key)
+  (sublattice-nodes-from-key-with-getter
+   lattice start-key lattice-node-children))
 
-(define (sublattice-nodes-from-node lattice start-node)
-  (let ((visited '()))
+(define (sublattice-nodes-upwards lattice start-key)
+  (sublattice-nodes-from-key-with-getter
+   lattice start-key lattice-node-parents))
+
+(define (sublattice-nodes-from-key-with-getter
+         lattice start-key next-nodes-getter)
+  (let ((visited '())
+        (start-node (lattice-node-by-key lattice start-key)))
     (define (visited? node)
       (memq (lattice-node-key node) visited))
     (define (mark-visited node)
       (set! visited (cons (lattice-node-key node) visited)))
-    (define (get-unvisited-children node)
-          (let ((unvisited-children
-                 (filter (notp visited?)
-                         (lattice-node-children node))))
-            (for-each mark-visited unvisited-children)
-            unvisited-children))
+    (define (get-unvisited nodes)
+      (let ((unvisited-nodes
+             (filter (notp visited?)
+                     nodes)))
+        (for-each mark-visited unvisited-nodes)
+        unvisited-nodes))
     (mark-visited start-node)
     (let lp ((agenda (list start-node))
              (sublattice-nodes (list start-node)))
       (if (null? agenda)
           sublattice-nodes
           (let ((node (car agenda)))
-            (let ((unvisited-children
-                   (get-unvisited-children node)))
-              (lp (append (cdr agenda) unvisited-children)
-                  (append sublattice-nodes unvisited-children))))))))
+            (let ((unvisited-nodes
+                   (get-unvisited (next-nodes-getter node))))
+              (lp (append (cdr agenda) unvisited-nodes)
+                  (append sublattice-nodes unvisited-nodes))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Adding to Lattice ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -125,17 +131,14 @@
         (define (mark-visited node)
           (set! visited (cons (lattice-node-key node) visited)))
         (define (ancestor-of-new-node? node)
-          ((lattice-partial-order-proc lattice)
-           node new-node))
+          ((lattice-partial-order-proc lattice) node new-node))
         (define (descendent-of-new-node? node)
-          ((lattice-partial-order-proc lattice)
-           new-node node))
-        (define (get-unvisited-children children)
-          (let ((unvisited-children
-                 (filter (notp visited?)
-                         children)))
-            (for-each mark-visited unvisited-children)
-            unvisited-children))
+          ((lattice-partial-order-proc lattice) new-node node))
+        (define (get-unvisited nodes)
+          (let ((unvisited-nodes
+                 (filter (notp visited?) nodes)))
+            (for-each mark-visited unvisited-nodes)
+            unvisited-nodes))
         (define (save-as-parent parent-node)
           (add-lattice-node-parent! new-node parent-node)
           (let lp ((agenda (list parent-node)))
@@ -151,48 +154,11 @@
                       (add-lattice-node-children!
                        new-node descendent-children)
                       (lp (append (cdr agenda)
-                                  (get-unvisited-children
+                                  (get-unvisited
                                    nondescendent-children)))))))))
-        (define (clean-children node)
-          (let ((children (dedupe-by eq? (lattice-node-children node))))
-            (set-lattice-node-children!
-             node
-             (remove-supplants
-              (lattice-partial-order-proc lattice)
-              children))))
-        (define (clean-parents node)
-          (let ((parents (dedupe-by eq? (lattice-node-parents node))))
-            (set-lattice-node-parents!
-             node
-             (remove-supplants
-              (flip-args (lattice-partial-order-proc lattice))
-              parents))))
-        (define (update-parent-child-pointers)
-          (let ((parents-of-new-node (lattice-node-parents new-node))
-                (children-of-new-node (lattice-node-children new-node)))
-            (for-each (lambda (parent-node)
-                        (set-lattice-node-children!
-                         parent-node
-                         (set-difference
-                          (cons new-node (lattice-node-children parent-node))
-                          children-of-new-node
-                          eq?))
-                        (clean-children parent-node))
-                      parents-of-new-node)
-            (for-each (lambda (child-node)
-                        (set-lattice-node-parents!
-                         child-node
-                         (set-difference
-                          (cons new-node (lattice-node-parents child-node))
-                          parents-of-new-node
-                          eq?))
-                        (clean-parents child-node))
-                      children-of-new-node)
-            (clean-children new-node)
-            (clean-parents new-node)))
         (let lp ((agenda (list (lattice-root lattice))))
           (if (null? agenda)
-              (update-parent-child-pointers)
+              (update-parent-child-pointers lattice new-node)
               (let ((node (car agenda)))
                 (let ((children (lattice-node-children node)))
                   (let ((ancestor-children
@@ -202,8 +168,48 @@
                         (begin (save-as-parent node)
                                (lp (cdr agenda)))
                         (lp (append (cdr agenda)
-                                    (get-unvisited-children
+                                    (get-unvisited
                                      ancestor-children))))))))))))
+
+(define (clean-children lattice node)
+  (let ((children (dedupe-by eq? (lattice-node-children node))))
+    (set-lattice-node-children!
+     node
+     (remove-supplants
+      (lattice-partial-order-proc lattice)
+      children))))
+
+(define (clean-parents lattice node)
+  (let ((parents (dedupe-by eq? (lattice-node-parents node))))
+    (set-lattice-node-parents!
+     node
+     (remove-supplants
+      (flip-args (lattice-partial-order-proc lattice))
+      parents))))
+
+(define (update-parent-child-pointers lattice new-node)
+  (let ((parents-of-new-node (lattice-node-parents new-node))
+        (children-of-new-node (lattice-node-children new-node)))
+    (for-each (lambda (parent-node)
+                (set-lattice-node-children!
+                 parent-node
+                 (set-difference
+                  (cons new-node (lattice-node-children parent-node))
+                  children-of-new-node
+                  eq?))
+                (clean-children lattice parent-node))
+              parents-of-new-node)
+    (for-each (lambda (child-node)
+                (set-lattice-node-parents!
+                 child-node
+                 (set-difference
+                  (cons new-node (lattice-node-parents child-node))
+                  parents-of-new-node
+                  eq?))
+                (clean-parents lattice child-node))
+              children-of-new-node)
+    (clean-children lattice new-node)
+    (clean-parents lattice new-node)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Dot Visualization ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -264,7 +270,7 @@
 
 (define (show-lattice-from-key lattice key)
   (show-lattice-nodes
-   (sublattice-nodes-from-key lattice key)))
+   (sublattice-nodes lattice key)))
 
 
 ;;; Example:
@@ -298,7 +304,7 @@
   (pprint f)
   (pprint g)
   (pprint h)
-  (show-lattice lattice))
+  (show-lattice-from-key lattice 'b))
 
 ; ->
 (root () () (a c b))

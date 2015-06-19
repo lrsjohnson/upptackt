@@ -16,8 +16,8 @@
   (%make-definition name classifications conjectures predicate generator)
   definition?
   (name definition-name)
-  (classifications definition-classifications)
-  (conjectures definition-conjectures)
+  (classifications definition-classifications %set-definition-classifications!)
+  (conjectures definition-conjectures set-definition-conjectures!)
   (predicate definition-predicate set-definition-predicate!)
   (generator definition-generator))
 
