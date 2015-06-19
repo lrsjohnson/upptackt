@@ -18,18 +18,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Current Student ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define *current-student* #f)
-
-(define (term-known? term)
-  ((student-term-known? *current-student*) term))
 (define (lookup term)
-  ((student-lookup *current-student*) term))
-(define (is-a? term obj)
-  ((student-is-a? *current-student*) term obj))
-(define (known-terms)
-  ((student-known-terms *current-student*)))
-(define (learn-term term object-generator)
-  ((student-learn-term *current-student*) term object-generator))
+  (or (lookup-definition term)
+      (error "Term Unknown:" term)))
 
 (define (example-object term)
   ((definition-generator (lookup term))))
@@ -60,13 +51,10 @@
     (remove-supplants more-specific? satisfying-terms)))
 
 (define (show-definition-lattice)
-  (show-lattice
-   (student-lattice *current-student*)))
+  (show-lattice (definition-lattice)))
 
 (define (show-definition-sublattice term)
-  (show-lattice-from-key
-   (student-lattice *current-student*)
-   term))
+  (show-lattice-from-key (definition-lattice) term))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Applying ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -93,4 +81,4 @@
 (define (initialize-student)
   (let ((s (make-student)))
     (set! *current-student* s)
-    (provide-core-knowledge s)))
+    (provide-core-knowledge)))

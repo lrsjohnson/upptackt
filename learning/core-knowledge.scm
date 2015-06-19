@@ -6,13 +6,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Adding to student ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (provide-core-knowledge student)
-  (for-each (lambda (def)
-              (add-definition! student def))
-            primitive-definitions)
-  (for-each (lambda (def)
-              (add-definition! student def))
-            built-in-definitions))
+(define (provide-core-knowledge)
+  (for-each add-definition! primitive-definitions)
+  (for-each add-definition! built-in-definitions))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Primitive definitions ;;;;;;;;;;;;;;;;;;;;;;;;;
 
