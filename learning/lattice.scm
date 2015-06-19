@@ -211,6 +211,33 @@
     (clean-children lattice new-node)
     (clean-parents lattice new-node)))
 
+(define (remove-lattice-node lattice node-key)
+  (let* ((node-to-remove (lattice-node-by-key lattice node-key))
+         (children-of-removed-node
+          (lattice-node-children node-to-remove))
+         (parents-of-removed-node
+          (lattice-node-parents node-to-remove)))
+    (hash-table/remove! (lattice-node-index lattice)
+                        node-key)
+    (for-each (lambda (parent-node)
+                (set-lattice-node-children!
+                 parent-node
+                 (append
+                  (delq node-to-remove
+                        (lattice-node-children parent-node))
+                  children-of-removed-node))
+                (clean-children lattice parent-node))
+              parents-of-removed-node)
+    (for-each (lambda (child-node)
+                (set-lattice-node-parents!
+                 child-node
+                 (append
+                  (delq node-to-remove
+                        (lattice-node-parents child-node))
+                  parents-of-removed-node))
+                (clean-parents lattice child-node))
+              children-of-removed-node)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;; Dot Visualization ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Replace - with _
@@ -272,7 +299,6 @@
   (show-lattice-nodes
    (sublattice-nodes lattice key)))
 
-
 ;;; Example:
 
 #|
@@ -304,7 +330,8 @@
   (pprint f)
   (pprint g)
   (pprint h)
-  (show-lattice-from-key lattice 'b))
+  (remove-lattice-node lattice 'd)
+  (show-lattice-from-key lattice 'root))
 
 ; ->
 (root () () (a c b))
