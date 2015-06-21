@@ -58,6 +58,11 @@
 
 (is-a? 'equilateral-triangle (random-equilateral-triangle))
 
+(learn-term 'right-isoceles-triangle random-right-isoceles-triangle)
+
+(learn-term 'right-triangle random-right-triangle)
+
+
 ;;;;;;;;;;;;;;; Let's learn some basic quadrilaterals ;;;;;;;;;;;;;;;;
 
 (learn-term 'kite random-kite)
@@ -103,6 +108,9 @@
 (learn-term 'three-equal-trapezoid random-3-equal-trapezoid)
 
 (what-is 'three-equal-trapezoid)
+
+;;; (run-investigation-for-term (diagonal-investigation) 'equidiagonal)
+;;; (run-investigation-for-term (diagonal-investigation) 'orthodiagonal)
 
 
 ;;; (run-investigation (diagonal-investigation))

@@ -263,7 +263,7 @@
                       points)))))))
 
 (define (random-polygon)
-  (random-n-gon (+ 3 (random 5))))
+  (random-n-gon (+ 5 (random 5))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Random Triangles ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -287,6 +287,19 @@
       (segment-endpoint-2 s1)
       (segment-endpoint-2 s2)))))
 
+(define (random-right-triangle)
+  (let* ((r1 (random-ray))
+         (r2 (rotate-about (ray-endpoint r1)
+                           (/ pi 2)
+                           r1))
+         (p1 (random-point-on-ray r1))
+         (p2 (random-point-on-ray r2)))
+    (with-dependency
+     (make-random-dependency 'random-right-triangle)
+     (polygon-from-points
+      (ray-endpoint r1)
+      p1 p2))))
+
 (define (random-isoceles-triangle)
   (let* ((s1 (random-segment))
          (base-angle (rand-angle-measure))
@@ -300,6 +313,17 @@
       (segment-endpoint-2 s1)
       (segment-endpoint-2 s2)))))
 
+(define (random-right-isoceles-triangle)
+  (let* ((s1 (random-segment))
+         (s2 (rotate-about (segment-endpoint-1 s1)
+                           (/ pi 2)
+                           s1)))
+    (with-dependency
+     (make-random-dependency 'random-right-isoceles-triangle)
+     (polygon-from-points
+      (segment-endpoint-1 s1)
+      (segment-endpoint-2 s1)
+      (segment-endpoint-2 s2)))))
 ;;;;;;;;;;;;;;;;;;;;;;; Random Quadrilaterals ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (random-quadrilateral)
