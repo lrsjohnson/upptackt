@@ -345,7 +345,7 @@ To handle these varied cases, the macro expands to use the generic operation
 \texttt{element-component} to determine what components are extracted
 from an object during multiple component assignment. As shown in
 Listing~\ref{element-component}, for polygons, the components are the
-point references directly, whereas angles and segments construct their
+point references directly, whereas angles and segments generate their
 handlers from a given list of getters.
 
 \begin{code-listing}
@@ -427,8 +427,8 @@ purposes, and (3) a \texttt{source} procedure that allows the object to be
 recreated from a different starting
 premise. Example~\ref{dependency-expansion} shows the expansion of
 these dependencies in a very simple construction. These dependencies
-are added after the multiple component assignments are expanded so
-will apply to all variables created in the form.
+are set after the multiple component assignments are expanded so
+will apply to all objects named in the form.
 
 \begin{repl-example}
 [label=dependency-expansion]
@@ -478,7 +478,7 @@ initial premise. However, the intersection point is returned rather
 than a figure.  The print statements (continued on the next page) show
 that while \texttt{diag-intersection-point} is a point structure with
 explicit coordinates it can produce information about how it was
-created.
+created via \texttt{print-dependencies}.
 
 \begin{img-example}
 [label=new-premise, breakable]
@@ -520,8 +520,8 @@ uses that object \texttt{k} as the new premise in creating point
 \texttt{diag-intersection-point}. As seen in the image,
 \texttt{from-new-premise} was able to correctly extract the
 construction steps about how \texttt{diag-intersection-point} was
-constructed and apply it to the new kite to set \texttt{p2} at the
-intersection of the kite's diagonals.
+constructed and apply it to the new kite to specify \texttt{p2} as the
+intersection point of the kite's diagonals.
 
 A similar process to this example will appear in an abstracted form
 later in the learning module as the system tests whether conjectures
@@ -529,7 +529,7 @@ apply to new situations.
 
 \newpage
 Listing~\ref{dep-impl} presents the implementation of the
-manipulations used to add dependency information to figures, and
+manipulations used to add dependency information to figures and
 Listing~\ref{let-geo} presents the top-level definition for the
 \texttt{let-geo*} form.
 
@@ -607,11 +607,12 @@ are shown in Listings~\ref{draw-figure} and~\ref{animation}.
 \end{code-listing}
 
 To support animation, constructions can call \texttt{animate} with a
-procedure \texttt{f} that takes an argument in $[0, 1]$. When the animation is
-run, the system will use fluid variables to iteratively wiggle each
-successive random choice through its range of
+procedure \texttt{f} that takes an argument in $[0, 1]$. When the
+animation is run, the system will use fluid variables to iteratively
+animate each successive random choice through its range of
 $[0,1]$. \texttt{animate-range} provides an example where a user can
-specify a range to wiggle over.
+specify a range to sweep over. The system uses this to ``wiggle''
+random choices by sweeping over small ranges.
 
 \enlargethispage*{\baselineskip}
 
@@ -634,14 +635,14 @@ specify a range to wiggle over.
 In creating the imperative construction module, the main challenges
 involved settling on appropriate representations for geometry objects
 and properly yet effortlessly tracking dependencies. Initial efforts
-used over-specified representations such as an angle consisting of
-three points and a line consisting of two points. Reducing these to
-nearly-minimal representations using directions helped simplify other
-operations. In addition, the module initially had each individual
-construction procedure set the dependencies of the elements it
-produced. Automating this in the \texttt{let-geo*} macro helped
-simplify the annotation process and make the setting of source
-procedures feasible.
+used over-specified object representations such as an angle consisting
+of three points and a line consisting of two points. Reducing these to
+nearly-minimal representations using directions helped simplify the
+creation of other construction utilities. In addition, the module
+initially had each individual construction procedure attach
+dependencies to the elements it produced. Automating this in the
+\texttt{let-geo*} macro helped simplify the annotation process and
+make the setting of source procedures feasible.
 
 Future extensions could provide additional construction procedures,
 particularly with added support for circle and arc-related operations,
