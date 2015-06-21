@@ -16,6 +16,7 @@
   (%make-definition name
                     generator
                     predicate
+                    primitive?
                     all-conjectures
                     classifications
                     specific-conjectures)
@@ -23,6 +24,7 @@
   (name definition-name)
   (generator definition-generator)
   (predicate definition-predicate set-definition-predicate!)
+  (primitive? definition-primitive?)
   (all-conjectures definition-conjectures set-definition-conjectures!)
   (classifications definition-classifications
                    set-definition-classifications!)
@@ -30,11 +32,11 @@
                         set-definition-specific-conjectures!))
 
 (define (make-primitive-definition name predicate generator)
-  (%make-definition name generator predicate '() '() '()))
+  (%make-definition name generator predicate #t '() '() '()))
 
 (define (primitive-definition? def)
   (and (definition? def)
-       (null? (definition-conjectures def))))
+       (definition-primitive? def)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Using Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -67,6 +69,7 @@
   (%make-definition name
                     generator
                     primitive-predicate
+                    #f
                     conjectures
                     '()
                     '()))
@@ -82,7 +85,7 @@
   definition?)
 
 (define (print-primitive-definition def)
-  'primitive-definition)
+  `(primitive-definition ,(definition-term def)))
 
 (defhandler print print-primitive-definition
   primitive-definition?)

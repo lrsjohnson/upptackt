@@ -20,6 +20,10 @@
   (predicate relationship-predicate)
   (equivalence-predicate relationship-equivalence-predicate))
 
+(define (relationship-equivalent? r1 r2)
+  (eq? (relationship-type r1)
+       (relationship-type r2)))
+
 (define print-relationship relationship-type)
 
 (defhandler print print-relationship relationship?)

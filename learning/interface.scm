@@ -28,8 +28,7 @@
 (define (more-specific? more-specific-term less-specific-term )
   (let ((more-specific-obj (example-object more-specific-term))
         (less-specific-obj (example-object less-specific-term)))
-    (and (is-a? less-specific-term more-specific-obj)
-         (not (is-a? more-specific-term less-specific-obj)))))
+    (is-a? less-specific-term more-specific-obj)))
 
 (define less-specific? (flip-args more-specific?))
 
@@ -37,8 +36,7 @@
          more-specific-term less-specific-term )
   (let ((more-specific-obj (example-object more-specific-term))
         (less-specific-obj (example-object less-specific-term)))
-    (and (is-a-nonrecursive? less-specific-term more-specific-obj)
-         (not (is-a-nonrecursive? more-specific-term less-specific-obj)))))
+    (is-a-nonrecursive? less-specific-term more-specific-obj)))
 
 (define less-specific-nonrecursive?
   (flip-args more-specific-nonrecursive?))
@@ -70,6 +68,7 @@
             (and (primitive-definition? (lookup term))
                  (is-a? term object)))
           (known-terms))))
+    (pp satisfying-terms)
     (remove-supplants more-specific? satisfying-terms)))
 
 (define (show-definition-lattice)

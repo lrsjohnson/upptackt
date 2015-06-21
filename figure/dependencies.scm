@@ -67,6 +67,9 @@
 
 (define dependency-unknown? (notp dependency-known?))
 
+(define (clear-dependency! element)
+  (set-dependency! element #f))
+
 ;;;;;;;;;;;;;;;;;;;;;;; Accessing Dependencies ;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (element-dependency element)

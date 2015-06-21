@@ -28,3 +28,5 @@
                               random-triangle)
    (make-primitive-definition 'quadrilateral quadrilateral?
                               random-quadrilateral)))
+
+(define primitive-terms (map definition-name primitive-definitions))

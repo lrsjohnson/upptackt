@@ -50,6 +50,9 @@
 
 (define (identity x) x)
 
+(define (true? x)
+  (if x #t #f))
+
 ;;; ps1 \ ps2
 (define (set-difference set1 set2 equality-predicate)
   (define delp (delete-member-procedure list-deletor equality-predicate))

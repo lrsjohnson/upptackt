@@ -52,7 +52,7 @@
 
 ;;; External polygon points including dependencies
 (define (polygon-point polygon i)
-  (with-dependency ;;-if-unknown
+  (with-dependency-if-unknown
    `(polygon-point ,i ,(element-dependency polygon))
    (with-source
     (lambda (p) (polygon-point (car p) i))
@@ -98,7 +98,7 @@
   (let ((n-points (polygon-n-points polygon)))
     (map (lambda (i)
            (let ((j (modulo (+ i 1) n-points)))
-            (with-dependency
+            (with-dependency-if-unknown
              `(polygon-segment ,polygon ,i ,j)
              (with-source
               (lambda (p)

@@ -76,8 +76,8 @@
   (append-map
    (lambda (poly)
      (append-map (lambda (term)
-            (observations-implied-by-term term poly))
-          (examine poly)))
+                   (observations-implied-by-term term poly))
+                 (examine poly)))
    polygons))
 
 (define (interesting-observations figure-proc)

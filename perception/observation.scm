@@ -34,8 +34,9 @@
         (map element-dependencies->list (observation-args obs))))
 
 (define (observation-equivalent? obs1 obs2)
-  (and (eq? (observation-relationship obs1)
-            (observation-relationship obs2))
+  (and (relationship-equivalent?
+        (observation-relationship obs1)
+        (observation-relationship obs2))
        (let ((rel-eqv-test
               (relationship-equivalence-predicate
                (observation-relationship obs1)))

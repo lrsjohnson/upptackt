@@ -39,7 +39,7 @@
 
 
 (define (satisfies-conjecture? conj premise-instance)
-  (or (observation-from-conjecture conj premise-instance)
+  (or (true? (observation-from-conjecture conj premise-instance))
       (begin (if *explain*
                  (pprint `(failed-conjecture ,conj)))
              #f)))
