@@ -48,7 +48,9 @@
 \usepackage{listings}
 \usepackage{textcomp}
 \usepackage{color}
+\usepackage{caption}
 
+\usepackage[utf8]{inputenc}
 
 \usepackage{tcolorbox}
 \tcbuselibrary{most}
@@ -112,7 +114,7 @@ fonttitle=\bfseries,
 title=Code Listing \thetcbcounter: #2,#1}
 
 \newtcblisting[use counter from=code-example]{img-example}[3][]{
-listing and comment, righthand width=5cm, breakable,
+listing and comment, righthand width=5cm,
 code=\linespread{1}\vspace{1em},
 listing options={style=mystyle,numbers=none,
 basicstyle=\footnotesize\ttfamily},
