@@ -818,32 +818,132 @@ done
 
 \end{repl-example}
 
-To handle such situations, and to allow the learning module to capture
+To handle such situations and to enable the learning module to capture
 more general theorems about its objects, the system allows users to
-specify investigations based on a premise.
+specify investigations based on a premise. These investigations
+represent the English instructions of \emph{``Given \texttt{<premise
+    objects>}, construct \texttt{<secondary constructions>}. Notice
+  anything interesting?''}. They are structured extremely similarly to
+imperative figures, but use a ``dependency injected'' premise argument
+to enable the learning module to control what is being investigated.
+By conditioning such constructions and analysis on the premise
+objects, the learning module is able to filter out observations based
+on previously-learned theorems and store new observations as theorems
+for future use.
 
---- --- --- --- Fun Example --- --- --- ---
+The investigation in Example~\ref{diag-investigation} takes a
+quadrilateral as its premise and constructs a figure including the
+quadrilateral's diagonals.
 
-Finally, the fun example that integrates all of these systems is
-learning simpler definitions for these terms. In these examples,
+\begin{code-example}
+[label=diag-investigation]
+{Diagonals Investigation}
+(define diagonal-investigation
+  (make-investigation
+   'quadrilateral
+   (lambda (premise)
+     (let-geo*
+         ((((a b c d)) premise)
+          (diag-1 (make-segment a c))
+          (diag-2 (make-segment b d)))
+       (figure premise diag-1 diag-2)))))
+\end{code-example}
+
+Investigations can be run either for a particular premise term or for
+an entire sublattice of descendants.
+
+\begin{repl-example}
+[label=run-investigation]
+{Performing Investigations}
+=> (run-investigation-for-term diagonal-investigation 'equidiagonal)
+((equal-length diag-1 diag-2))
+
+=> (run-investigation-for-term diagonal-investigation 'orthodiagonal)
+((perpendicular diag-1 diag-2))
+\end{repl-example}
+
+In addition to displaying the interesting new results the
+investigation yields, such properties are added to original structures
+of the premise objects to be checked in the future. In the
+orthodiagonal and equidiagonal cases, this investigation correctly
+identifies and adds properties regarding the diagonals and places the
+terms in their rightful place in the lattice.
+
+Running investigations on entire subtrees of related terms can often
+provide interesting information about where in the lattice particular
+properties change. Example~\ref{run-consecutive} shows selected output
+from running a consecutive midpoint investigation that builds a inner
+quadrilateral from the midpoints of the sides of the given
+quadrilateral.
+
+\begin{repl-example}
+[label=run-consecutive]
+{Consecutive Midpoint Investigation \protect\newline[Selected Output]}
+=> (run-investigation consecutive-midpoints-investigation)
+(investigating quadrilateral)
+   ((parallelogram inner-polygon))
+
+(investigating equidiagonal)
+   ((rhombus inner-polygon))
+
+(investigating orthodiagonal)
+   ((rectangle inner-polygon))
+
+(investigating square)
+   ((square inner-polygon))
+...
+\end{repl-example}
+
+Interestingly, these results show that in any outer
+quadrilateral, the inner quadrilateral is a parallelogram, that the
+inner polygon for any equidiagonal quadrilateral is a rhombus, and the
+inner polygon for any orthodiagonal quadrilateral is a
+rectangle. Then, as matched by looking back to the full lattice in
+Example~\ref{full-lattice}, the inner quadrilateral of a square (most
+general descendent of equidiagonal and orthodiagonal) is also a square
+(the most general descendent of rhombus and rectangle).
+
+Thus, Investigation structures can represent broader explorations for the
+system to perform.  Although not yet implemented, a similar process
+using a multi-element premise structure could explore relationships
+yielded by a applying a construction procedure to its arguments where
+each of its arguments satisfies a separate premise.
+
+\section{Final Example: Simplifying Definitions}
+
+As properties accumulate from analysis and investigation, the
+need to satisfy all known properties overconstraints the resulting
+definitions. For example, satisfying some small subset of the known
+properties of a parallelogram is sufficient to determine whether an
+unknown object is a parallelogram without checking every property
+known about parallelograms.
+
+Accordingly, the final, fun example that integrates all of these
+systems is the process of learning simpler definitions for geometry
+terms. In these examples, the procedure
 \texttt{get-simple-definitions} takes a known term, looks up the known
-observations and properties for that term, and tests using all
-reasonable subsets of those properties as constraints via the
-constraint solver. For each subset of properties, if the constraint
-solver was able to create a diagram satisfying exactly those
-properties, the resulting diagram is examined as with ``is-a'' above
-to see if all the known properties of the original term hold.
+observations and properties for that term, and tests all reasonable
+subsets of those properties as constraints using the constraint
+solver. For each subset of properties, if the constraint solver was
+able to create a diagram satisfying exactly those properties, the
+resulting diagram is examined as with the original \texttt{is-a?}
+procedure to see if all the known properties of the original term
+hold.
 
-If so, the subset of properties is reported as a valid definition of
-the term, and if the resulting diagram fails some properties, the
-subset is reported as an invalid (insufficient) set of constraints.
+If so, the subset of properties is reported as a sufficient definition
+of the term, and if the resulting diagram fails some properties, the
+subset is reported as an insufficient set of constraints. These
+resulting valid definitions can be treated as equivalent, simpler
+definitions and used as the premises in new theorems about the
+objects.
 
-In the example \ref{simple-definitions}, we see a trace of finding
-simple definitions for isoceles triangles and parallelograms. In the
-first example, the observed properties of an isoceles triangle are
-that its segments and angles are equal. Via the definitions
-simplification via constraint solving, we actually discover that the
-constraints of base angles equal or sides equal are sufficient.
+In Examples \ref{simple-definitions} and~\ref{pl-definitions}, we see
+a trace of finding simple definitions for isoceles triangles and
+parallelograms. In the first example, the observed properties of an
+isoceles triangle are that its base segments and angles are equal. After
+the definition simplification via constraint solving, we actually
+discover that the single constraints of a pair of congruent base
+angles or a pair of congruent sides are sufficient.
 
 \begin{repl-example}
 [label=simple-definitions]
@@ -865,14 +965,13 @@ constraints of base angles equal or sides equal are sufficient.
  (unknown ()))
 \end{repl-example}
 
-In the parallelogram example \ref{pl-definitions}, some subsets are
-omitted because the constraint solver wasn't able to solve a diagram
-given those constraints (to be improved / retried more gracefully in
-the future). However, the results still show some interesting valid
-definitions such as the pair of equal opposite angles as explored in
-Example~\ref{pl-by-angles} or equal length opposite sides and
-correctly mark several sets of invalid definitions as not being
-specific enough.
+In the parallelogram Example \ref{pl-definitions}, some subsets are
+marked as unknown because the constraint solver wasn't able to solve a diagram
+given those constraints. However, the results still show some
+interesting valid definitions such as the pair of equal opposite
+angles as explored in Example~\ref{pl-by-angles} or equal length
+opposite sides and correctly mark several sets of insufficient
+definitions as not being specific enough.
 
 \begin{repl-example}
 [label=pl-definitions]
@@ -893,13 +992,14 @@ specific enough.
 \end{repl-example}
 
 This simple definitions implementation is still a work in progress and
-has room for improvement. For instance, checking all possible subsets
-is wasteful as any superset of a valid definition is known to be valid
-and any subset of an invalid definition is known to be invalid. In
-addition to such checks, in the future I plan to use the knowledge
+has room for improvement. In the future I plan to use the knowledge
 about what properties the insufficient diagram is violating to use as
 a possible addition to the constraint set. Further extensions could
-involve generalizing this get-simple-definitions to support other
+also involve generalizing this get-simple-definitions to support other
 topologies for the initial properties (such as the quadrilaterals
 being fully specified by their diagonal properties as in
-Example~\ref{quad-diagonals})
+Example~\ref{quad-diagonals}).
+
+Given this framework of use cases for the modules, the remaining
+chapters will discuss further representation and implementation
+details.
