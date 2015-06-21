@@ -11,20 +11,20 @@ The construction system is comprised of a large, versatile library of
 useful utility and construction procedures for creating figures. To
 appropriately focus the discussion of this module, I will concentrate
 on the implementation of structures and procedures necessary for the
-sample construction seen in Example \ref{sample-construction}.  Full
+sample construction seen in Example~\ref{sample-construction}.  Full
 code and more usage examples are provided in Appendix \ref{chap:code}.
 
 In doing so, I will first describe the basic structures and essential
 utility procedures before presenting some higher-level construction
-procedures, polygons, and figures. Then, I will Then, I will explore
-the use of randomness in the system and examine how construction
-language macros handle names, dependencies, and multiple assignment of
-components.  Finally, I will briefly discuss the interface and
-implementation for animating and displaying figures.
+procedures, polygons, and figures. Then, I will explore the use of
+randomness in the system and examine how construction language macros
+handle names, dependencies, and multiple assignment of components.
+Finally, I will briefly discuss the interface and implementation for
+animating and displaying figures.
 
 \begin{pdf-example}
 [label=sample-construction]
-{Sample Construction}
+{Sample Construction Figure for Chapter}
 {images/angle-bisector-distance.pdf}
 (define (angle-bisector-distance)
   (let-geo* (((a (r-1 v r-2)) (random-angle))
@@ -36,6 +36,11 @@ implementation for animating and displaying figures.
 
 => (show-figure (angle-bisector-distance))
 \end{pdf-example}
+
+The sample construction in Example~\ref{sample-construction}
+constructs perpendiculars from an arbitrary point on an angle bisector
+to the ray extensions of the angle being bisected.
+
 
 %% Outline
 %% - Basic Structures and essential Utilities (code + line-from-points...)
@@ -50,9 +55,13 @@ The basic structures in the imperative construction system are points,
 segments, rays, lines, angles, and circles. These structures, as with
 all structures in the system are implemented using Scheme record
 structures as seen in Listings \ref{basic-structures} and
-\ref{angle-circle-structs}. In the internal representations, lines and
-segments are directioned. Predicates exist to allow other procedures
-to work with or ignore these directions.
+\ref{angle-circle-structs}. In the internal representations, a segment
+is two ordered endpoints, a ray is an endpoint and a direction, and a
+line is a point and a direction from that point the line
+extends. Thus, lines and segments are directioned, and the same
+geometric line and segment can have several different internal
+representations. Predicates exist to allow other procedures to work
+with or ignore these distinctions.
 
 \begin{code-listing}
 [label=basic-structures]
@@ -64,17 +73,21 @@ to work with or ignore these directions.
   (y point-y))
 
 (define-record-type <segment>
-  (%segment p1 p2)
+  (make-segment p1 p2)
   segment?
   (p1 segment-endpoint-1)
   (p2 segment-endpoint-2))
 
 (define-record-type <line>
-  (%make-line point dir)
+  (make-line point dir)
   line?
   (point line-point) ;; Point on the line
   (dir line-direction))
 \end{code-listing}
+
+As shown in Listing~\ref{angle-circle-structs}, angles are represented
+as a vertex point and two arm directions, and circles have a center
+point and radius length.
 
 \begin{code-listing}
 [label=angle-circle-structs]
@@ -100,9 +113,7 @@ Elements can be created explicitly using the underlying
 several higher-order constructors are provided to simplify
 construction as shown in Listings~\ref{line-from-points}
 and~\ref{angle-from}.  In \texttt{angle-from-lines}, we make use of
-the fact that lines are directioned to uniquely specify an angle.  As
-with the angle construction case, in several instances, we use generic
-operations to handle mixed types of geometry elements.
+the fact that lines are directioned to uniquely specify an angle.
 
 \begin{code-listing}
 [label=line-from-points]
@@ -125,13 +136,19 @@ operations to handle mixed types of geometry elements.
 (defhandler angle-from angle-from-lines line? line?)
 \end{code-listing}
 
+Listing~\ref{angle-from} also demonstrates one of many places in the
+system where I use generic operations to add flexibility. Here,
+\texttt{angle-from-lines} is defined as the handler for the generic
+operation \texttt{angle-from} when both arguments are lines. Similar
+handlers exist for other combinations of linear elements.
+
 \subsection{Essential Math Utilities}
 
 Several math utility structures support these constructors and other
 geometry procedures. One particularly useful abstraction is a
 \texttt{direction} that fixes a direction in the interval $[0, 2
-  \pi]$. Listing~\ref{directions} provides a taste of some operations
-using such abstractions.
+  \pi]$. Listing~\ref{directions} demonstrates some utilities using
+directions. Similar abstractions exist for working with vectors.
 
 \begin{code-listing}
 [label=directions]
@@ -153,7 +170,7 @@ using such abstractions.
 Higher-order construction procedures and structures are built upon
 these basic elements and utilities. Listing~\ref{perpendiculars} shows
 the implementation of the perpendicular constructions used in the
-sample figure.
+chapter's sample construction.
 
 \begin{code-listing}
 [label=perpendiculars]
@@ -171,10 +188,16 @@ sample figure.
       (make-segment point i))))
 \end{code-listing}
 
-Although traditional constructions generally avoid using rulers and
-protractors, Listing~\ref{angle-bisector} shows the implementation of
-the \texttt{angle-bisector} procedure from our sample figure that uses
-measurements to simplify construction.
+Traditional constructions generally avoid using rulers and
+protractors. However, as shown in Listing~\ref{angle-bisector}, the
+internal implementation of the \texttt{angle-bisector} procedure uses
+measurements to simplify construction instead of repeatedly
+intersecting circle arcs to emulate compass sweeps. Although the
+internal implementations of some constructions use measured values,
+when providing the system with investigations, a user can still limit
+the construction steps used to ones that could be performed using only
+a compass and straight edge since the internal implementations of the
+constructions operations remain opaque to the learning module.
 
 \begin{code-listing}
 [label=angle-bisector]
@@ -190,7 +213,7 @@ measurements to simplify construction.
 
 \subsection{Polygons and Figures}
 
-Polygons record structures contain an ordered list of points in
+Polygon record structures contain an ordered list of points in
 counter-clockwise order, and provide procedures such as
 \texttt{polygon-point-ref} or \texttt{polygon-segment} to obtain
 particular points, segments, and angles specified by indices.
@@ -202,18 +225,21 @@ polygons or subfigures.
 
 \section{Random Choices}
 
-To allow figures to represent general spaces of diagrams, random
-choices are commonly used to instantiate diagrams. In our sample
-figure, we use \texttt{random-angle} and \texttt{random-point-on-ray},
+Given these underlying objects and operations, to allow figures to
+represent general spaces of diagrams, random choices needed when
+instantiating diagrams. The chapter's sample construction uses
+\texttt{random-angle} and \texttt{random-point-on-ray},
 implementations of which are shown in
-listing~\ref{randomness}. Underlying these procedures are
-calls to Scheme's random function over a specified range ($[0, 2\pi]$
-for \texttt{random-angle-measure}, for instance). Since infinite
-ranges are not well supported and to ensure the figures stay
-reasonable legible for a human viewer,
-\texttt{extend-ray-to-max-segment} clips a ray at the current working
-canvas so a point on the ray can be selected within the working
-canvas.
+listing~\ref{randomness}. Underlying these procedures are calls to
+Scheme's random function over a specified range ($[0, 2\pi]$ for
+\texttt{random-angle-measure}, for instance). Since infinite ranges
+are not well supported and to ensure that the figures stay reasonably
+legible for a human viewer, in \texttt{random-point-on-ray}, the
+procedure \texttt{extend-ray-to-max-segment} clips a ray at the
+current working canvas so a point on the ray can be selected within
+the working canvas.
+
+\enlargethispage*{0.5\baselineskip}
 
 \begin{code-listing}
 [label=randomness]
@@ -221,9 +247,7 @@ canvas.
 (define (random-angle)
   (let* ((v (random-point))
          (d1 (random-direction))
-         (d2 (add-to-direction
-              d1
-              (rand-angle-measure))))
+         (d2 (add-to-direction d1 (rand-angle-measure))))
     (make-angle d1 v d2)))
 
 (define (random-point-on-ray r)
@@ -236,17 +260,14 @@ canvas.
          (t (safe-rand-range 0 1.0))
          (v (sub-points p2 p1)))
     (add-to-point p1 (scale-vec v t))))
-
-(define (safe-rand-range min-v max-v)
-  (let ((interval-size (max 0 (- max-v min-v))))
-    (rand-range
-     (+ min-v (* 0.1 interval-size))
-     (+ min-v (* 0.9 interval-size)))))
 \end{code-listing}
-
 Other random elements are created by combining these random choices,
 such as the random parallelogram in Listing
-\ref{random-parallelogram}.
+\ref{random-parallelogram}.  In \texttt{random-parallelogram}, a
+parallelogram is constructed by constructing two rays with an random
+angle between them, and selecting an arbitrary point on each. The
+final point is computed using vector arithmetic to ``complete the
+parallelogram''.
 
 \begin{code-listing}
 [label=random-parallelogram]
@@ -254,14 +275,10 @@ such as the random parallelogram in Listing
 (define (random-parallelogram)
   (let* ((r1 (random-ray))
          (p1 (ray-endpoint r1))
-         (r2 (rotate-about (ray-endpoint r1)
-                           (rand-angle-measure)
-                           r1))
+         (r2 (rotate-about (ray-endpoint r1) (rand-angle-measure) r1))
          (p2 (random-point-on-ray r1))
          (p4 (random-point-on-ray r2))
-         (p3 (add-to-point
-              p2
-              (sub-points p4 p1))))
+         (p3 (add-to-point p2 (sub-points p4 p1))))
     (polygon-from-points p1 p2 p3 p4)))
 \end{code-listing}
 
@@ -270,41 +287,97 @@ such as the random parallelogram in Listing
 The module currently only provides limited support for avoiding
 degenerate cases, or cases where randomly selected points happen to be
 very nearly on top of existing points. Several random choices use
-\texttt{safe-rand-range} (seen in Listing \ref{randomness}) to avoid
-the edge cases of ranges, but further extensions could improve this
-system to periodically check for unintended relationships and
-backtrack to choose other values.
+\texttt{safe-rand-range} seen Listing~\ref{safe-randomness} to avoid
+the edge cases of ranges, and some retry their local choices if the
+object they are returning has points too close to one
+another. However, further extensions could improve this system to
+periodically check for unintended relationships amongst all elements
+created previously in the figure and backtrack to select other values.
+
+\begin{code-listing}
+[label=safe-randomness]
+{Safe Randomness}
+(define (safe-rand-range min-v max-v)
+  (let ((interval-size (max 0 (- max-v min-v))))
+    (rand-range
+     (+ min-v (* 0.1 interval-size))
+     (+ min-v (* 0.9 interval-size)))))
+\end{code-listing}
 
 \section{Construction Language Support}
 
 To simplify specification of figures, the module provides the
-\texttt{leg-geo*} macro which allows for a multiple-assignment-like
+\texttt{let-geo*} macro which allows for a multiple-assignment-like
 extraction of components from elements and automatically tags
-resulting elements with their variable names for future
-reference. Listing~\ref{letgeo-expansion} shows the expansion of a
-simple usage of \texttt{let-geo*} and
-listing~\ref{component-assignment} shows some of the macros' implementation.
+resulting elements with their variable names and dependencies. These
+dependencies are both symbolic for display and procedural so the
+system can generalize observations into conjectures that can be
+applied in other situations.
 
-\begin{code-example}
+\subsection{Multiple Component Assignment}
+
+Listing~\ref{letgeo-expansion} shows the multiple component assignment
+expansion of a simple usage of \texttt{let-geo*}. In this case,
+\texttt{((a (r-1 v r-2)) (random-angle))} will assign to the variable
+\texttt{a} the resulting random angle, and to the variables
+\texttt{r-1}, \texttt{v}, and \texttt{r-2} the resulting angle's
+ray-1, vertex, and ray-2, respectively. If the specification were for
+a random quadrilateral, such as \texttt{((s (a b c d))
+  (random-square))}, the macro would assign to the variable \texttt{s}
+the resulting random square, and to the variables \texttt{a},
+\texttt{b}, \texttt{c} and \texttt{d} the resulting square's vertices.
+
+\begin{repl-example}
 [label=letgeo-expansion]
 {Expansion of let-geo* macro}
 (let-geo* (((a (r-1 v r-2)) (random-angle)))
   (figure a r-1 r-2 ...))
 
+=> macro expands to:
 (let* ((a (random-angle))
        (r-1 (element-component a 0))
        (v   (element-component a 1))
        (r-2 (element-component a 2)))
-  (set-element-name! a   'a)
-  (set-element-name! r-1 'r-1)
-  (set-element-name! v   'v)
-  (set-element-name! r-2 'r-2)
   (figure a r-1 r-2 ...))
-\end{code-example}
+\end{repl-example}
+
+To handle these varied cases, the macro expands to use the generic operation
+\texttt{element-component} to determine what components are extracted
+from an object during multiple component assignment. As shown in
+Listing~\ref{element-component}, for polygons, the components are the
+point references directly, whereas angles and segments construct their
+handlers from a given list of getters.
 
 \begin{code-listing}
-[label=component-assignment]
-{Multiple and Component Assignment}
+[label=element-component]
+{Generic Element Component Handlers}
+(declare-element-component-handler polygon-point-ref polygon?)
+
+(declare-element-component-handler
+ (component-procedure-from-getters
+   ray-from-arm-1 angle-vertex ray-from-arm-2)
+ angle?)
+
+(declare-element-component-handler
+ (component-procedure-from-getters
+   segment-endpoint-1 segment-endpoint-2)
+ segment?)
+
+(define (component-procedure-from-getters . getters)
+  (let ((num-getters (length getters)))
+    (lambda (el i)
+      (if (not (<= 0 i (- num-getters 1)))
+          (error "Index out of range for component procedure: " i))
+      ((list-ref getters i) el))))
+\end{code-listing}
+
+Listing~\ref{component-assignment-impl} demonstrates the multiple
+assignment portion of the \texttt{let-geo*} macro in which the user's
+specifications are expanded into the element-component expressions.
+
+\begin{code-listing}
+[label=component-assignment-impl]
+{Multiple and Component Assignment Implementation}
 (define (expand-compound-assignment lhs rhs)
   (if (not (= 2 (length lhs)))
       (error "Malformed compound assignment LHS (needs 2 elements): " lhs))
@@ -313,9 +386,8 @@ listing~\ref{component-assignment} shows some of the macros' implementation.
     (if (not (list? component-names))
         (error "Component names must be a list:" component-names))
     (let ((main-assignment (list key-name rhs))
-          (component-assignments (make-component-assignments
-                                  key-name
-                                  component-names)))
+          (component-assignments
+           (make-component-assignments key-name component-names)))
       (cons main-assignment
             component-assignments))))
 
@@ -326,32 +398,195 @@ listing~\ref{component-assignment} shows some of the macros' implementation.
        (iota (length component-names))))
 \end{code-listing}
 
-Once expanded, a generic \texttt{element-component} operator shown in
-Listing~\ref{element-component} defines what components are extracted
-from what elements (endpoints for segments, vertices for polygons,
-(ray, angle, ray) for angles).
+\subsection{Names and Dependencies}
+
+The other task the \texttt{let-geo*} macro handles is assigning names
+and dependencies to objects. As shown in Listing~\ref{element-name},
+these properties are attached to elements using the
+\texttt{eq-properties} method.  In this approach, an hash table is
+used to store mappings of elements to property values. Similar
+interfaces are provided for element dependencies and element sources.
 
 \begin{code-listing}
-[label=element-component]
-{Generic Element Component Handlers}
-(declare-element-component-handler polygon-point-ref polygon?)
+[label=element-name]
+{Element Names}
+(define (element-name element)
+  (or (eq-get element 'name)
+      *unnamed*))
 
-(declare-element-component-handler
- (component-procedure-from-getters
-  ray-from-arm-1
-  angle-vertex
-  ray-from-arm-2)
- angle?)
+(define (set-element-name! element name)
+  (eq-put! element 'name name))
 \end{code-listing}
 
+When an assignment is made in the \texttt{let-geo*} macro, three
+pieces of information are associated with the assigned object: (1) its
+\texttt{name}, taken from the variable used for the object in the let
+statement, (2) its symbolic \texttt{dependency} that stores the procedure name
+and arguments used to obtain the object primarily for display
+purposes, and (3) a \texttt{source} procedure that allows the object to be
+recreated from a different starting
+premise. Example~\ref{dependency-expansion} shows the expansion of
+these dependencies in a very simple construction. These dependencies
+are added after the multiple component assignments are expanded so
+will apply to all variables created in the form.
+
+\begin{repl-example}
+[label=dependency-expansion]
+{Dependency and Name Assignment}
+(let-geo*
+    ((s (make-segment a b)))
+  (figure s))
+
+=> macro expands to:
+(let* ((s (make-segment a b)))
+  (set-element-name! s 's)
+  (set-source! s
+   (lambda (p)
+     (make-segment (from-new-premise p a) (from-new-premise p b))))
+  (set-dependency-if-unknown! s (list 'make-segment a b))
+  (figure s))
+\end{repl-example}
+
+The decision to attach a procedure of a premise argument to an element
+as its \texttt{source} allows other starting premises to be injected
+during later explorations in the learning
+module. \texttt{from-new-premise} allows the system to recreate the
+corresponding object for a specified element given a different
+premise. Example~\ref{new-premises} shows the implementation of
+\texttt{from-new-premise} and the interface for specifying an explicit
+premise dependency via \texttt{set-as-premise!}.  To allow for
+multiple premises to be injected, the premise structure is represented
+as a list.
+
+\begin{code-example}
+[label=new-premises]
+{Using sources with new premises}
+(define (from-new-premise new-premise element)
+  ((element-source element) new-premise))
+
+(define (set-as-premise! element i)
+  (set-dependency! element (symbol '<premise- i '>))
+  (set-source! element (lambda (p) (list-ref p i))))
+\end{code-example}
+
+These source and premise structures will be used more later in
+learning new terms, but Example~\ref{new-premise} provides a concrete
+example of its use. The first definition creates a random square and
+obtains the intersection point of its two diagonals. \texttt{let-geo*}
+sets up the names and dependencies, and the square is marked as the
+initial premise. However, the intersection point is returned rather
+than a figure.  The print statements (continued on the next page) show
+that while \texttt{diag-intersection-point} is a point structure with
+explicit coordinates it can produce information about how it was
+created.
+
+\begin{img-example}
+[label=new-premise, breakable]
+{Using from-new-premise}
+{images/new-premise.png}
+(define diag-intersection-point
+  (let-geo*
+      (((sq (a b c d)) (random-square))
+       (diag-1 (make-segment a c))
+       (diag-2 (make-segment b d))
+       (p (intersect-linear-elements diag-1 diag-2)))
+    (set-as-premise! sq 0)
+    p))
+
+=> (pp diag-intersection-point)
+#[point 26] (x -.1071) (y -0.4464)
+
+=> (print-dependencies (element-dependency diag-intersection-point))
+(intersect-linear-elements
+ (make-segment (element-component <premise-0> 0)
+               (element-component <premise-0> 2))
+ (make-segment (element-component <premise-0> 1)
+               (element-component <premise-0> 3)))
+
+(define new-figure
+  (let-geo* (((k (e f g h)) (random-kite))
+             (p2 (from-new-premise (list k) diag-intersection-point)))
+    (figure k p2)))
+
+=> (show-figure new-figure)
+\end{img-example}
+
+The second definition at the end of Example~\ref{new-premise},
+\texttt{new-figure}, demonstrates using \texttt{from-new-premise} to
+apply source information from an existing object to a new premise.
+The specification of \texttt{new-figure} constructs a random kite and
+uses that object \texttt{k} as the new premise in creating point
+\texttt{p2} using the source information of the
+\texttt{diag-intersection-point}. As seen in the image,
+\texttt{from-new-premise} was able to correctly extract the
+construction steps about how \texttt{diag-intersection-point} was
+constructed and apply it to the new kite to set \texttt{p2} at the
+intersection of the kite's diagonals.
+
+A similar process to this example will appear in an abstracted form
+later in the learning module as the system tests whether conjectures
+apply to new situations.
+
+\newpage
+Listing~\ref{dep-impl} presents the implementation of the
+manipulations used to add dependency information to figures, and
+Listing~\ref{let-geo} presents the top-level definition for the
+\texttt{let-geo*} form.
+
+\begin{code-listing}
+[label=dep-impl]
+{Implementation of Dependency Expressions}
+(define (args-from-premise args)
+  (map (lambda (arg)
+         `(from-new-premise p ,arg))
+       args))
+
+(define (set-dependency-expressions assignments)
+  (append-map
+   (lambda (a)
+     (let ((name (car a))
+           (value (cadr a)))
+       (if (list? value)
+           (let ((proc (car value))
+                 (args (cdr value)))
+             `((set-source!
+                ,name (lambda (p) (,proc ,@(args-from-premise args))))
+               (set-dependency!
+                ,name (list (quote ,proc) ,@args))))
+           `((set-source! ,name (element-source ,value))
+             (set-dependency! ,name (element-dependency ,value))))))
+   assignments))
+\end{code-listing}
+
+\begin{code-listing}
+[label=let-geo]
+{Full let-geo* Implementation}
+(define-syntax let-geo*
+  (sc-macro-transformer
+   (lambda (exp env)
+     (let ((assignments (cadr exp))
+           (body (cddr exp)))
+       (let ((new-assignments (expand-assignments assignments))
+             (variable-names (variables-from-assignments assignments)))
+         (let ((result `(let*
+                            ,new-assignments
+                          ,@(set-name-expressions variable-names)
+                          ,@(set-dependency-expressions new-assignments)
+                          ,@body)))
+           ;; (pp result) ;; To debug macro expansion
+           (close-syntax result env)))))))
+\end{code-listing}
+
+\newpage
 \section{Graphics and Animation}
 
-The system integrates with Scheme's graphics system for the X Window
-System to display the figures for the users. The graphical viewer can
-include labels and highlight specific elements, as well as display
-animations representing the ``wiggling'' of the
-diagram. Implementations of core procedures of these components are
-shown in Listings~\ref{draw-figure} and~\ref{animation}.
+Given the primitive objects and a language for specifying
+constructions, the final task of the imperative system is to display
+and animate figures. To do so, the system integrates with Scheme's graphics
+system for the X Window System. It can include labels and highlight specific
+elements, as well as display animations representing the ``wiggling''
+of the diagram. Implementations of core procedures of these components
+are shown in Listings~\ref{draw-figure} and~\ref{animation}.
 
 \begin{code-listing}
 [label=draw-figure]
@@ -366,18 +601,19 @@ shown in Listings~\ref{draw-figure} and~\ref{animation}.
    (all-figure-elements figure))
   (for-each
    (lambda (element)
-     (canvas-set-color canvas (element-color element))
      ((draw-label element) canvas))
    (all-figure-elements figure))
   (graphics-flush (canvas-g canvas)))
 \end{code-listing}
 
-To animate a figure, constructions can call \texttt{animate} with a
-procedure f that takes an argument in $[0, 1]$. When the animation is
+To support animation, constructions can call \texttt{animate} with a
+procedure \texttt{f} that takes an argument in $[0, 1]$. When the animation is
 run, the system will use fluid variables to iteratively wiggle each
 successive random choice through its range of
 $[0,1]$. \texttt{animate-range} provides an example where a user can
 specify a range to wiggle over.
+
+\enlargethispage*{\baselineskip}
 
 \begin{code-listing}
 [label=animation]
@@ -390,10 +626,33 @@ specify a range to wiggle over.
              ((> *animating-index* my-index) 1)))))
 
 (define (animate-range min max)
-  (animate (lambda (v)
-             (+ min
-                (* v (- max min))))))
+  (animate (lambda (v) (+ min (* v (- max min))))))
 \end{code-listing}
+
+\section{Discussion}
+
+In creating the imperative construction module, the main challenges
+involved settling on appropriate representations for geometry objects
+and properly yet effortlessly tracking dependencies. Initial efforts
+used over-specified representations such as an angle consisting of
+three points and a line consisting of two points. Reducing these to
+nearly-minimal representations using directions helped simplify other
+operations. In addition, the module initially had each individual
+construction procedure set the dependencies of the elements it
+produced. Automating this in the \texttt{let-geo*} macro helped
+simplify the annotation process and make the setting of source
+procedures feasible.
+
+Future extensions could provide additional construction procedures,
+particularly with added support for circle and arc-related operations,
+or improve the resilience of random choices. However, I believe the
+imperative module provides a sufficiently versatile library of
+components and procedures to enable users to specify interesting
+investigations. With the ability to construct and represent figures,
+the following chapters explain details of how the system is able to
+make and generalize observations to learn from user-specified
+constructions.
+
 
 %% Old Stuff:
 
@@ -581,7 +840,5 @@ animations representing the ``wiggling'' of the diagram.
    (all-figure-elements figure))
   (graphics-flush (canvas-g canvas)))
 \end{code-listing}
-
-\section{Discussion}
 
 \fi

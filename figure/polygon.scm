@@ -37,7 +37,6 @@
         `(*polygon* ,@(map print (polygon-points p)))))
   polygon?)
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Polygon Points ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Internal reference for polygon points

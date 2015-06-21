@@ -105,7 +105,7 @@
       (error "Term already known:" term))
   (let ((example (name-polygon (object-generator))))
     (let* ((primitives (examine-primitive example))
-           (fig (figure (as-premise example)))
+           (fig (figure (as-premise example 0)))
            (observations (analyze-figure fig))
            (conjectures (map conjecture-from-observation observations)))
       (pprint conjectures)
@@ -205,7 +205,7 @@
   (let ((def (lookup term))
         (simple-def-result (make-simple-definitions-result)))
     (let* ((object ((definition-generator def)))
-           (fig (figure (as-premise (name-polygon object))))
+           (fig (figure (as-premise (name-polygon object) 0)))
            (all-observations (analyze-figure fig))
            (eligible-observations
             (filter observation->constraint

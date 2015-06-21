@@ -77,11 +77,9 @@
     (let ((theta (internal-rand-range 0 (* 2 pi)))
           (d-theta (animate-range 0 (* 2 pi))))
       (let ((dir (make-direction (+ theta d-theta))))
-        (with-dependency
-         (make-random-dependency 'random-point)
-         (add-to-point
-          (make-point x y)
-          (vec-from-direction-distance dir *point-wiggle-radius*)))))))
+        (add-to-point
+         (make-point x y)
+         (vec-from-direction-distance dir *point-wiggle-radius*))))))
 
 ;;; TODO: Maybe separate out reflection about line?
 (define (random-point-left-of-line line)

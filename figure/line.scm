@@ -69,7 +69,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Lines ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <line>
-  (%make-line point dir)
+  (make-line point dir)
   line?
   (point line-point) ;; Point on the line
   (dir line-direction))
@@ -77,8 +77,6 @@
 (defhandler print
   element-name
   line?)
-
-(define make-line %make-line)
 
 (define (line-from-points p1 p2)
   (make-line p1 (direction-from-points p1 p2)))

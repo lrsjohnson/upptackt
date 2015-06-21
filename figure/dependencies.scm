@@ -52,12 +52,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Premises ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (set-as-premise! element)
-  (set-dependency! element '<premise>)
-  (set-source! element (lambda (p) (car p))))
+(define (set-as-premise! element i)
+  (set-dependency! element (symbol '<premise- i '>))
+  (set-source! element (lambda (p) (list-ref p i))))
 
-(define (as-premise element)
-  (set-as-premise! element)
+(define (as-premise element i)
+  (set-as-premise! element i)
   element)
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Unknown Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -132,10 +132,7 @@
     (map element-dependencies->list l))
   list?)
 
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;; Formatting Dependencies ;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (format-dependencies object)
-  (element-dependencies->list object))
+(define (print-dependencies object)
+  (pprint (element-dependencies->list object)))

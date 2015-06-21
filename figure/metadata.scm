@@ -26,7 +26,7 @@
   (or (eq-get element 'name)
       *unnamed*))
 
-(define *unnamed* (list 'unnamed))
+(define *unnamed* '*unnamed*)
 (define (is-unnamed? x) (eq? *unnamed* x))
 
 (define generic-element-name

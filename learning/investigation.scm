@@ -67,7 +67,7 @@ Example:
           (investigation-figure-procedure investigation))
          (premise-def (lookup premise-term))
          (example (example-object premise-term)))
-    (set-as-premise! example)
+    (set-as-premise! example 0)
     (let* ((all-obs (all-observations (lambda () (figure-proc example))))
            (interesting-obs (interesting-observations (lambda () (figure-proc example))))
            (investigation-conjectures

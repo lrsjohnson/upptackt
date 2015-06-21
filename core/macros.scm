@@ -36,9 +36,8 @@
     (if (not (list? component-names))
         (error "Component names must be a list:" component-names))
     (let ((main-assignment (list key-name rhs))
-          (component-assignments (make-component-assignments
-                                  key-name
-                                  component-names)))
+          (component-assignments
+           (make-component-assignments key-name component-names)))
       (cons main-assignment
             component-assignments))))
 
@@ -76,11 +75,6 @@
          `(from-new-premise p ,arg))
        args))
 
-(define (dependencies-from-args args)
-  (map (lambda (arg)
-         `(element-dependency ,arg))
-       args))
-
 (define (set-dependency-expressions assignments)
   (append-map
    (lambda (a)
@@ -89,14 +83,12 @@
        (if (list? value)
            (let ((proc (car value))
                  (args (cdr value)))
-             `((set-source! ,name
-                            (lambda (p)
-                              (,proc ,@(args-from-premise args))))
-               (set-dependency-if-unknown! ,name
-                                           (list (quote ,proc)
-                                                 ,@args))))
+             `((set-source!
+                ,name (lambda (p) (,proc ,@(args-from-premise args))))
+               (set-dependency!
+                ,name (list (quote ,proc) ,@args))))
            `((set-source! ,name (element-source ,value))
-             (set-dependency-if-unknown! ,name (element-dependency ,value))))))
+             (set-dependency! ,name (element-dependency ,value))))))
    assignments))
 
 
@@ -115,5 +107,5 @@
                           ,@(set-name-expressions variable-names)
                           ,@(set-dependency-expressions new-assignments)
                           ,@body)))
-           ;;(pp result) ;; Uncomment to debug macro expansion
+           ;; (pp result) ;; Uncomment to debug macro expansion
            (close-syntax result env)))))))
