@@ -14,7 +14,7 @@ a perception-based analyzer, a declarative constraint solver, and a
 synthesizing learning module.  The following examples will explore
 interactions with these modules in increasing complexity, building up
 to a full demonstration of the system achieving its learning goals in
-Section~\ref{sec:end-goal}.
+Sections~\ref{sec:end-goal-1} and~\ref{sec:end-goal-2}.
 
 \section{Imperative Figure Construction}
 
@@ -251,7 +251,7 @@ not explicitly listed in the original figure.
 \end{repl-example}
 
 \texttt{all-observations} will report all reasonable observations
-found, but as will be shown in Section~\ref{sec:end-goal}, as the
+found, but as will be shown in Section~\ref{sec:end-goal-1}, as the
 system learns new terms and concepts, a request for
 \texttt{interesting-observations} will use such learn concepts to
 eliminate redundant observations and filter out previously-discovered
@@ -444,6 +444,8 @@ figures given the fact that its opposite angles are equal. The fact
 that these all happen to be parallelograms will be used by the
 learning module to produce a simpler definition for a parallelogram.
 
+\enlargethispage*{-\baselineskip}
+
 \begin{pdf-example}
 [label=pl-by-angles]
 {Constraint Solving for Parallelogram}
@@ -457,7 +459,6 @@ learning module to produce a simpler definition for a parallelogram.
                     (m:joint 'd))))
 
 => (m:run-mechanism parallelogram-by-angles)
-
 (specifying-joint-angle m:joint:c:b:a 1.6835699856637936)
 (initializing-angle m:joint:c:b:a-dir-1 (direction 1.3978162819212452))
 (initializing-point m:bar:a:b-p1 (0 0))
@@ -583,7 +584,7 @@ declarative information.
 \enlargethispage*{\baselineskip}
 
 \section{Learning Module}
-\label{sec:end-goal}
+\label{sec:end-goal-1}
 
 The previous sections described modules for performing constructions,
 observing interesting symbolic relationships, and rebuilding figures
@@ -629,7 +630,7 @@ to query its knowledge or apply it to new situations.
 One example of this process involves the ``teacher'' user crafting an
 investigation procedure that creates instances of a new class of
 object. For instance, a user could define \texttt{random-trapezoid} to
-be a procedure that, each time it is called, returns randomly
+be a procedure that, each time it is called, returns a randomly
 constructed trapezoid. Example~\ref{rand-trp} shows the full range of
 trapezoids created via the \texttt{random-trapezoid} procedure.
 
@@ -642,7 +643,7 @@ raster columns=3,graphics pages={1,2,3}}]
 \end{pdf-example}
 
 The learning module can interface with the perception module to obtain
-observations about given element. In Example \ref{analyze-trapezoid},
+observations about given elements. In Example \ref{analyze-trapezoid},
 the results show the full dependencies of elements under consideration
 instead of their names. These dependency structures are later used to
 convert the observations about this specific trapezoid into general
@@ -669,14 +670,14 @@ Example~\ref{learn-terms}.
 => (learn-term 'parallelogram random-parallelogram)
 done
 
-=> (learn-term 'trapezoid random-trapezoid)
+=> (learn-term 'isoceles-triangle random-isoceles-triangle)
 done
 \end{repl-example}
 
-Although the internal implementations of user-provided generator
+Although the internal implementations of these user-provided generator
 procedures are opaque to the learning module, it is able to examine
 interesting relationships invariant across instances of such objects
-and discover properties for the new definition.
+and discover properties to include in the new definition.
 
 As shown in example \ref{what-is}, after being instructed to learn
 what a parallelogram is from the \texttt{random-parallelogram}
@@ -760,8 +761,8 @@ terms. In Example~\ref{build-def}, we see that, after learning
 definitions of kites and rhombuses, the reported definition of a
 rhombus is that it a parallelogram and kite that satisfies two
 additional rhombus-specific properties about equal length
-sides. Later, after learning about rectangles, amazingly, the system
-shows us that the definition of a square has no additional properties
+sides. Later, after learning about rectangles, the system shows us
+that the definition of a square amazingly has no additional properties
 beyond that of being both a rhombus and a rectangle. The system is
 able to make these same deductions and update definitions irrespective
 of the order in which it is taught the terms.
@@ -787,10 +788,10 @@ of the order in which it is taught the terms.
 
 As it learns definitions, the system constructs and maintains a
 lattice of known concepts in which child nodes are more specific
-classes of their parents. An example of the definition lattice the
-system generated after learning several more terms is shown in
-Example~\ref{full-lattice}. We see that the accurate relations are
-expressed:
+classes of their parents. An example of the polygon definition
+sublattice the system generated after learning several more terms is
+shown in Example~\ref{full-lattice}. We see that the accurate
+relations are expressed:
 
 \begin{img-example}
 [label=full-lattice,
@@ -823,13 +824,13 @@ more general theorems about its objects, the system allows users to
 specify investigations based on a premise. These investigations
 represent the English instructions of \emph{``Given \texttt{<premise
     objects>}, construct \texttt{<secondary constructions>}. Notice
-  anything interesting?''}. They are structured extremely similarly to
-imperative figures, but use a ``dependency injected'' premise argument
-to enable the learning module to control what is being investigated.
-By conditioning such constructions and analysis on the premise
-objects, the learning module is able to filter out observations based
-on previously-learned theorems and store new observations as theorems
-for future use.
+  anything interesting?''}. They are use the imperative construction
+\texttt{let-geo*} macros, but have a ``dependency injected'' premise
+argument to enable the learning module to control what is being
+investigated.  By conditioning such constructions and analysis on the
+premise objects, the learning module is able to filter out
+observations based on previously-learned theorems and store new
+observations as theorems for future use.
 
 The investigation in Example~\ref{diag-investigation} takes a
 quadrilateral as its premise and constructs a figure including the
@@ -850,69 +851,84 @@ quadrilateral's diagonals.
 \end{code-example}
 
 Investigations can be run either for a particular premise term or for
-an entire sublattice of descendants.
+an entire sublattice of descendants. Example~\ref{run-investigation}
+shows the results of diagonals conjecture being run for orthodiagonal
+and equidiagonal terms.
 
-\begin{repl-example}
+\begin{pdf-example}
 [label=run-investigation]
 {Performing Investigations}
+{images/diag-investigation.pdf}
 => (run-investigation-for-term diagonal-investigation 'equidiagonal)
 ((equal-length diag-1 diag-2))
 
 => (run-investigation-for-term diagonal-investigation 'orthodiagonal)
 ((perpendicular diag-1 diag-2))
-\end{repl-example}
+\end{pdf-example}
 
 In addition to displaying the interesting new results the
-investigation yields, such properties are added to original structures
-of the premise objects to be checked in the future. In the
-orthodiagonal and equidiagonal cases, this investigation correctly
-identifies and adds properties regarding the diagonals and places the
-terms in their rightful place in the lattice.
+investigation yields, running an investigation stores discovered
+properties in the definition structures of the premises being
+checked. In the orthodiagonal and equidiagonal cases, performing this
+investigation correctly identifies and adds properties of the
+diagonals that can differentiate the shapes from arbitrary
+quadrilaterals and moves the terms to the correct locations in the
+lattice.
 
 Running investigations on entire subtrees of related terms can often
 provide interesting information about where in the lattice particular
 properties change. Example~\ref{run-consecutive} shows selected output
 from running a consecutive midpoint investigation that builds a inner
-quadrilateral from the midpoints of the sides of the given
-quadrilateral.
+quadrilateral from the midpoints of the sides of a given premise
+quadrilateral. The resulting interesting observations are simplified
+by expressing results in terms of known shapes.
 
-\begin{repl-example}
-[label=run-consecutive]
+\begin{pdf-example}
+[label=run-consecutive,
+comment style={frame hidden,
+opacityback=0,
+height=5.6cm,
+raster columns=2,graphics pages={1,2}}]
 {Consecutive Midpoint Investigation \protect\newline[Selected Output]}
+{images/inner-investigation.pdf}
 => (run-investigation consecutive-midpoints-investigation)
 (investigating quadrilateral)
    ((parallelogram inner-polygon))
-
-(investigating equidiagonal)
+...
+(investigating equidiagonal)   ;; Left Image
    ((rhombus inner-polygon))
-
-(investigating orthodiagonal)
+...
+(investigating orthodiagonal)  ;; Right Image
    ((rectangle inner-polygon))
-
+...
 (investigating square)
    ((square inner-polygon))
-...
-\end{repl-example}
+\end{pdf-example}
 
-Interestingly, these results show that in any outer
-quadrilateral, the inner quadrilateral is a parallelogram, that the
-inner polygon for any equidiagonal quadrilateral is a rhombus, and the
-inner polygon for any orthodiagonal quadrilateral is a
-rectangle. Then, as matched by looking back to the full lattice in
-Example~\ref{full-lattice}, the inner quadrilateral of a square (most
-general descendent of equidiagonal and orthodiagonal) is also a square
-(the most general descendent of rhombus and rectangle).
+Interestingly, these results show that, given any outer quadrilateral
+premise, the inner quadrilateral is a parallelogram, that the inner
+polygon for any equidiagonal quadrilateral is a rhombus, and the inner
+polygon for any orthodiagonal quadrilateral is a rectangle. Then, as
+reinforced by looking back to the full lattice in
+Example~\ref{full-lattice}, it reports that the inner quadrilateral of
+a square (the most general descendent of equidiagonal and
+orthodiagonal) is also a square (the most general descendent of
+rhombus and rectangle).
 
-Thus, Investigation structures can represent broader explorations for the
-system to perform.  Although not yet implemented, a similar process
-using a multi-element premise structure could explore relationships
-yielded by a applying a construction procedure to its arguments where
-each of its arguments satisfies a separate premise.
+%\enlargethispage*{\baselineskip}
+
+Thus, user-specified investigations can represent broader explorations
+for the system to perform.  Although not yet implemented, a similar
+process using a multi-element premise structure could explore
+relationships yielded by a applying a construction procedure to its
+arguments. In future executions these observations could be marked as
+uninteresting and excluded from reporting.
 
 \section{Final Example: Simplifying Definitions}
+\label{sec:end-goal-2}
 
-As properties accumulate from analysis and investigation, the
-need to satisfy all known properties overconstraints the resulting
+As properties accumulate from analysis and investigation, the need to
+satisfy all known properties for a shape overconstraints the resulting
 definitions. For example, satisfying some small subset of the known
 properties of a parallelogram is sufficient to determine whether an
 unknown object is a parallelogram without checking every property
@@ -922,35 +938,32 @@ Accordingly, the final, fun example that integrates all of these
 systems is the process of learning simpler definitions for geometry
 terms. In these examples, the procedure
 \texttt{get-simple-definitions} takes a known term, looks up the known
-observations and properties for that term, and tests all reasonable
-subsets of those properties as constraints using the constraint
-solver. For each subset of properties, if the constraint solver was
-able to create a diagram satisfying exactly those properties, the
-resulting diagram is examined as with the original \texttt{is-a?}
-procedure to see if all the known properties of the original term
-hold.
+properties for that term, and tests all reasonable subsets of those
+properties as constraints using the constraint solver. For each subset
+of properties, if the constraint solver was able to create a diagram
+satisfying exactly those properties, the resulting diagram is checked
+using with the original \texttt{is-a?} procedure to see if all the
+other known properties of the original term still hold.
 
 If so, the subset of properties is reported as a sufficient definition
 of the term, and if the resulting diagram fails some properties, the
 subset is reported as an insufficient set of constraints. These
-resulting valid definitions can be treated as equivalent, simpler
+resulting sufficient definitions can be treated as equivalent, simpler
 definitions and used as the premises in new theorems about the
 objects.
 
-In Examples \ref{simple-definitions} and~\ref{pl-definitions}, we see
-a trace of finding simple definitions for isoceles triangles and
-parallelograms. In the first example, the observed properties of an
-isoceles triangle are that its base segments and angles are equal. After
-the definition simplification via constraint solving, we actually
-discover that the single constraints of a pair of congruent base
-angles or a pair of congruent sides are sufficient.
+In the Example~\ref{simple-definitions}, the initial necessary
+properties of an isoceles triangle are that it both has congruent
+legs \emph{and} congruent base angles. After the definition
+simplification via constraint solving, we correctly discover that
+either of these constraints alone is sufficient: either a single pair
+of congruent base angles or a pair of congruent sides.
 
 \begin{repl-example}
 [label=simple-definitions]
 {Learning Simple Definitions}
 => (what-is 'isoceles-triangle)
-
-(i-t
+(isoceles-triangle
  (triangle)
  ((equal-length (polygon-segment 0 1 <premise>)
                 (polygon-segment 2 0 <premise>))
@@ -966,11 +979,11 @@ angles or a pair of congruent sides are sufficient.
 \end{repl-example}
 
 In the parallelogram Example \ref{pl-definitions}, some subsets are
-marked as unknown because the constraint solver wasn't able to solve a diagram
-given those constraints. However, the results still show some
-interesting valid definitions such as the pair of equal opposite
-angles as explored in Example~\ref{pl-by-angles} or equal length
-opposite sides and correctly mark several sets of insufficient
+marked as unknown because the constraint solver wasn't able to solve a
+diagram given those constraints. However, the results still show some
+the interesting sufficient definitions of a the pair of equal opposite
+angles as explored in Example~\ref{pl-by-angles} or a pair of equal
+length opposite sides and correctly mark several sets of insufficient
 definitions as not being specific enough.
 
 \begin{repl-example}
@@ -993,13 +1006,14 @@ definitions as not being specific enough.
 
 This simple definitions implementation is still a work in progress and
 has room for improvement. In the future I plan to use the knowledge
-about what properties the insufficient diagram is violating to use as
-a possible addition to the constraint set. Further extensions could
-also involve generalizing this get-simple-definitions to support other
-topologies for the initial properties (such as the quadrilaterals
-being fully specified by their diagonal properties as in
-Example~\ref{quad-diagonals}).
+about what properties the insufficient diagram is violating to add to
+the next constraint set to check, and improve how the solver handles
+difficult cases to construct. Further extensions could also involve
+generalizing \texttt{get-simple-definitions} to support other
+topologies for the initial properties such as the quadrilaterals being
+fully specified by their diagonal properties as in
+Example~\ref{quad-diagonals} through~\ref{pl-from-diag}
 
-Given this framework of use cases for the modules, the remaining
-chapters will discuss further representation and implementation
+Given this context of use cases for the modules, the remaining
+chapters will discuss additional representation and implementation
 details.
