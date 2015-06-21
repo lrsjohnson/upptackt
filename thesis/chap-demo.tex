@@ -3,29 +3,35 @@
 
 My system uses this idea of manipulating diagrams ``in the mind's
 eye'' to explore and discover geometry theorems. Before describing its
-internal representations and modules, I will present and discuss
-several sample interactions with the system. Further implementation
+internal representations and implementation, I will present and
+discuss several sample interactions with the system. Further details
 details can be found in subsequent chapters.
 
-The system is divided into four main modules: an imperative
-construction system, a perception-based analyzer, a declarative
-constraint solver, and a synthesizing learning module. The following
-examples explore interactions with these modules in increasing
-complexity.
+The overall goal of the system is to emulate a student learning
+geometry via an investigative approach. To accomplish this, the system
+is divided into four main modules: an imperative construction system,
+a perception-based analyzer, a declarative constraint solver, and a
+synthesizing learning module.  The following examples will explore
+interactions with these modules in increasing complexity, building up
+to a full demonstration of the system achieving its learning goals in
+Section~\ref{sec:end-goal}.
 
 \section{Imperative Figure Construction}
 
+\enlargethispage*{\baselineskip}
+
 At its foundation, the system provides a language and engine for
 performing geometry constructions and building figures.
-
 Example~\ref{basic-fig} presents a simple specification of a
 figure. Primitives of points, lines, segments, rays, and circles can
-be combined into polygons and figures and complicated constructions
+be combined into polygons and figures, and complicated constructions
 such as the perpendicular bisector of a segment can be abstracted into
-higher-level construction procedures. The custom special form
-\texttt{let-geo*} emulates the standard \texttt{let*} form in Scheme
-but also annotates the resulting objects with the names and
-dependencies as specified in this construction.
+higher-level procedures. The custom special form \texttt{let-geo*}
+emulates the standard \texttt{let*} form in Scheme but also annotates
+the resulting objects with the names and dependencies as specified in
+the construction.
+
+\pagebreak
 
 \begin{code-example}
 [label=basic-fig]
@@ -41,35 +47,40 @@ dependencies as specified in this construction.
     (figure t pb1 pb2 pb3)))
 \end{code-example}
 
-Given such an imperative description of a figure, the system can
-construct and display an instance of the figure as shown in
-Example~\ref{perp-show-figure}. The graphics system uses the
-underlying X window system-based graphics interfaces in MIT Scheme,
-labels named points (a, b, c), and repositions the coordinate system
-to display interesting features.
-
 \begin{img-example}
 [label=perp-show-figure]
 {Rendering the Basic Figure}{images/perpendicular-bisectors.png}
 => (show-figure (triangle-with-perp-bisectors))
 \end{img-example}
 
-In the first figure, the coordinates of the point were explicitly
-specified yielding a deterministic instance of the figure. However, as
-geometry figures often involve arbitrary choices, the construction
-abstractions support random choices. Figure~\ref{random-pb}
+Given such an imperative description, the system can construct and
+display an instance of the figure as shown in
+Example~\ref{perp-show-figure}. The graphics system uses the
+underlying X window system-based graphics interfaces in MIT Scheme,
+labels named points (\texttt{a}, \texttt{b}, \texttt{c}), and
+repositions the coordinate system to display interesting features.
+
+In the first figure, the coordinates of the points were explicitly
+specified yielding a deterministic instance of the figure. However, to
+represent entire spaces of diagram instances, the construction
+abstractions support random choices. Example~\ref{random-pb}
 demonstrates the creation of a figure involving an arbitrary
-triangle. The second formulation
-\texttt{(simple-random-triangle-with-perp-bisectors)} displays a
-syntax extension provided by \texttt{let-geo*} that shortens the
-common pattern of accessing and naming the components of a random
-object.
+triangle.
+
+The second formulation,
+\texttt{(simple-random-triangle-perp-bisectors)}, is equivalent to the
+first. It displays a syntax extension provided by \texttt{let-geo*}
+that shortens the common pattern of accessing and naming the
+components of an object. In this case, \texttt{((t (a b c))
+    (random-triangle))} will assign to the variable \texttt{t} the
+resulting random triangle, and to the variables \texttt{a},
+\texttt{b}, and \texttt{c} the resulting triangle's vertices.
 
 \begin{pdf-example}
 [label=random-pb]
 {Introducing Randomness}
 {images/random-pb.pdf}
-(define (random-triangle-with-perp-bisectors)
+(define (random-triangle-perp-bisectors)
   (let-geo* ((t (random-triangle))
              (a (polygon-point-ref t 0))
              (b (polygon-point-ref t 1))
@@ -79,7 +90,7 @@ object.
              (pb3 (perpendicular-bisector (make-segment c a))))
     (figure t pb1 pb2 pb3)))
 
-(define (simple-random-triangle-with-perp-bisectors)
+(define (simple-random-triangle-perp-bisectors)
   (let-geo* (((t (a b c)) (random-triangle))
              (pb1 (perpendicular-bisector (make-segment a b)))
              (pb2 (perpendicular-bisector (make-segment b c)))
@@ -87,10 +98,10 @@ object.
     (figure t pb1 pb2 pb3)))
 \end{pdf-example}
 
-Finally, as examples of more involved constructions, Examples
+As examples of more involved constructions, Examples
 \ref{angle-bisector-distance} and \ref{incircle-circumcircle-fig}
 demonstrate working with other objects (angles, rays, circles) and
-construction procedures. Notice that in the angle bisector example
+construction procedures. Notice that, in the angle bisector example,
 the pattern matching syntax extracts the components of an angle (ray,
 vertex, ray) and segment (endpoints), and that in the
 Inscribed/Circumscribed example, some intermediary elements are
@@ -112,8 +123,11 @@ analyzed.
 => (show-figure (angle-bisector-distance))
 \end{pdf-example}
 
+\enlargethispage*{-\baselineskip}
+
 \begin{pdf-example}
-[label=incircle-circumcircle-fig]
+[label=incircle-circumcircle-fig,
+break at=8.5cm]
 {Inscribed and Circumscribed Circles}
 {images/incenter-circumcenter.pdf}
 (define (inscribed-circumscribed)
@@ -124,22 +138,13 @@ analyzed.
              ((radius-segment (center-point radius-point))
               (perpendicular-to (make-segment a b)
                                 (intersect-linear-elements ab1 ab2)))
-             (incircle (circle-from-points
-                        center-point
-                        radius-point))
-             (pb1 (perpendicular-bisector
-                   (make-segment a b)))
-             (pb2 (perpendicular-bisector
-                   (make-segment b c)))
+             (ins-circle (circle-from-points center-point radius-point))
+             (pb1 (perpendicular-bisector (make-segment a b)))
+             (pb2 (perpendicular-bisector (make-segment b c)))
              (pb-center (intersect-lines pb1 pb2))
-             (circum-cir (circle-from-points
-                          pb-center
-                          a)))
-    (figure t a-1 a-2 a-3
-            pb-center
-            radius-segment
-            incircle
-            circum-cir)))
+             (circum-circle (circle-from-points pb-center a)))
+    (figure t a-1 a-2 a-3 pb-center radius-segment
+            ins-circle circum-circle)))
 
 => (show-figure (inscribed-circumscribed))
 \end{pdf-example}
@@ -151,8 +156,8 @@ constructions in which several instances of the figure are created and
 displayed, incrementally wiggling each random choice. In generating
 and wiggling the random values, some effort is taken to avoid
 degenerate cases or instances where points are too close to one
-another, as such cases lead to floating-point errors in the numerical
-analysis.
+another, as such cases can lead to undesirable floating-point errors
+in the numerical analysis.
 
 \section{Perception and Observation}
 
@@ -170,11 +175,14 @@ all such n-tuples found in the figure under analysis. For example, the
 perpendicular relationship is checked against all pairs of linear elements
 in the figure.
 
-The observation objects are complex structures that maintain
+The observation objects returned are compound structures that maintain
 properties of the underlying relationships and references to the
-original objects under consideration. However, my custom printer
-\texttt{print-observations} displays them in a more
-human-readable format.
+original objects under consideration. Dependency information about how
+these original objects were construction will be later used to
+generalize these observations into conjectures. For now, my custom
+printer \texttt{print-observations} can use the name information of
+the objects to display the observations in a more human-readable
+format.
 
 \begin{repl-example}
 [label=simple-analysis]
@@ -191,15 +199,15 @@ human-readable format.
  (perpendicular pb3 (segment c a)))
 \end{repl-example}
 
-The fact that the perpendicular bisector of a segment is equal to that
-segment isn't very interesting. Thus, as shown in Example
+The fact that the perpendicular bisector of a segment is perpendicular
+to that segment is not very interesting. Thus, as shown in Example
 \ref{interesting-analysis}, the analysis module also provides an
 interface for reporting only the interesting observations. Currently,
 information about the interesting relationships formed by a
-perpendicular bisector are specified alongside instructions for how to
-perform the operation, but a further extension of the learning module
-could try to infer inductively which properties result from various
-construction operations.
+construction operation such as perpendicular bisector is specified
+alongside instructions for how to perform the operation, but a further
+extension of the learning module could try to infer inductively which
+properties result from various known operations.
 
 \begin{repl-example}
 [label=interesting-analysis]
@@ -213,12 +221,13 @@ construction operations.
 For an example with more relationships, Example
 \ref{parallelogram-analysis} demonstrates the observations and
 relationships found in a figure with a random parallelogram. These
-analysis results will be used again later when we demonstrate the
-system learning definitions for polygons. Note that although the
-segments, angles, and points were not explicitly listed in the figure,
-they are extracted from the polygon that is listed. Extensions to the
-observation model can extract additional points and segments not
-explicitly listed in the original figure.
+analysis results will be used again later when I demonstrate the
+system learning definitions for polygons and simplifying such
+definitions to minimal sufficient constraint sets. Note that although
+the segments, angles, and points were not explicitly listed in the
+figure, they are extracted from the polygon that is listed. Extensions
+to the observation model can extract additional points and segments
+not explicitly listed in the original figure.
 
 \begin{repl-example}
 [label=parallelogram-analysis]
@@ -241,6 +250,16 @@ explicitly listed in the original figure.
  (parallel (segment b c) (segment d a)))
 \end{repl-example}
 
+\texttt{all-observations} will report all reasonable observations
+found, but as will be shown in Section~\ref{sec:end-goal}, as the
+system learns new terms and concepts, a request for
+\texttt{interesting-observations} will use such learn concepts to
+eliminate redundant observations and filter out previously-discovered
+facts. In this case, once a definition for parallelogram is learned,
+\texttt{interesting-observations} would simply report that \texttt{p}
+is a parallelogram and omit observations implied by that fact.
+
+
 \section{Mechanism-based Declarative Constraint Solver}
 
 The first two modules focus on performing imperative constructions to
@@ -253,7 +272,7 @@ However, an important aspect of automating learning theorems and
 definitions involves reversing this process and obtaining instances of
 diagrams by solving provided symbolic constraints and
 relationships. When we are told to ``Imagine a triangle ABC in which
-AB = BC'', we visualize in our minds eye an instance of such a
+AB = BC'', we visualize in our mind's eye an instance of such a
 triangle before continuing with the instructions.
 
 Thus, the third module is a declarative constraint solver. To model
@@ -269,10 +288,13 @@ further implementation details.
 \subsection{Bars and Joints}
 
 Example~\ref{simple-mechanism} demonstrates the specification of a
-very simple mechanism. Mechanisms are created by specifying the bars
-and joints involved as well as any additional constraints that must be
-satisfied. This example mechanism is composed of two bars with one
-joint between them that is constrained to be a right angle.
+very simple mechanism. Unlike the sequential, Scheme variable based
+\texttt{let-geo*} specification of constructions in the imperative
+construction system, to specify mechanisms, \texttt{m:mechanism} is
+applied to a list of linkage and constraint declarations containing
+symbolic identifiers.  This example mechanism is composed of two bar
+linkages with one joint linkage between the bars, along with a
+constraint that the joint is a right angle.
 
 \begin{code-example}
 [label=simple-mechanism]
@@ -285,29 +307,32 @@ joint between them that is constrained to be a right angle.
    (m:c-right-angle (m:joint 'b))))
 \end{code-example}
 
-Building a mechanism involves first assembling the bars and joints
-together so that the named points are identified with one
-another. Initially, each bar has unknown length and direction, each
-joint has an unknown angle, and each endpoint has unknown
-position. Constraints for the bar and joint properties are introduced
-alongside any explicitly specified constraints.
+Assembling a mechanism involves first adjoining the bars and joints
+together so that the named points are identified with one another.
+Initially, each bar has unknown length and direction, each joint has
+an unknown angle, and each endpoint has unknown position. Constraints
+for the bar and joint properties are then introduced alongside any
+explicitly specified constraints.
 
-Solving the mechanism involves repeatedly selecting position, lengths,
+Solving a mechanism involves repeatedly selecting position, lengths,
 angles, and directions that are not fully specified and selecting
-values within the domain of that value's current partial
+values within the domain of that element's current partial
 information. As values are specified, the wiring of the propagator
 model propagates further partial information to other values.
 
 The printed statements in Example \ref{solving-simple-mechanism}
 demonstrate that solving the simple mechanism above involves
-specifying the location of point a, then specifying the length of bar
-a-b and the direction from a that the bar extends. After those
-specifications, the joint angle is constrained to be a right angle and
-the location of point b is known by propagating information about
-point a and bar a-b's position and length. Thus, the only remaining
-property to fully specify the figure is the bar length of bar
-b-c. After building and solving the mechanism, run-mechanism converts
-it into a figure using the underlying primitives and displays it:
+specifying the location of point \texttt{a}, then specifying the
+length of bar \texttt{a-b} and the direction from \texttt{a} that the
+bar extends. After those specifications, the joint angle is
+constrained to be a right angle and the location of point \texttt{b}
+is known by propagating information about point \texttt{a} and bar
+\texttt{a-b}'s position and length. Thus, point \texttt{c} is known to
+be on a ray extending outwards from \texttt{b} and the only remaining
+property needed to fully specify the figure is the length of bar
+\texttt{b-c}. The command \texttt{m:run-mechanism} builds and solves
+the mechanism, then converts the result into an analytic figure and
+displays it.
 
 \begin{pdf-example}
 [label=solving-simple-mechanism]
@@ -327,8 +352,11 @@ These bar and linkage mechanisms can be used to represent the
 topologies of several geometry figures. Bars correspond to segments
 and joints correspond to angles. Example \ref{arbitrary-tri}
 demonstrates the set of linkages necessary to specify the topology of
-a triangle. The \texttt{m:establish-polygon-topology} procedure
-simplifies the specification of a closed polygon of joints.
+a triangle. The second formulation,
+\texttt{(simpler-arbitrary-triangle)} is equivalent to the first since
+the utility procedure \texttt{m:establish-polygon-topology} expands to
+create the set of $n$ bars and $n$ joint specifications needed to
+represent a closed polygon for the given $n$ vertex names.
 
 \begin{code-example}
 [label=arbitrary-tri]
@@ -347,20 +375,21 @@ simplifies the specification of a closed polygon of joints.
    (m:establish-polygon-topology 'a 'b 'c)))
 \end{code-example}
 
-In example \ref{run-arbitrary-tri}, Once joints b and c have had their angles specified, propagation
-sets the angle of joint a to a unique value. The only parameter
-to specify is the length of one of the bars. The two
+As seen in Example~\ref{run-arbitrary-tri} (next page), once joints
+\texttt{b} and \texttt{c} have had their angles specified, propagation
+fully determines the angle of joint \texttt{a}.  The only parameter
+remaining is the length of one of the bars.  The two
 \texttt{initializing-} steps don't affect the resulting shape but
 determine its position and orientation on the canvas.
 
 In this case, joint angles are specified first. The ordering of what
 is specified is guided by a heuristic that helps all of the examples
 shown in this chapter converge to solutions. The heuristic generally
-prefers specifying the most constrained values first. In some
+prefers specifying the most constrained values first. However, in some
 scenarios, specifying values in the wrong order can yield premature
-contradictions. A planned future extension will attempt to recover
-from such situations more gracefully by trying other orderings of
-specifying components.
+contradictions. A planned extension will attempt to recover from such
+situations more gracefully by trying other orderings for specifying
+components.
 
 \begin{pdf-example}
 [label=run-arbitrary-tri]
@@ -374,17 +403,20 @@ specifying components.
 (specifying-bar-length m:bar:c:a .4027149730292784)
 \end{pdf-example}
 
-Example \ref{solve-i-t} shows the solving steps involved in solving an
-isoceles triangle from the fact that its base angles are
-congruent. Notice that the only two values that must be specified are
-one joint angle and one bar length. The rest is handled by propagation.
+To include some user-specified constraints, Example~\ref{solve-i-t}
+shows the steps involved in solving an isoceles triangle from the fact
+that its base angles are congruent. Notice that the only two values
+that must be specified are one joint angle and one bar length. The
+rest is handled by propagation.
 
-The values used in the propagation involves representing the partial
-information of where points and angles can be. A specified angle
-constrains a point to a ray and a specified length constrains a point
-to be on a circle. As information about a point is merged from several
-sources, intersecting these rays and circles yields unique solutions
-for where the points must exist. Although not as dynamic, these
+Propagation involves representing the partial information of where
+points and angles can be. A specified angle constrains a point to a
+ray and a specified length constrains a point to be on an arc of a
+circle. As information about a point is merged from several sources,
+intersecting these rays and circles yields unique solutions for where
+the points must exist. Then, as the location of points are determined,
+the bidirectional propagation continues to update the corresponding
+bar lengths and joint angles Although not as dynamic, these
 representations correspond to physically wiggling and extending the
 bars until they reach one another.
 
@@ -406,8 +438,8 @@ bars until they reach one another.
 (specifying-bar-length m:bar:b:c .3557699722973674)
 \end{pdf-example}
 
-Example~\ref{pl-by-angles} continues our analysis of properties of the
-parallelogram. In this case, our constraint solver is able to build
+Example~\ref{pl-by-angles} continues the analysis of properties of the
+parallelogram. In this case, the constraint solver is able to build
 figures given the fact that its opposite angles are equal. The fact
 that these all happen to be parallelograms will be used by the
 learning module to produce a simpler definition for a parallelogram.
@@ -433,12 +465,14 @@ learning module to produce a simpler definition for a parallelogram.
 (specifying-bar-length m:bar:b:c .42887899934327023)
 \end{pdf-example}
 
-As a more complicated example, Example~\ref{is-rect-2} demonstrates
-the constraint solving from the middle ``Is this a rectangle?''
-question from Chapter \ref{chap:motivation}. Try working this
-constraint problem by hand. As we see in \ref{solve-rect}, solutions
-are not all rectangles. Chapter \ref{chap:declarative} includes a more
-detailed walkthrough of how this example is solved.
+To demonstrate the constraint solving working on a more complicated
+example, Example~\ref{is-rect-2} represents the constraints from the
+middle ``Is this a rectangle?'' question from Chapter
+\ref{chap:motivation}. This question asks whether a quadrilateral in
+which a pair of opposite sides are congruent, a pair of opposite
+angles are congruent, and one of the other angles is a right angle is
+always a rectangle. Try working this constraint problem by hand or in
+your mind's eye.
 
 \begin{code-example}
 [label=is-rect-2]
@@ -446,12 +480,16 @@ detailed walkthrough of how this example is solved.
 (define (is-this-a-rectangle-2)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c 'd)
-   (m:c-length-equal (m:bar 'a 'd)
-                     (m:bar 'b 'c))
+   (m:c-length-equal (m:bar 'a 'd) (m:bar 'b 'c))
    (m:c-right-angle (m:joint 'd))
-   (m:c-angle-equal (m:joint 'a)
-                    (m:joint 'c))))
+   (m:c-angle-equal (m:joint 'a) (m:joint 'c))))
 \end{code-example}
+
+As seen in Example~\ref{solve-rect}, solutions are not all
+rectangles.  Chapter~\ref{chap:declarative} includes a more detailed
+walkthrough of how this example is solved. Interestingly, once the
+initial scale is determined by the first bar length, the remaining
+shape only has one degree of freedom.
 
 \begin{pdf-example}
 [label=solve-rect]
@@ -464,12 +502,15 @@ detailed walkthrough of how this example is solved.
 (specifying-joint-angle m:joint:c:b:a 2.65583669872538)
 \end{pdf-example}
 
-Finally, in addition to solving constraints of the angles and sides
-for a single polygon, the mechanism system allows for the creation of
-arbitrary topologies of bars and linkages. In the following examples,
-we build the topology of a quadrilaterals whose diagonals intersect at
-a point e and explore the effects of various constraints on these
-diagonal segments.
+As a final mechanism example, in addition to solving constraints of
+the angles and sides for a \emph{single} polygon, the mechanism system
+can support the creation of arbitrary topologies of bars and
+joints. In the following examples, by using several calls to the
+\texttt{establish-polygon-topology utility}, I build the topology of a
+quadrilaterals whose diagonals intersect at a point \texttt{e} and
+explore the effects of various constraints on these diagonal
+segments. \texttt{m:quadrilateral-with-intersecting-diagonals} will
+simplify specification of this topology in the following examples.
 
 \begin{code-example}
 [label=quad-diagonals]
@@ -484,6 +525,11 @@ diagonal segments.
 \end{code-example}
 
 \begin{pdf-example}
+[label=kite-from-diag,
+comment style={frame hidden,
+opacityback=0,
+height=5.6cm,
+raster columns=2,graphics pages={1,2}}]
 {Kites from Diagonal Properties}
 {images/kite-diag.pdf}
 (define (kite-from-diagonals)
@@ -496,6 +542,11 @@ diagonal segments.
 \end{pdf-example}
 
 \begin{pdf-example}
+[label=it-from-diag,
+comment style={frame hidden,
+opacityback=0,
+height=5.6cm,
+raster columns=2,graphics pages={1,2}}]
 {Isoceles Trapezoids from Diagonals}
 {images/it-diag.pdf}
 (define (isoceles-trapezoid-from-diagonals)
@@ -508,6 +559,11 @@ diagonal segments.
 \end{pdf-example}
 
 \begin{pdf-example}
+[label=pl-from-diag,
+comment style={frame hidden,
+opacityback=0,
+height=5.6cm,
+raster columns=2,graphics pages={1,2}}]
 {Parallelograms from Diagonal Properties}
 {images/pl-diag.pdf}
 (define (parallelogram-from-diagonals)
@@ -517,26 +573,36 @@ diagonal segments.
    (m:c-length-equal (m:bar 'b 'e) (m:bar 'd 'e))))
 \end{pdf-example}
 
+As seen in Examples~\ref{kite-from-diag} through~\ref{pl-from-diag},
+simple specifications on the diagonals of a quadrilateral can fully
+constrain such quadrilaterals to particular classes.  Such results
+are interesting to be able to explore via this module alone, but also
+becomes a powerful tool as the learning module combines imperative and
+declarative information.
+
+\enlargethispage*{\baselineskip}
+
 \section{Learning Module}
+\label{sec:end-goal}
 
-Finally, given these modules for performing constructions, observing
-interesting symbolic relationships, and rebuilding figures that
-satisfy such relationship, a learning module interfaces with these
-properties to emulate a student that is actively learning geometry.
+The previous sections described modules for performing constructions,
+observing interesting symbolic relationships, and rebuilding figures
+that satisfy such relationships. As the final module, the learning
+module interfaces with these modules to achieve the end goal of
+emulating a student learning geometry via an investigative approach.
 
-A user representing the teacher can interact with the system by
-querying what it knows, teaching it new terms, and asking it to apply
-its knowledge to new situations.
+Although we have seen examples of various higher-level terms and
+objects, the learning module begins with very limited knowledge about
+geometry. The lattice in Example~\ref{initial-lattice} represents the
+built-in objects the system understands. Although it has some
+knowledge of points, segments, lines, rays, angles, circles and
+polygons, upon startup, it knows nothing about higher-level terms such
+as trapezoids, parallelograms, or isoceles triangles.
 
-Example~\ref{querying} shows that the system begins with some
-knowledge of primitive objects (point, line, ray), and the most basic
-polygon terms (triangle, quadrilateral). However, upon startup, it
-knows nothing about higher-level terms such as trapezoids,
-parallelograms, or isoceles triangles.
-
-\begin{repl-example}
-[label=querying]
-{Querying Terms}
+\begin{img-example}
+[label=initial-lattice,
+breakable=false]
+{Initial Lattice}{images/initial-lattice.png}
 => (what-is 'trapezoid)
 unknown
 
@@ -546,13 +612,26 @@ primitive-definition
 => (what-is 'triangle)
 (triangle (polygon)
           ((n-sides-3 identity)))
-\end{repl-example}
 
-A user can create an investigation to help the system learn a new
-definition by creating a procedure that creates random elements
-satisfying that definition. Example~\ref{rand-trp} shows the full
-range of trapezoids created via the \texttt{random-trapezoid}
-procedure.
+=> (show-definition-lattice)
+\end{img-example}
+
+A user representing a ``teacher'' can interact with the system by
+creating investigations using these primitives. These investigations
+are typically steps to construct a diagram instance, but can include
+other specifications. The system will construct and examine the figure
+resulting from such investigations, and sometimes perform related
+investigations of its own. Interesting relationships invariant across
+the instances are generalized into new concepts and theorems. To
+evaluate the system's learning, the system provides means for a user
+to query its knowledge or apply it to new situations.
+
+One example of this process involves the ``teacher'' user crafting an
+investigation procedure that creates instances of a new class of
+object. For instance, a user could define \texttt{random-trapezoid} to
+be a procedure that, each time it is called, returns randomly
+constructed trapezoid. Example~\ref{rand-trp} shows the full range of
+trapezoids created via the \texttt{random-trapezoid} procedure.
 
 \begin{pdf-example}
 [label=rand-trp,
@@ -563,9 +642,11 @@ raster columns=3,graphics pages={1,2,3}}]
 \end{pdf-example}
 
 The learning module can interface with the perception module to obtain
-about the given element. In this case (\ref{analyze-trapezoid}), we
-see the full dependencies of the elements under consideration instead
-of simply their names.
+observations about given element. In Example \ref{analyze-trapezoid},
+the results show the full dependencies of elements under consideration
+instead of their names. These dependency structures are later used to
+convert the observations about this specific trapezoid into general
+conjectures that can be tested against other polygons.
 
 \begin{repl-example}
 [label=analyze-trapezoid]
@@ -577,22 +658,37 @@ of simply their names.
  (parallel (polygon-segment 0 1 <premise>) (polygon-segment 2 3 <premise>)))
 \end{repl-example}
 
-With these abilities, the system can be taught new definitions by
-providing a term ('pl for parallelogram) and a generator procedure
-that produces instances of that element. As shown in example
-\ref{learn-pl}, after being instructed to learn what a parallelogram
-is from the \texttt{random-parallelogram} procedure, when queried for
-a definition, we're given the term, then the base definition of this
-element, then all properties known to be true of such objects.
+With these analysis abilities, a user can teach the system new object
+classes by providing a term (\texttt{'trapezoid}) and a generator
+procedure that produces instances of that element as seen in
+Example~\ref{learn-terms}.
 
 \begin{repl-example}
-[label=learn-pl]
-{Learning Parallelogram Definition}
-=> (learn-term 'pl random-parallelogram)
+[label=learn-terms]
+{Learning New Terms}
+=> (learn-term 'parallelogram random-parallelogram)
 done
 
-=> (what-is 'pl)
-(pl
+=> (learn-term 'trapezoid random-trapezoid)
+done
+\end{repl-example}
+
+Although the internal implementations of user-provided generator
+procedures are opaque to the learning module, it is able to examine
+interesting relationships invariant across instances of such objects
+and discover properties for the new definition.
+
+As shown in example \ref{what-is}, after being instructed to learn
+what a parallelogram is from the \texttt{random-parallelogram}
+procedure, when queried for a definition, we're given the term, the
+base classifications of the element, and all properties known to be
+true of such objects.
+
+\begin{repl-example}
+[label=what-is]
+{Asking about Terms}
+=> (what-is 'parallelogram)
+(parallelogram
  (quadrilateral)
  ((equal-length (polygon-segment 0 1 <premise>)
                 (polygon-segment 2 3 <premise>))
@@ -616,8 +712,9 @@ done
             (polygon-segment 3 0 <premise>))))
 \end{repl-example}
 
+
 To use such learned knowledge, we can use \texttt{is-a?} to test
-whether other elements are satisfy the definition of the term. As
+whether other elements are satisfy the known definition of a term. As
 shown in example \ref{test-def}, results are correctly returned for
 any polygon that satisfies the observed properties. In cases where the
 properties are not satisfied, the system reports the failed
@@ -628,71 +725,104 @@ a quadrilateral because it didn't have 4 sides).
 \begin{repl-example}
 [label=test-def]
 {Testing Definitions}
-=> (is-a? 'pl (random-parallelogram))
+=> (is-a? 'parallelogram (random-parallelogram))
 #t
 
-=> (is-a? 'pl (random-rectangle))
+=> (is-a? 'parallelogram (random-rectangle))
 #t
 
-=> (is-a? 'pl (polygon-from-points
+=> (is-a? 'parallelogram (polygon-from-points
                 (make-point 0 0)
                 (make-point 1 0)
                 (make-point 2 1)
                 (make-point 1 1)))
 #t
 
-
-=> (is-a? 'pl (random-trapezoid))
+=> (is-a? 'parallelogram (random-trapezoid))
 (failed-conjecture
  (equal-length (polygon-segment 0 1 <premise>)
                (polygon-segment 2 3 <premise>)))
 
-=> (is-a? 'pl (random-equilateral-triangle))
+=> (is-a? 'parallelogram (random-equilateral-triangle))
 (failed-conjecture (n-sides-4 <premise>))
 (failed-classification quadrilateral)
 
-=> (is-a? 'pl (random-segment))
+=> (is-a? 'parallelogram (random-segment))
 (failed-classification polygon)
 (failed-classification quadrilateral)
 \end{repl-example}
 
 Learning individual definitions is nice, but cool properties arise
-when definitions build one another. When a new term is learned, the
-system checks other related terms for overlapping properties to
-determine where the new definition fits in the lattice of terms. In
-example \ref{build-def}, we see that after learning definitions of
-kites and rhombuses, the resulting definition of a rhombus is that it
-a parallelogram and kite that satisfies two additional
-properties. Later, after learning a rectangle, amazingly, the system
-shows us that the definition of a square is just a rhombus and
-rectangle with no additional properties.
+when definitions build upon one another. When a new term is learned,
+the system checks other related terms for overlapping properties to
+determine where the new definition fits in the current lattice of
+terms. In Example~\ref{build-def}, we see that, after learning
+definitions of kites and rhombuses, the reported definition of a
+rhombus is that it a parallelogram and kite that satisfies two
+additional rhombus-specific properties about equal length
+sides. Later, after learning about rectangles, amazingly, the system
+shows us that the definition of a square has no additional properties
+beyond that of being both a rhombus and a rectangle. The system is
+able to make these same deductions and update definitions irrespective
+of the order in which it is taught the terms.
 
 \begin{repl-example}
 [label=build-def]
 {Building on Definitions}
+=> (learn-term 'rhombus random-rhombus)
 => (learn-term 'kite random-kite)
-done
-
-=> (learn-term 'rh random-rhombus)
-done
-
-=> (what-is 'rh)
-(rh
- (pl kite)
+=> (what-is 'rhombus)
+(rhombus
+ (parallelogram kite)
  ((equal-length (polygon-segment 0 1 <premise>)
                 (polygon-segment 3 0 <premise>))
   (equal-length (polygon-segment 1 2 <premise>)
                 (polygon-segment 2 3 <premise>))))
 
-=> (learn-term 'rect random-rectangle)
-done
-
+=> (learn-term 'rectangle random-rectangle)
 => (learn-term 'square random-square)
+=> (what-is 'square)
+(square (rhombus rectangle) ())
+\end{repl-example}
+
+As it learns definitions, the system constructs and maintains a
+lattice of known concepts in which child nodes are more specific
+classes of their parents. An example of the definition lattice the
+system generated after learning several more terms is shown in
+Example~\ref{full-lattice}. We see that the accurate relations are
+expressed:
+
+\begin{img-example}
+[label=full-lattice,
+breakable=false,
+comment style={size=fbox,frame hidden,height=8.5cm}]
+{Expanded Definition Lattice}{images/polygon-lattice.png}
+=> (show-definition-sublattice 'polygon)
+\end{img-example}
+
+Although most terms can be distinguished from one another using the
+basic angle and side properties, in some cases the initial analysis of
+the polygon is insufficient. As seen in Example~\ref{learn-ortho},
+when initially learning the orthodiagonal term, the system was not
+able to observe any differentiating properties between arbitrary
+quadrilaterals and orthodiagonal quadrilaterals. Orthodiagonal
+quadrilaterals are quadrilaterals with the property that their
+diagonals are perpendicular to one another.
+
+\begin{repl-example}
+[label=learn-ortho]
+{Learning Orthodiagonal Quadrilaterals}
+=> (learn-term 'orthodiagonal random-orthodiagonal-quadrilateral)
+"Warning: No new known properties for term: orthodiagonal. Appears same as quadrilateral."
 done
 
-=> (what-is 'sq)
-(sq (rh rectangle) ())
 \end{repl-example}
+
+To handle such situations, and to allow the learning module to capture
+more general theorems about its objects, the system allows users to
+specify investigations based on a premise.
+
+--- --- --- --- Fun Example --- --- --- ---
 
 Finally, the fun example that integrates all of these systems is
 learning simpler definitions for these terms. In these examples,
@@ -747,7 +877,7 @@ specific enough.
 \begin{repl-example}
 [label=pl-definitions]
 {Learning Simple Parallelogram Definitions}
-=> (get-simple-definitions 'pl)
+=> (get-simple-definitions 'parallelogram)
 
 ((sufficient
   (((equal-length (*segment* a b) (*segment* c d))
