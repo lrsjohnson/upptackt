@@ -34,7 +34,7 @@ conjecture, and an accompanying system of deductive reasoning from
 basic axioms could prove that an observation is correct.
 
 As an example, a curious student might notice that in a certain
-drawing of a triangle, the three perpendicular bisectors of the edges
+drawing of a triangle, the three perpendicular bisectors of the sides
 are concurrent, and that a circle constructed with center at the point
 of concurrence intersects all three vertices of the triangle.  Given
 this ``interesting observation'', the student might explore other
@@ -43,8 +43,8 @@ about whether it applies to certain classes of triangles or all
 triangles in general.  After investigating several other examples, the
 student might have sufficient belief in the conjecture to explore
 using previously-proven theorems (in this case, correspondences in
-congruent triangles) to prove the conjecture.  My proposed project is
-a software system that simulates and automates this inductive thought
+congruent triangles) to prove the conjecture.  This project is a
+software system that simulates and automates this inductive thought
 process.
 
 Automating geometric reasoning is not new, and has been an active
@@ -57,14 +57,14 @@ particularly interested in exploring and modeling the more creative
 human-like thought processes of inductively exploring and manipulating
 diagrams to \emph{discover} new insights about geometry.
 
-The interactive computer system presented in this thesis emulates the
-curious student described above, and is capable of exploring geometric
-concepts through inductive investigation.  The system begins with a
-fairly limited set of factual knowledge regarding basic definitions in
-geometry and provides means by which a user interacting with the
-system can ``teach'' the system additional geometric concepts and
-theorems by suggesting investigations the system should explore to see
-if it ``notices anything interesting.''
+My interactive computer system emulates the curious student described
+above, and is capable of exploring geometric concepts through
+inductive investigation.  The system begins with a fairly limited set
+of factual knowledge regarding basic definitions in geometry and
+provides means by which a user interacting with the system can
+``teach'' the system additional geometric concepts and theorems by
+suggesting investigations the system should explore to see if it
+``notices anything interesting.''
 
 To evaluate its recognition of such concepts, the interactive system
 provide means for a user to extract the observations and apply such
@@ -85,13 +85,14 @@ diagrams ``in the mind's eye.'' Consider the following example:
 
 \subsection{An Initial Example}
 
-\begin{center}
-\includegraphics[width=0.80\textwidth]{diagrams/rectangles.eps}
-\end{center}
-
-\noindent {\bf Example 1: Of the three diagrams above, determine which
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.95\textwidth]{diagrams/rectangles.eps}
+\captionsetup{labelformat=empty}
+\caption{{\bf Example 1:} Of the three diagrams above, determine which
   have constraints sufficient to restrict the quadrilateral $ABCD$ to
   always be a rectangle.}
+\end{figure}
 
 An automated deductive solution to this question could attempt to use
 forward-chaining of known theorems to determine whether there was a
@@ -109,15 +110,17 @@ If the viewer is unable to find a counter-example after several
 attempts, he or she may be sufficiently convinced the conclusion is
 true, and could commit to exploring a more rigorous deductive proof.
 
-\begin{center}
-\includegraphics[width=0.80\textwidth]{diagrams/rectangles-answer.eps}
-\end{center}
-
-\noindent {\bf Solution to Example 1: As the reader likely discovered,
+\newpage
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.95\textwidth]{diagrams/rectangles-answer.eps}
+\captionsetup{labelformat=empty}
+\caption{{\bf Solution to Example 1:} As the reader likely discovered,
   the first two diagrams can be manipulated to yield instances that
   are not rectangles, while the third is sufficiently constrained to
   always represent a rectangle.  (This can be proven by adding a
   diagonal and using the Pythagorean theorem.)}
+\end{figure}
 
 \subsection{Diagrams, Figures, and Constraints}
 
@@ -126,9 +129,9 @@ some terminology helpful in discussing the differences between images
 as drawn and the spaces of geometric objects they represent.  For
 clarity, a \emph{figure} will refer to an actual configuration of
 points, lines, and circles drawn on a page.  Constraint annotations
-(congruence or measure) added to a figure create a \emph{diagram},
-which represents the entire space of figure \emph{instances} that
-satisfy the constraints.
+(congruence or measure) placed on an object form a \emph{diagram},
+which is the abstract representation of the entire space of figure
+\emph{instances} that satisfy the constraints.
 
 An annotated figure presented on a page is typically an instance of
 its corresponding diagram.  However, it is certainly possible to add
@@ -141,11 +144,11 @@ drawn as rectangles.  It is true that all quadrilateral figures in the
 space represented by the third diagram are rectangles.  However, the
 space of quadrilaterals represented by the first two diagrams include
 instances that are not rectangles, as shown above.  At this time, the
-system only accepts diagrams whose constraints are satisfied in a
-given figure.  However, detecting and explaining impossible diagrams,
-purely from their set of constraints could be an interesting
-extension.
+system only works with diagrams whose constraints can be satisfied in
+a given figure.  Detecting and explaining impossible diagrams, purely
+from their set of constraints would be an interesting extension.
 
+\newpage
 \section{Geometry Investigation}
 
 These same ``mind's eye'' reasoning techniques can be used to discover
@@ -159,12 +162,13 @@ demonstrations of such inductive investigations.
 
 \subsection{Vertical Angles}
 
-\begin{center}
-\includegraphics[width=0.9\textwidth]{diagrams/vertical.eps}
-\end{center}
-
-\noindent {\bf Investigation 1: Construct a pair of vertical angles.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.95\textwidth]{diagrams/vertical.eps}
+\captionsetup{labelformat=empty}
+\caption{{\bf Investigation 1:} Construct a pair of vertical angles.
   Notice anything interesting?}
+\end{figure}
 
 Often one of the first theorems in a geometry course, the fact that
 vertical angles are equal is one of the simplest examples of applying
@@ -182,15 +186,17 @@ However, the inductive manipulations are more reflective of the
 initial, intuitive process one typically takes when first presented
 with understanding a problem.
 
+\newpage
 \subsection{Elementary Results}
 \label{sec:elem}
 
-\begin{center}
-\includegraphics[width=0.9\textwidth]{diagrams/isoceles-triangle.eps}
-\end{center}
-
-\noindent {\bf Investigation 2: Construct a triangle $ABC$ with
-  $\angle B = \angle C$.  Notice anything interesting?}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.95\textwidth]{diagrams/isoceles-triangle.eps}
+\captionsetup{labelformat=empty}
+\caption{{\bf Investigation 2:} Construct a triangle $ABC$ with
+$ \protect\angle B = \protect\angle C$. Notice anything interesting?}
+\end{figure}
 
 A slightly more involved example includes discovering that if a
 triangle has two congruent angles, it is isoceles.  As above, this
@@ -210,14 +216,15 @@ this can include relations between segment and angle lengths,
 concurrent lines, collinear points, or parallel and perpendicular
 lines.
 
-\begin{center}
+\begin{figure}[h!]
+\centering
 \includegraphics[width=0.95\textwidth]{diagrams/extra-diagrams.eps}
-\end{center}
-
-\noindent {\bf Investigation 3: What is interesting about the
+\captionsetup{labelformat=empty}
+\caption{{\bf Investigation 3:} What is interesting about the
   relationship between $AB$, $CD$, and $EF$ in the trapezoid? What is
   interesting about the diagonals of a rhombus? What is interesting
-  about $\angle 1$, $\angle 2$, and $\angle 3$?}
+  about $\protect\angle 1$, $\protect\angle 2$, and $\protect\angle 3$?}
+\end{figure}
 
 \subsection{Nine Point Circle and Euler Segment}
 
@@ -225,15 +232,16 @@ Finally, this technique can be used to explore and discover
 conjectures well beyond the scope of what one can visualize in his or
 her head:
 
-\begin{center}
-\includegraphics[width=0.6\textwidth]{diagrams/nine-point.eps}
-\end{center}
-
-\noindent {\bf Investigation 4a: In triangle $ABC$, construct the side
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{diagrams/nine-point.eps}
+\captionsetup{labelformat=empty}
+\caption{{\bf Investigation 4a:} In triangle $ABC$, construct the side
   midpoints $A'$, $B'$, $C'$, and orthocenter $O$ (from altitudes).
   Then, construct the midpoints of the segments connecting the
   orthocenter with each triangle vertex.  Notice anything
   interesting?}
+\end{figure}
 
 As a more complicated example, consider the extended investigation of
 the Nine Point Circle and Euler Segment.  As shown in Investigation
@@ -242,21 +250,34 @@ sides, and midpoints of segments from orthocenter to vertices) are all
 concentric, lying on a circle with center labeled $N$.
 
 Upon first constructing this figure, this fact seems almost beyond
-chance.  However, as shown in Investigation 4b (below), further
+chance.  However, as shown in Investigation 4b (next page), further
 ``interesting properties'' continue to appear as one constructs the
 centroid and circumcenter: All four of these special points ($O$, $N$,
 $D$, and $M$) are collinear on what is called the \emph{Euler
   Segment}, and the ratios $ON:ND:DM$ of $3:1:2$ hold for any
 triangle.
 
-\begin{center}
-\includegraphics[width=0.7\textwidth]{diagrams/euler-line.eps}
-\end{center}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{diagrams/euler-line.eps}
+\captionsetup{labelformat=empty}
+\caption{{\bf Investigation 4b:} Continue the investigation from 4a by
+  also constructing the centroid $D$ (from median concurrence) and
+  circumcenter $M$ (from perpendicular bisector concurrence).  Notice
+  anything interesting?}
+\end{figure}
 
-\noindent {\bf Investigation 4b: Continue the investigation from 4a by
-  also constructing the centroid $D$ (from medians) and circumcenter
-  $M$ (from perpendicular bisectors).  Notice anything interesting?  }
+\section{Discussion}
 
+As the examples and investigations in this chapter demonstrate, mental
+manipulation of figures to observe interesting relationships that are
+invariant across diagram instances is a useful reasoning skill. Such
+relationships can be generalized as conjectures or theorems and used
+in further analysis.
 
-(Maybe I'll try to add in some more concluding remarks about this
-``mind's eye'' concept.)
+The following chapters present an interactive computer system that
+emulates this process. Similar to the process of making, manipulating,
+and observing pictures ``in the mind's eye'', the system constructs
+several examples of figures under investigation and extracts
+interesting relationships. A learning module aggregates and applies
+the results to new investigations.
