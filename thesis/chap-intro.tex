@@ -1,8 +1,8 @@
 \chapter{Introduction}
 \label{chap:intro}
 
-In this thesis, I develop and analyze an interactive computer system
-that emulates a student learning geometry concepts through inductive
+I developed and analyzed an interactive computer system that emulates
+a student learning geometry concepts through inductive
 investigation. Although geometry knowledge can be conveyed via a
 series of factual definitions, theorems, and proofs, my system focuses
 on a more investigative approach in which an external teacher guides
@@ -11,10 +11,9 @@ explorations and self-directed inquiry.
 
 My system emulates such a student by beginning with a fairly limited
 knowledge set regarding basic definitions in geometry and providing a
-means by which a user interacting with the system can ``teach''
-additional geometric concepts and theorems by suggesting
-investigations the system should explore to see if it ``notices
-anything interesting.''
+means for a user interacting with the system to ``teach'' additional
+geometric concepts and theorems by suggesting investigations the
+system should explore to see if it ``notices anything interesting.''
 
 To enable such learning, my project includes the combination of four
 intertwined modules: an imperative geometry construction interpreter
@@ -28,69 +27,65 @@ To evaluate its recognition of such concepts, my system provides means
 for a user to extract the observations and apply its findings to new
 scenarios.  Through a series of simple investigations similar to an
 introductory course in geometry, the system has been able to propose
-and learn a few dozen standard geometry theorems. [Furthermore, through
-more self-directed explorations, it has discovered several interesting
-properties and theorems not typically covered in standard mathematics
-courses.]
+and learn a few dozen standard geometry theorems.
 
 \section{Document Structure}
 
+Following this introduction,
+
 \begin{description}
 
-\item [Chapter~\ref{chap:motivation}] further discusses motivation of
-  the system and presents some examples of diagram manipulation,
+\item [Chapter~\ref{chap:motivation} Motivation] discusses motivation
+  of the system and presents some examples of diagram manipulation,
   emphasizing the technique of visualizing diagrams ``in the mind's
   eye.''
 
-\item [Chapter~\ref{chap:demo}] provides some sample interactions with
-  the system and introduces the general system components.
+\item [Chapter~\ref{chap:demo} Demonstration] provides several sample
+  interactions with the system and introduces the general system
+  components.
 
-\item[Chapter~\ref{chap:sys-overview}] further introduces the system
-  modules and discusses how they work together in the discovery of new
-  definitions and theorems.
+\item[Chapter~\ref{chap:sys-overview} System Overview] presents
+  several concepts used in the system, introduces the four main
+  modules, and discusses how they work together in the discovery of
+  new definitions and theorems.
 
-\item[Chapters~\ref{chap:imperative}~-~\ref{chap:learning}] describes
-  the implementation and function of the four primary modules:
+\item[Chapters~\ref{chap:imperative}~-~\ref{chap:learning}] describe
+  the implementation and function of the four primary system modules:
 
 \begin{description}
+\item[Chapter~\ref{chap:imperative} Imperative Construction]
+  describes the construction module that enables the system to
+  represent, perform, and display constructions.
 
-\item[Chapter~\ref{chap:imperative}] describes the implementation
-  and function of the imperative construction
-  module that enables the system to carry out constructions.
+\item[Chapter~\ref{chap:observer} Perception] describes the perception
+  module that focuses on observing interesting properties in
+  diagrams. A key question involves determining ``what is
+  interesting?''.
 
-\item[Chapter~\ref{chap:observer}] describes the implementation and
-  function of the perception module focused on observing interesting
-  properties in diagrams. A key question involves determining ``what
-  is interesting''.
-
-\item[Chapter~\ref{chap:declarative}] describes the implementation
-  and function of the propagator-based declarative geometry constraint
+\item[Chapter~\ref{chap:declarative} Declarative Constraint Solver]
+  describes the propagator-based declarative geometry constraint
   solver that builds instances of diagrams satisfying declarative
   constraints.
 
-\item[Chapter~\ref{chap:learning}] describes the analyzer module which
-  integrates results from the other systems to create new
-  discoveries. Main features include filtering out obvious or known
-  results to focus on the most interesting discoveries, the
-  persistence and storage of definitions and theorems, and an
-  interface to apply these findings to new situations.
+\item[Chapter~\ref{chap:learning} Learning Module] describes the
+  learning module that integrates results from the other systems to
+  create new discoveries. Main features include filtering out obvious
+  or known results from investigations to focus on the most
+  interesting discoveries, representing and storing newly-discovered
+  definitions and theorems, and providing an interface to apply these
+  findings to new situations.
 
 \end{description}
+\newpage
 
-\item[Chapter~\ref{chap:related-work}] discusses some related work to
-  automated geometry theorem discovery and proof, as well as a
-  comparison with existing dynamic geometry systems.
-\if false
-\item[Chapter~\ref{chap:results}] discusses several of the definitions
-  and theorems results the overall system has been able to discover
-  and learn.
-\fi
+\item[Chapter~\ref{chap:related-work} Related Work] discusses some
+  related work to automated geometry theorem discovery and proof, as
+  well as a comparison with existing dynamic geometry systems.
 
-\item[Chapter~\ref{chap:conclusion}] evaluates the strengths and
-  weaknesses of the system. Future work and possible extensions are
-  discussed.
+\item[Chapter~\ref{chap:conclusion} Conclusion] evaluates the strengths and
+  weaknesses of the system and discussed future work and possible extensions.
+
+\item[Appendix~\ref{chap:code} Code Listings] provides full listings for code
+  used in the system.
 
 \end{description}
-
-Finally, Appendix~\ref{chap:code} includes the full listing for code
-used in the system.
