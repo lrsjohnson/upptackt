@@ -682,8 +682,8 @@ and discover properties to include in the new definition.
 As shown in example \ref{what-is}, after being instructed to learn
 what a parallelogram is from the \texttt{random-parallelogram}
 procedure, when queried for a definition, we're given the term, the
-base classifications of the element, and all properties known to be
-true of such objects.
+base classifications of the parallelogram, and all properties known to
+be true for parallelograms.
 
 \begin{repl-example}
 [label=what-is]
@@ -942,8 +942,8 @@ properties for that term, and tests all reasonable subsets of those
 properties as constraints using the constraint solver. For each subset
 of properties, if the constraint solver was able to create a diagram
 satisfying exactly those properties, the resulting diagram is checked
-using with the original \texttt{is-a?} procedure to see if all the
-other known properties of the original term still hold.
+using with the \texttt{is-a?} procedure to see if all the other known
+properties of the original term still hold.
 
 If so, the subset of properties is reported as a sufficient definition
 of the term, and if the resulting diagram fails some properties, the
@@ -1006,13 +1006,13 @@ definitions as not being specific enough.
 
 This simple definitions implementation is still a work in progress and
 has room for improvement. In the future I plan to use the knowledge
-about what properties the insufficient diagram is violating to add to
+about what properties are violated in an insufficient figure to add to
 the next constraint set to check, and improve how the solver handles
 difficult cases to construct. Further extensions could also involve
 generalizing \texttt{get-simple-definitions} to support other
 topologies for the initial properties such as the quadrilaterals being
 fully specified by their diagonal properties as in
-Example~\ref{quad-diagonals} through~\ref{pl-from-diag}
+Example~\ref{quad-diagonals} through~\ref{pl-from-diag}.
 
 Given this context of use cases for the modules, the remaining
 chapters will discuss additional representation and implementation
