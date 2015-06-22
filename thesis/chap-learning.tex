@@ -196,6 +196,10 @@ squares, but are separate from discoveries about circles or segments).
 \begin{code-listing}
 [label=updating-terms]
 {Updating Terms from Lattice}
+(define (add-definition-lattice-node! term)
+  (add-lattice-node (definition-lattice) (make-lattice-node term term))
+  (update-definitions-from-lattice (cons term (child-terms term))))
+
 (define (update-definition-from-lattice term)
   (let* ((def (lookup term))
          (current-conjectures (definition-conjectures def))
@@ -269,6 +273,12 @@ extension.
         (add-definition! new-def)
         (check-new-def new-def)
         'done))))
+
+(define (conjecture-from-observation obs)
+  (make-conjecture
+   (map element-dependencies->list (observation-args obs))
+   (map element-source (observation-args obs))
+   (observation-relationship obs)))
 \end{code-listing}
 
 \subsection{Performing Investigations}
