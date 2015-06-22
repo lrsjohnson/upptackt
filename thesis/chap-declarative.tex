@@ -3,10 +3,10 @@
 
 \section{Overview}
 
-The third module is a declarative geometric constraint solver. Given a
+The third module is a declarative geometry constraint solver. Given a
 user-specified topology of a diagram and various constraints on
-segments and angles, this module solves the specification and if
-possible, instantiates a figure that satisfies the constraints.
+segments and angles, this module attempts to solve the specification
+by instantiating a figure that satisfies the constraints.
 
 The solver is implemented using propagators, uses new types of partial
 information about point regions and direction intervals, and focuses
@@ -34,36 +34,155 @@ some limitations and extensions are discussed.
 
 \section{Mechanical Analogies}
 
-The geometry constraint solver: physical manipulation, simulation,
-and ``wiggling''.
+Mechanical analogies are often applied to mathematical problems to
+yield alternate, sometimes more-intuitive solutions. Several texts
+such as [??], [??], and [??] study this and provide examples.
+
+In this system, mechanical analogies are used to represent the physics
+simulation going on as one mentally manipulates a diagram ``in the
+mind's eye''. Often, given a diagram with constraints, one can imagine
+assembling a physical example of the figure out of bars and joints in
+one's head.  Some bars can be sliding to make their lengths adjustable
+whereas others are constrained to be of equal length as one another.
+As a person moves and wiggles these pieces to assemble satisfying
+mechanisms, they can examine whether the resulting mechanisms retain
+properties across instances and generalize such invariants into
+theorems.
+
+This module simulates this process by assembling mechanisms of bars
+and joints, and using a propagator system to simulate incrementally
+selecting where bars and joints are positioned while maintaining local
+physical constraints.
 
 \section{Propagator System}
 
-GJS / Radul Propagator System
+The declarative geometry solver is built upon an existing propagator
+system created by Alexey Radul under the advisement of Gerald Jay
+Sussman \cite{gjs-propagator}. The propagator system allows a user to
+create cells and connect them with propagator constraints. As content
+is added to cells, their neighbors are notified and updated with
+computations performed on the new information. Often, cells maintain a
+representation of partial information about their content and merge
+new information from several sources.
+
+This module uses Radul's propagation system to handle the underlying
+propagation of data, but implements constraints, partial information
+types, specification protocols, and input formats particular to geometric
+figures.
 
 \section{Example of Solving Geometric Constraints}
+\label{sec:example-solving}
 
-\begin{code-example}{Rectangle Constraints Example}{images/rect-demo-2.png}
+I begin by fully explaining an example. The geometry problem of
+inadequately constrained rectangles was introduced in the first
+example of Chapter~\ref{chap:motivation} on page
+\pageref{example-1}. The second proposed set of constraints in that
+problem was expressed as a mechanism in Example~\ref{is-rect-2} in the
+demonstration (page \pageref{is-rect-2}), and is repeated here in
+Example~\ref{is-rect-specs}. Example~\ref{is-rect-solved} shows the
+module's print messages as it solves the mechanism.
+
+The illustrations in Explanation~\ref{illustration} and accompanying text
+on the following pages explain how propagation is used to solve this
+mechanism.
+
+\begin{code-example}
+[label=is-rect-specs]
+{Rectangle Constraints Example}
 (define (is-this-a-rectangle-2)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c 'd)
-   (m:c-length-equal (m:bar 'a 'd)
-                     (m:bar 'b 'c))
+   (m:c-length-equal (m:bar 'a 'd) (m:bar 'b 'c))
    (m:c-right-angle (m:joint 'd))
-   (m:c-angle-equal (m:joint 'a)
-                    (m:joint 'c))))
+   (m:c-angle-equal (m:joint 'a) (m:joint 'c))))
 \end{code-example}
 
-\begin{img-example}{Solved Constraints}{images/rect-demo-2.png}
+\begin{img-example}
+[label=is-rect-solved]
+{Solved Constraints}{images/rect-demo-2.png}
 => (m:run-mechanism (is-this-a-rectangle-2))
 
-(m:run-mechanism rect-demo-2)
 (specifying-bar m:bar:d:a .6742252545577186)
 (initializing-direction m:bar:d:a-dir (direction 4.382829365403101))
 (initializing-point m:bar:d:a-p1 (0 0))
 (specifying-joint m:joint:c:b:a 2.65583669872538)
 \end{img-example}
 
+Solving a mechanism involves repeatedly selecting positions, lengths,
+angles, and directions that are not fully specified and selecting
+values within the domain of that element's current partial
+information. As values are specified, the wiring of the propagator
+model propagates further partial information to other values.
+
+\refstepcounter{tcb@cnt@code-example}\label{illustration}
+\begin{figure}[h]
+\captionsetup{labelformat=empty}
+\caption{{\bf Propagation Explanation
+    \arabic{chapter}.\arabic{tcb@cnt@code-example}:} This series of
+  illustrations depicts the propagation steps that occur to enable the
+  system to solve the underconstrained rectangle from
+  Example~\ref{is-rect-specs}.
+}
+\centering
+\includegraphics[width=.95\textwidth]{diagrams/is-rect-explained-boards-1.eps}
+\caption{{\bf Step 1:} The first value the module specifies is the
+  length of bar \texttt{ad}. In doing so, it also initializes the
+  bar's endpoint and direction to anchor it on the canvas. Because
+  joint \texttt{d} is constrained to be a right angle, the system knows
+  the direction but not length of bar \texttt{dc}. It propagates the
+  partial information that point \texttt{c} is on the ray $r1$ extending
+  out from \texttt{d} to the cell within point
+  \texttt{c}. Furthermore, since bars \texttt{ad} and \texttt{bc} are
+  constrained to have equal length, at this point, bar \texttt{bc} also knows
+  its length but not direction. Next, the system specifies joint angle \texttt{b}:}
+\includegraphics[width=.95\textwidth]{diagrams/is-rect-explained-boards-2.eps}
+\caption{{\bf Step 2:} Once the angle measure of \texttt{b} is
+  specified, constraints using the sum of angles in the specified
+  polygon and a ``slice'' constraint on the pair of constrained angles
+  will set the angle measures of joints \texttt{a} and \texttt{c} to
+  be half of the remaining total:
+  $\text{\texttt{a,c}}\protect\leftarrow\frac{2\protect\pi -
+    \text{\texttt{b}} - \text{\texttt{d}}}{2}$. With these angles
+  specified, point \texttt{b} is informed that it is on the ray $r2$
+  and bar \texttt{bc} now knows both its length and direction.}
+\vspace{-10em}
+\end{figure}
+
+\newpage
+\begin{figure}[h]
+\captionsetup{labelformat=empty}
+\caption{{\bf Propagation Explanation
+    \arabic{chapter}.\arabic{tcb@cnt@code-example} continued:} This series of
+  illustrations depicts the propagation steps that occur to enable the
+  system to solve the underconstrained rectangle solved in
+  Example~\ref{is-rect-specs}.}
+\centering
+\includegraphics[width=.95\textwidth]{diagrams/is-rect-explained-boards-3.eps}
+\caption{{\bf Step 3:} Since now both the length and direction of bar
+  \texttt{bc} are known and point \texttt{c} is known to be on ray
+  $r1$, the propagation constraints can translate this ray by the
+  length and direction of \texttt{bc} and provide the information that
+  point \texttt{b} must therefore also be on ray $r3$. This emulates
+  the physical process of sliding bar \texttt{bc} along ray $r1$.}
+\includegraphics[width=.95\textwidth]{diagrams/is-rect-explained-boards-4.eps}
+\caption{{\bf Step 4:} The information about point \texttt{b} being on
+  rays $r2$ and $r3$ is merged via ray intersection to fully determine
+  the location of \texttt{b}. Then, once point \texttt{b} is
+  specified, since the length and direction of bar \texttt{bc} is
+  known, propagation sets the value and location of point \texttt{c},
+  yielding a fully-specified solution.}
+\vspace{-1.5em}
+\end{figure}
+Similar steps allow propagation to solve specifications for many
+figures including isoceles triangles, parallelograms, and
+quadrilaterals from their diagonals. Several of these are shown in
+Section \ref{demo:sec:declarative}. In cases when bars have their
+length and one endpoint specified first, the propagators specify that
+the other endpoint is on an arc of a circle. The next sections
+describe the implementation of these partial information structures
+before explaining linkages and how mechanisms are built and solved.
+
+\newpage
 \section{Partial Information Structures}
 
 \subsection{Regions}
@@ -206,6 +325,18 @@ more easily access elements.
 
 Given a wired diagram, process is repeatedly specifying values for elements
 
+
+\subsection{Interfacing with existing diagrams}
+
+Converts between figures and symbolic relationships.
+
+\section{Discussion and Extensions}
+
+Future efforts involve an improved backtrack-search mechanism if
+constraints fail, and a system of initializing the diagram with
+content from an existing figure, kicking out and wiggling arbitrary
+premises, and seeing how the resulting diagram properties respond.
+
 \subsection{Backtracking}
 
 If it can't build a figure with a given set of specifications, it will
@@ -213,17 +344,3 @@ first try some neighboring values, then backtrack and try a new value
 for the previous element. After a number of failed attempts, it will
 abort and claim that at this time, it is unable to build a diagram
 satisfying the constraints.
-
-(This doesn't mean that it is impossible: Add analysis/info about what
-it can/can't solve)
-
-\subsection{Interfacing with existing diagrams}
-
-Converts between figures and symbolic relationships.
-
-\section{Extensions}
-
-Future efforts involve an improved backtrack-search mechanism if
-constraints fail, and a system of initializing the diagram with
-content from an existing figure, kicking out and wiggling arbitrary
-premises, and seeing how the resulting diagram properties respond.
