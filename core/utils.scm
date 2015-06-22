@@ -28,6 +28,8 @@
                (+ (magnitude h1) (magnitude h2)))
             scale))))
 
+;;; end GJS
+
 (define (assert boolean error-message)
   (if (not boolean) (error error-message)))
 
@@ -89,6 +91,12 @@
               (if (member-predicate e set2)
                   (cons e intersection)
                   intersection))))))
+
+(define (distinct? elements equality-predicate)
+  (= (length elements)
+     (length (set-intersection
+              elements elements
+              (member-procedure equality-predicate)))))
 
 (define (eq-append! element key val)
   (eq-put! element key

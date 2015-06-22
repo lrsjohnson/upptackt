@@ -126,12 +126,7 @@
          (not (element-endpoint? i-point l3)))))
 
 (define (concentric? p1 p2 p3 p4)
-  (and (not (point-equal? p1 p2))
-       (not (point-equal? p1 p3))
-       (not (point-equal? p1 p4))
-       (not (point-equal? p2 p3))
-       (not (point-equal? p2 p4))
-       (not (point-equal? p3 p4))
+  (and (distinct? (list p1 p2 p3 p4) point-equal?)
        (let ((pb-1 (perpendicular-bisector
                     (make-segment p1 p2)))
              (pb-2 (perpendicular-bisector
@@ -139,6 +134,10 @@
              (pb-3 (perpendicular-bisector
                     (make-segment p3 p4))))
          (concurrent? pb-1 pb-2 pb-3))))
+
+(define (collinear? p1 p2 p3)
+  (and (distinct? (list p1 p2 p3) point-equal?)
+       (on-line? p3 (line-from-points p1 p2))))
 
 (define (concentric-with-center? center p1 p2 p3)
   (let ((d1 (distance center p1))

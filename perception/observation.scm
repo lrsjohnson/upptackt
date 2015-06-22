@@ -37,9 +37,8 @@
   (and (relationship-equivalent?
         (observation-relationship obs1)
         (observation-relationship obs2))
-       (let ((rel-eqv-test
-              (relationship-equivalence-predicate
-               (observation-relationship obs1)))
+       (let ((rel-eqv-test (relationship-equivalence-predicate
+                            (observation-relationship obs1)))
              (args1 (observation-args obs1))
              (args2 (observation-args obs2)))
          (rel-eqv-test args1 args2))))

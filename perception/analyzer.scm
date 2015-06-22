@@ -102,10 +102,8 @@
 
 (define (save-obvious-observation! obs)
   (if *obvious-observations*
-      (begin
-        (set! *obvious-observations*
-              (cons obs
-                    *obvious-observations*)))))
+      (set! *obvious-observations*
+            (cons obs *obvious-observations*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;; Cross products, pairs ;;;;;;;;;;;;;;;;;;;;;;;;
 

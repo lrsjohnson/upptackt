@@ -26,7 +26,7 @@
                   (args->linkage-ids args))))))
 
 (define (relationship->constraint rel)
-  (case (relationship-type rel)
+  (case (relationship-name rel)
     ((equal-length) m:c-length-equal)
     ((equal-angle) m:c-angle-equal)
     (else #f)))

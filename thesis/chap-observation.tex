@@ -15,20 +15,22 @@ Given analytic figures represented using structures of the imperative
 construction module, the perception module is concerned with finding
 and reporting interesting relationships seen in the figure. In a
 generate-and-test-like fashion, it is rather liberal in the
-observations it returns. The module attempts to omit completely
-obvious properties, but leaves the filtering of new discoveries to the
-learning module (discussed further in Chapter~\ref{chap:learning}).
+observations it returns. The module uses several technique to attempt
+to omit obvious properties, and combines with the learning module
+(Chapter~\ref{chap:learning}) to filter already-learned discoveries
+and simplify results.
 
 To explain the module, I will first describe the implementation of
 underlying relationship and observation structures before examining
 the full analyzer routine. I will conclude with a discussion of
-extensions to the module, including some attempted techniques used to
-extract auxillary relationships from figures.
+extensions to the module, including further ways to detect and remove
+obvious results and some attempted techniques used to extract
+auxiliary relationships from figures.
 
 \section{Relationships}
 
-Relationships are the primary structure defining what constitutes an
-interesting observation in a figure. Relationships are represented as
+Relationships are the primary structures defining what constitutes
+interesting properties in a figure. Relationships are represented as
 predicates over typed n-tuples and are checked against all such
 n-tuples found in the figure under analysis.
 
@@ -36,73 +38,81 @@ n-tuples found in the figure under analysis.
 [label=relationship-structure]
 {Relationships}
 (define-record-type <relationship>
-  (%make-relationship type arity predicate)
+  (make-relationship type arity predicate equivalence-predicate)
   relationship?
   (type relationship-type)
   (arity relationship-arity)
-  (predicate relationship-predicate))
+  (predicate relationship-predicate)
+  (equivalence-predicate relationship-equivalence-predicate))
 
 (define equal-length-relationship
-  (%make-relationship 'equal-length 2 segment-equal-length?))
+  (%make-relationship 'equal-length 2 segment-equal-length?
+                      (set-equivalent-procedure segment-equivalent?)))
 
 (define concurrent-relationship
-  (%make-relationship 'concurrent 3 concurrent?))
+  (make-relationship 'concurrent 3 concurrent?
+                      (set-equivalent-procedure linear-element-equivalent?)))
 
 (define concentric-relationship
-  (%make-relationship 'concentric 4 concentric?))
-...
+  (make-relationship 'concentric 4 concentric?
+                      (set-equivalent-procedure point-equal?)))
 \end{code-listing}
 
 Listing~\ref{relationship-structure} displays some representative
 relationships.  The relationship predicates can be arbitrary Scheme
 procedures and often use constructions and utilities from the
-underlying imperative system as seen with \texttt{concurrent?}
-(Listing~\ref{concurrent}) and \texttt{concurrent?}
-(Listing~\ref{concentric}). Concurrent is checked over all 3-tuples of
-linear elements (lines, rays, segments) and Concentric is checked
-against all 4-tuples of points.
+underlying imperative system as seen in
+Listing~\ref{concurrent-concentric}.  \texttt{concurrent?} is checked
+over all 3-tuples of linear elements (lines, rays, segments) and
+\texttt{concentric?} is checked against all 4-tuples of points.
 
 \begin{code-listing}
-[label=concurrent]
-{Concurrent Relationship}
+[label=concurrent-concentric]
+{Concurrent and Concentric Predicates}
 (define (concurrent? l1 l2 l3)
   (let ((i-point (intersect-linear-elements-no-endpoints l1 l2)))
     (and i-point
          (on-element? i-point l3)
          (not (element-endpoint? i-point l3)))))
-\end{code-listing}
 
-\begin{code-listing}
-[label=concentric]
-{Concentric Relationship}
 (define (concentric? p1 p2 p3 p4)
   (and (distinct? p1 p2 p3 p4)
-       (let ((pb-1 (perpendicular-bisector
-                    (make-segment p1 p2)))
-             (pb-2 (perpendicular-bisector
-                    (make-segment p2 p3)))
-             (pb-3 (perpendicular-bisector
-                    (make-segment p3 p4))))
+       (let ((pb-1 (perpendicular-bisector (make-segment p1 p2)))
+             (pb-2 (perpendicular-bisector (make-segment p2 p3)))
+             (pb-3 (perpendicular-bisector (make-segment p3 p4))))
          (concurrent? pb-1 pb-2 pb-3))))
 \end{code-listing}
 
+In addition to the type, arity, and predicate checked against
+arguments, the relationship structures also include an equivalence
+predicate that is used in determining whether two observations using
+the relationship are equivalent, as will be discussed after
+explaining the observation structure in Section~\ref{sec:obs}.
+
 \subsection{What is Interesting?}
-The system currently checks for concurrent, parallel, and
-perpendicular linear elements, segments of equal length, supplementary
-and complementary angles, angles of equal measure, coincident and
-concentric points, and three concentric points with a fourth as its
-center. These relationships covered most of the basic observations
-used in our investigations, but further relationships can be easily
-added.
+The system currently checks for:
+\begin{spacing}{0.7}
+\begin{itemize}
+\item concurrent, parallel, and perpendicular linear elements,
+\item segments of equal length,
+\item supplementary and complementary angles,
+\item angles of equal measure,
+\item coincident and concentric points, and
+\item sets of three concentric points with a fourth as its center.
+\end{itemize}
+\end{spacing}
+\noindent These relationships covered most of the basic observations needed in
+my investigations, but further relationships can be easily added.
 
 \section{Observations}
+\label{sec:obs}
 
-Observations (Listing~\ref{obs}) are structures used to report the
-analyzer's findings. They combine the relevant relationship structure
-with the actual element arguments from the figure that satisfy that
-relationship. Maintaining references to the actual figure elements
-allows helper procedures to print names or extract dependencies as
-needed.
+Observations are structures used to report the analyzer's findings. As
+seen in Listing~\ref{obs}, they combine the relevant relationship
+structure with a list of the actual element arguments from the figure
+that satisfy that relationship. Maintaining references to the actual
+figure elements allows helper procedures to print names or extract
+dependencies as needed.
 
 \begin{code-listing}
 [label=obs]
@@ -114,16 +124,21 @@ needed.
   (args observation-args))
 \end{code-listing}
 
-An important question with observations is to determine when they
-are equivalent to one another, to avoid reporting redundant or
-uninteresting relationships. Listing~\ref{eqv-obs}
+It is important to know whether two arbitrary observations are
+equivalent. This enables the system to detect and avoid reporting
+redundant or uninteresting relationships.  Listing~\ref{eqv-obs} shows
+the implementation of \texttt{observation-equivalent?}. The procedure
+checks the observations are the same and then applies that
+observation's equivalence predicate to the two tuples of observation
+arguments.
 
 \begin{code-listing}
 [label=eqv-obs]
 {Equivalent Observations}
-(define (observations-eqivalent? obs1 obs2)
-  (and (eq? (observation-relationship obs1)
-            (observation-relationship obs2))
+(define (observation-equivalent? obs1 obs2)
+  (and (relationship-equal?
+        (observation-relationship obs1)
+        (observation-relationship obs2))
        (let ((rel-eqv-test
               (relationship-equivalence-predicate
                (observation-relationship obs1)))
@@ -131,6 +146,51 @@ uninteresting relationships. Listing~\ref{eqv-obs}
              (args2 (observation-args obs2)))
          (rel-eqv-test args1 args2))))
 \end{code-listing}
+
+These equivalence predicates handle the various patterns in which
+objects may appear in observations. For example, in an observation
+that two segments have equal length, it does not matter which segment
+comes first or which order the endpoints are listed within each
+segment. Thus, as shown in Listing~\ref{segment-equal-eqv}, the
+equivalence procedure ignores these ordering differences by comparing
+set equalities:
+
+\begin{code-listing}
+[label=segment-equal-eqv]
+{Equivalence of Equal Segment Length Observations}
+(set-equivalent-procedure segment-equivalent?)
+
+(define (set-equivalent-procedure equality-predicate)
+  (lambda (set1 set2)
+    (set-equivalent? set1 set2 equality-predicate)))
+
+(define (set-equivalent? set1 set2 equality-predicate)
+  (and (subset? set1 set2 equality-predicate)
+       (subset? set2 set1 equality-predicate)))
+
+(define (segment-equivalent? s1 s2)
+  (set-equivalent?
+   (segment-endpoints s1)
+   (segment-endpoints s2)
+   point-equal?))
+
+(define (point-equal? p1 p2)
+  (and (close-enuf? (point-x p1) (point-x p2))
+       (close-enuf? (point-y p1) (point-y p2))))
+\end{code-listing}
+
+\subsection{Numerical Accuracy}
+
+Throughout the system, numerical accuracy issues and floating point
+errors arise when comparing objects. As a result, the system uses
+custom equality operators for each data type, such as
+\texttt{point-equal?} shown in Listing~\ref{segment-equal-eqv}. These
+use an underlying floating-point predicate \texttt{close-enuf?} taken
+from the MIT Scheme Mathematics Library \cite{scmutils} that estimates
+and sets a tolerance based on current machine's precision and handles
+small magnitude values intelligently. With this floating point
+tolerance in comparisons, floating point errors have been
+significantly less prevalent.
 
 \section{Analysis Procedure}
 
@@ -188,17 +248,94 @@ $n$ as lists.
     (filter (nary-predicate n predicate) tuples)))
 \end{code-listing}
 
-\section{Extensions}
+\section{Focusing on Interesting Observations}
+
+The final aspect of the perception module involves filtering out
+obvious and previously-discovered observations.  Several techniques
+will be discussed but Listing~\ref{interesting-obs-impl} shows the
+module's current state of accomplishing this task via the
+\texttt{interesting-observations} procedure. The procedure first
+extracts all observations from the figure and aggregates a list of
+obvious relations specified during the construction. It then uses the
+learning module to examine all polygons found in the figure and
+determine the most specific definitions each satisfies. The procedure
+obtains in \texttt{polygon-implied-observations} all
+previously-discovered facts about such shapes to remove from the final
+result and adds new polygon observations in their
+place. Example~\ref{cyc-interesting} shows a concrete example of this.
+
+\newpage
+
+\begin{code-listing}
+[label=interesting-obs-impl]
+{Obtaining Interesting Observations}
+(define (interesting-observations figure-proc)
+  (set! *obvious-observations* '())
+  (let* ((fig (figure-proc))
+         (all-obs (analyze-figure fig))
+         (polygons (figure-polygons fig))
+         (polygon-observations (polygon-observations polygons))
+         (polygon-implied-observations
+           (polygon-implied-observations polygons))
+    (set-difference (append all-obs polygon-observations)
+                    (append *obvious-observations* polygon-implied-observations)
+                    observation-equivalent?)))
+\end{code-listing}
+
+Listing~\ref{mark-obvious} shows the implementation of the
+\texttt{save-obvious-observation!} procedure
+
+\begin{code-listing}
+[label=mark-obvious]
+{Marking Obvious Observations}
+(define (save-obvious-observation! obs)
+  (if *obvious-observations*
+      (set! *obvious-observations*
+            (cons obs *obvious-observations*))))
+\end{code-listing}
+
+Example~\ref{interesting-analysis} in the demonstration chapter
+demonstrated a simple example of a construction procedure that marked
+obvious properties of its results.
+
+\begin{img-example}
+[label=cyc-interesting]
+{Substituting Polygon Observations}
+{images/inner-investigation-1.png}
+Observations
+\end{img-example}
+
+\section{Discussion and Extensions}
+
+Perfectly determining is a large task, particularly since filtering
+out obvious relations often requires relationship-specific information:
+
+As one example, imagine implementing and a \texttt{collinear?}
+predicate that only reports non-obvious relations. Testing whether
+three arbitrary coordinate-based points are collinear is
+straightforward. However, it is not interesting that a random point on
+a line is collinear with the two points from which the line was
+defined. In order to accurately know whether or not it is interesting
+that three points are collinear, the system would need to have access
+to a graph-like representation of which points were specified to be on
+which lines.
 
 The analysis routine was initially one large, arbitrarily complicated
-procedure in which individual checks were added. This reformulation
-to use relationships and observations has simplified the complexity.
+procedure in which individual checks were added. This reformulation to
+use relationships and observations has simplified the complexity and
+enabled better interactions with the learning module, but limited the
+ability for adding many relationship-specific optimizations.
 
-In addition, further efforts described below explored extracting
-relationships for elements not explicitly specified in a figure, such
-as auxiliary segments between all pairs of points in the figure,
-treating all intersections as points, or extracting angles. These are
-areas for future work.
+Despite these limitations, the perception system has been sufficient
+to discover several relations via the learning model and use basic
+filtering of obvious relations to present intelligible results.
+
+The examples below describe further efforts explored for improving the
+perception module. This involves extracting relationships for elements
+not explicitly specified in a figure, such as auxiliary segments
+between all pairs of points in the figure, treating all intersections
+as points, extracting angles, or merging results. These are areas for
+future work.
 
 \subsection{Auxiliary Segments}
 
@@ -216,6 +353,13 @@ and adjacencies in the figure. In addition to the complexity of
 determining which angles to keep, keeping track of ``obvious''
 relationships between such extracted angles due to parallel lines, for
 instance, is quite a challenge.
+
+\subsection{Merging Related Observations}
+
+A final process I explored involved merging related observations into
+larger, combined results. For instance, when reporting segment length
+equality for a square, it is excessive to report all possible pairs of
+equal sides.
 
 %% Initial Stuff:
 
