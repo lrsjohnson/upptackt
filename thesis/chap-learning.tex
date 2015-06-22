@@ -20,6 +20,12 @@ interaction between the imperative and declarative modules used to
 simplify definitions and discuss some limitations and future
 extensions.
 
+The Demonstration Chapter (Sections~\ref{sec:end-goal-1}
+and~\ref{sec:end-goal-2}) included several use cases and examples of
+working with the learning module. As a result, this discussion will
+focus on structures and implementation rather than uses and
+applications. Refer to the demonstration for examples.
+
 %% Outline
 %% - Interface (what-is, etc.) / Student
 %% - Definitions and Conjectures, Lattice
@@ -27,55 +33,215 @@ extensions.
 %% - Simplifying definitions
 %% - Discussion
 
-\section{Interface with Student}
+\section{Learning Module Interface}
 
-The learning module provides the primary interface by which users
-interact with the system. As such, it provides means by which users
-can both query the system to discover and use what it has known, as
-well as to teach the system information by suggesting investigations
-it should undertake.
+As seen in the demonstration, the learning module provides the primary
+interface by which users interact with the system. As such, it
+provides means by which users can both query the system to discover
+and use what it has known, as well as to teach the system information
+by suggesting investigations it should
+undertake. Listing~\ref{l-interface} shows the implementation for some
+of these methods.
 
-\begin{code-example}{Using Definitions}
+\begin{code-example}
+[label=l-interface]
+{Learning System Interface Examples}
 (define (what-is term)
   (pprint (lookup term)))
 
+(define (example-object term)
+  ((definition-generator (lookup term))))
+
+(define (show-example term)
+    (show-element (example-object term))
+
 (define (is-a? term obj)
   (let ((def (lookup term)))
-    (if (unknown? def)
-        `(,term unknown)
-        ((definition-predicate def) obj))))
-
-(define (show-me term)
-  (let ((def (lookup term)))
-    (if (unknown? def)
-        `(,term unknown)
-        (show-element ((definition-generator def))))))
+    (definition-holds? def obj)))
 
 (define (examine object)
-  (show-element object)
-  (let ((applicable-terms
-         (filter (lambda (term)
-                   (is-a? term object))
-                 (all-known-terms))))
-    applicable-terms))
+  (let ((satisfying-terms
+         (filter (lambda (term) (is-a? term object))
+           (known-terms))))
+    (remove-supplants more-specific? satisfying-terms)))
 \end{code-example}
 
-\subsection{Querying}
+Explaining these interface implementations provide a context for
+introducing the representation of definitions and conjectures.
+\enlargethispage*{\baselineskip}
 
-A simple way of interacting with the learning module is to ask it for
-what it knows about various geometry concepts or terms. For
-definitions, the results provide the classification (that a rhombus is
-a parallelogram), and a set of minimal properties that differentiates
-that object from its classification. Further querying can present all
-known properties of the named object as well as theorems involving
-that term.
+\section{Querying}
 
-\section{Representing Definitions and Conjectures}
+Users can query the system's knowledge using \texttt{what-is}. When
+queried, the system uses \texttt{lookup} to find a definition from its
+dictionary. Printing this definition provides the classification (that
+a rhombus is a parallelogram) and a set of properties that
+differentiates that object from its classification. Further requests
+can present all known properties of the named object or generate a
+minimal set of properties needed to specify the object.
+
+\subsection{Student Structure}
+
+Internally, geometry knowledge is stored in a \texttt{student} object
+that maintains a \texttt{dictionary} mapping terms to definitions and
+a \texttt{term lattice} representing how these definitions relate to
+one another. Listing~\ref{student-structure} demonstrates how the
+interfaces above use a global \texttt{*current-student*} variable to
+access information. Although the system currently only ever
+instantiates one student, this architecture provides the flexibility
+to teach or compare multiple students in the future.
+
+\begin{code-listing}
+[label=student-structure]
+{Student Structure}
+(define-record-type <student>
+  (%make-student definition-dictionary term-lattice)
+  student? ...)
+
+(define (student-lookup-definition s name)
+  (hash-table/get (student-dictionary s) name #f))
+
+(define *current-student* (make-initialized-student))
+
+(define (lookup-definition term)
+  (student-lookup-definition *current-student* term))
+
+(define (lookup term)
+  (or (lookup-definition term) (error "Term Unknown:" term)))
+\end{code-listing}
+
+\subsection{Definition Structure}
+
+Definition structures
+
+The last two fields, \texttt{classifications} and
+\texttt{specific conjectures} are derived properties that are updated
+based on the definition's relation to other terms.
+
+\begin{code-listing}
+[label=def-struct]
+{Definition Structure}
+(define-record-type <definition>
+  (%make-definition name generator base-predicate
+                     primitive?
+                     all-conjectures
+                     classifications specific-conjectures)
+  definition?
+  ...)
+\end{code-listing}
+
+
+\section{Testing Definitions}
+
+The learning module provides the \texttt{is-a?} procedure to. As seen
+in
+
+Testing whether a definition holds involves checking
+
+\begin{code-listing}
+[label=def-holds]
+{Definition Checking}
+(define (definition-holds-nonrecursive? def obj)
+  (let ((all-conjectures (definition-conjectures def)))
+    (and ((definition-predicate def) obj)
+         (every (lambda (conjecture)
+                  (satisfies-conjecture? conjecture (list obj)))
+                all-conjectures))))
+\end{code-listing}
+
+\subsection{Conjecture Structure}
+
+\begin{code-listing}
+[label=conj-struct]
+{Conjecture Structure}
+(define-record-type <conjecture>
+  (make-conjecture dependencies source-procedures relationship)
+  conjecture? ...))
+
+(define (satisfies-conjecture? conj premise-instance)
+  (or (true? (observation-from-conjecture conj premise-instance))
+      (begin (if *explain* (pprint `(failed-conjecture ,conj)))
+             #f)))
+
+(define (observation-from-conjecture conj premise-instance)
+  (let ((new-args
+         (map (lambda (construction-proc)
+                (construction-proc premise-instance))
+          (conjecture-construction-procedures conj)))
+        (rel (conjecture-relationship conj)))
+    (and (relationship-holds rel new-args)
+         (make-observation rel new-args))))
+\end{code-listing}
+
+\section{Examining Objects}
+
+\texttt{examine}, the last interface function shown in
+Listing~\ref{l-interface}
+
+\begin{code-listing}
+[label=more-specific]
+{Relations among terms}
+(define (more-specific? more-specific-term less-specific-term)
+  (let ((more-specific-obj (example-object more-specific-term)))
+    (is-a? less-specific-term more-specific-obj)))
+\end{code-listing}
+
+
+\subsection{Maintaining the Term Lattice}
 
 Discoveries are represented within a lattice of premises (discoveries
 about quadrilaterals < discoveries about rhombuses < discoveries about
 squares, but are separate from discoveries about circles or segments).
 
+\begin{code-listing}
+[label=updating-terms]
+{Updating Terms from Lattice}
+(define (update-definition-from-lattice term)
+  (let* ((def (lookup term))
+         (current-conjectures (definition-conjectures def))
+         (ancestor-terms (ancestor-terms term))
+         (ancestor-defs (map lookup ancestor-terms))
+         (ancestor-conjectures
+          (append-map definition-conjectures ancestor-defs))
+         (new-conjectures
+          (set-difference current-conjectures
+                          ancestor-conjectures
+                          conjecture-equivalent?)))
+    (set-definition-classifications! def (parent-terms term))
+    (set-definition-specific-conjectures! def new-conjectures)))
+\end{code-listing}
+
+\begin{code-listing}
+[label=def-holds-2]
+{Recursive Definition Holds}
+(define (definition-holds? def obj)
+  (let ((classifications (definition-classifications def))
+        (specific-conjectures (definition-specific-conjectures def)))
+    (and ((definition-predicate def) obj)
+         (every (lambda (classification-term)
+                  (is-a? classification-term obj))
+                classifications)
+         (every (lambda (conjecture)
+                  (satisfies-conjecture? conjecture (list obj)))
+                specific-conjectures))))
+\end{code-listing}
+
+\subsection{Core Knowledge}
+
+\begin{code-listing}
+[label=core-knowledge]
+{Introducing Core Knowledge}
+(define (provide-core-knowledge)
+  (for-each add-definition! primitive-definitions))
+
+(define primitive-definitions
+  (list
+   (make-primitive-definition 'object true-proc true-proc)
+   (make-primitive-definition 'point point? random-point)
+   (make-primitive-definition 'line line? random-line)
+   ...
+   (make-primitive-definition 'triangle triangle? random-triangle))
+\end{code-listing}
 
 \section{Learning new Terms and Conjectures}
 
@@ -90,52 +256,19 @@ extension.
 
 \begin{code-listing}{Learning a new term}
 (define (learn-term term object-generator)
-  (let ((v (lookup term)))
-    (if (not (eq? v 'unknown))
-        (pprint `(already-known ,term))
-        (let ((example (name-polygon (object-generator))))
-          (let* ((base-terms (examine example))
-                 (simple-base-terms (simplify-base-terms base-terms))
-                 (base-definitions (map lookup base-terms))
-                 (base-conjectures (flatten (map definition-conjectures
-                                                 base-definitions)))
-                 (fig (figure (with-dependency '<premise> example)))
-                 (observations (analyze-figure fig))
-                 (conjectures (map conjecture-from-observation observations))
-                 (simplified-conjectures
-                  (simplify-conjectures conjectures base-conjectures)))
-            (pprint conjectures)
-            (let ((new-def
-                   (make-restrictions-definition
-                    term
-                    simple-base-terms
-                    simplified-conjectures
-                    object-generator)))
-              (add-definition! *current-student* new-def)
-              'done))))))
-\end{code-listing}
-
-\subsection{Predicates from Observations}
-
-\begin{code-listing}{Building Predicates for Definitions}
-(define (build-predicate-for-definition s def)
-  (let ((classifications (definition-classifications def))
-        (conjectures (definition-conjectures def)))
-    (let ((classification-predicate
-           (lambda (obj)
-             (every
-              (lambda (classification)
-                (or ((definition-predicate (student-lookup s classification))
-                     obj)
-                    (begin (if *explain*
-                               (pprint `(failed-classification
-                                         ,classification)))
-                           #f)))
-              classifications))))
-      (lambda args
-        (and (apply classification-predicate args)
-             (every (lambda (o) (satisfies-conjecture o args))
-                    conjectures))))))
+  (if (term-known? term) (error "Term already known:" term))
+  (let ((term-example (name-polygon (object-generator))))
+    (let* ((primitive-predicate (get-primitive-predicate term-example))
+           (fig (figure (as-premise term-example 0)))
+           (observations (analyze-figure fig))
+           (conjectures (map conjecture-from-observation observations)))
+      (pprint conjectures)
+      (let ((new-def
+             (make-restrictions-definition term object-generator
+                primitive-predicate conjectures)))
+        (add-definition! new-def)
+        (check-new-def new-def)
+        'done))))
 \end{code-listing}
 
 \subsection{Performing Investigations}
@@ -150,68 +283,59 @@ new investigations is whether the given
 
 \section{Simplifying Definitions}
 
-To Simplify definitions, we interface with the constraint solver
+To simplify definitions, we interface with the constraint solver
 observations->figure to convert our observations back into a figure.
 
 \begin{code-listing}{Simplifying Definitions}
 (define (get-simple-definitions term)
-  (let ((def (lookup term)))
-    (if (unknown? def)
-        (error "Unknown term" term))
+  (let ((def (lookup term))
+        (simple-def-result (make-simple-definitions-result)))
     (let* ((object ((definition-generator def)))
-           (observations
-            (filter
-             observation->constraint
-             (all-observations
-              (figure (name-polygon object))))))
-      (map
+           (fig (figure (as-premise (name-polygon object) 0)))
+           (all-observations (analyze-figure fig))
+           (eligible-observations
+            (filter observation->constraint all-observations)))
+      (for-each
        (lambda (obs-subset)
-         (pprint obs-subset)
-         (let* ((topology (topology-for-object object))
-                (new-figure
-                 (observations->figure topology obs-subset)))
-           (if new-figure
-               (let ((new-polygon
-                      (polygon-from-figure new-figure)))
-                 (pprint new-polygon)
-                 (if (is-a? term new-polygon)
-                     (list 'valid-definition
-                           obs-subset)
-                     (list 'invalid-definition
-                           obs-subset)))
-               (list 'unknown-definition
-                     obs-subset))))
-       (all-subsets observations)))))
+         (if (simple-def-should-test? simple-def-result obs-subset)
+             (let ((polygon
+                    (polygon-from-object-observations object obs-subset)))
+               ((cond ((false? polygon) mark-unknown-simple-def!)
+                      ((is-a? term polygon)
+                       (begin (pp "=> Sufficient")
+                              mark-sufficient-simple-def!))
+                      (else (begin (pp "=> Insufficient")
+                                   mark-insufficient-simple-def!)))
+                simple-def-result obs-subset)
+               (simplify-definitions-result! simple-def-result))
+             (pprint `(skipping ,obs-subset))))
+       (shuffle (all-subsets eligible-observations)))
+      (pprint simple-def-result)
+      simple-def-result)))
 \end{code-listing}
 
 \begin{code-listing}{Converting Observations to a Figure}
-(define (observations->figure topology observations)
+(define (polygon-from-object-observations object obs-subset)
+  (let* ((topology (topology-for-object object))
+         (new-figure (observations->figure topology obs-subset)))
+    (and new-figure (object-from-new-figure object new-figure))))
+
+(define (establish-polygon-topology-for-polygon polygon)
+  (let* ((points (polygon-points polygon))
+         (vertex-names (map element-name points)))
+    (apply m:establish-polygon-topology vertex-names)))
+
+(define (observations->figure-one-trial topology observations)
   (initialize-scheduler)
-  (pprint (observations->constraints observations))
-  (let ((m (apply
-            m:mechanism
-            (list
-             topology
-             (observations->constraints observations)))))
+  (let* ((constraints (observations->constraints observations))
+         (m (m:mechanism topology constraints)))
     (m:build-mechanism m)
-    (if (not (m:solve-mechanism m))
-        (begin
-          (pp "Could not solve mechanism")
-          #f)
-        (let ((f (m:mechanism->figure m)))
-          (pp "Solved!")
-          (show-figure f)
-          f))))
+    (and (m:solve-mechanism m)
+         (let ((fig (m:mechanism->figure m)))
+           (show-figure fig)
+           fig))
 \end{code-listing}
 
 \section{Discussion}
 
 %% Old Stuff:
-
-\if false
-
-
-\section{Representing Discoveries}
-
-
-\fi

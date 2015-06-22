@@ -117,3 +117,5 @@
 ;;; (run-investigation (midsegment-investigation))
 
 ;;; (show-definition-lattice)
+
+;;; (get-simple-definitions 'isoceles-triangle)

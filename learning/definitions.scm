@@ -44,10 +44,9 @@
   (let ((classifications (definition-classifications def))
         (specific-conjectures (definition-specific-conjectures def)))
     (and ((definition-predicate def) obj)
-         (every
-          (lambda (classification-term)
-            (is-a? classification-term obj))
-          classifications)
+         (every (lambda (classification-term)
+                  (is-a? classification-term obj))
+                classifications)
          (every (lambda (conjecture)
                   (satisfies-conjecture? conjecture (list obj)))
                 specific-conjectures))))
@@ -61,7 +60,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;; Higher-order Definitions ;;;;;;;;;;;;;;;;;;;;;;
 
-(define (make-restrictions-definition
+(define (make-definition
          name
          generator
          primitive-predicate

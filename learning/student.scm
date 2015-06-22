@@ -33,9 +33,7 @@
 ;;;;;;;;;;;;;;;;; Procedures using student directly ;;;;;;;;;;;;;;;;;;
 
 (define (student-lookup-definition s name)
-  (hash-table/get (student-definitions s)
-                  name
-                  #f))
+  (hash-table/get (student-definitions s) name #f))
 
 (define (student-save-definition! s def)
   (hash-table/put! (student-definitions s)
@@ -104,20 +102,21 @@
   (if (term-known? term)
       (error "Term already known:" term))
   (let ((example (name-polygon (object-generator))))
-    (let* ((primitives (examine-primitive example))
+    (let* ((primitive-predicate (get-primitive-predicate example))
            (fig (figure (as-premise example 0)))
            (observations (analyze-figure fig))
            (conjectures (map conjecture-from-observation observations)))
       (pprint conjectures)
       (let ((new-def
-             (make-restrictions-definition
-              term
-              object-generator
-              (definition-predicate (lookup (car primitives)))
-              conjectures)))
+             (make-definition term object-generator
+                primitive-predicate conjectures)))
         (add-definition! new-def)
         (check-new-def new-def)
         'done))))
+
+(define (get-primitive-predicate object)
+  (let ((primitives (examine-primitive object)))
+    (definition-predicate (lookup (car primitives)))))
 
 (define (check-new-def new-def)
   (if (and (= 1 (length (definition-classifications new-def)))
@@ -198,8 +197,7 @@
 (define (polygon-from-object-observations object obs-subset)
   (let* ((topology (topology-for-object object))
          (new-figure (observations->figure topology obs-subset)))
-    (and new-figure
-         (object-from-new-figure object new-figure))))
+    (and new-figure (object-from-new-figure object new-figure))))
 
 (define (get-simple-definitions term)
   (let ((def (lookup term))
@@ -208,8 +206,7 @@
            (fig (figure (as-premise (name-polygon object) 0)))
            (all-observations (analyze-figure fig))
            (eligible-observations
-            (filter observation->constraint
-                    all-observations)))
+            (filter observation->constraint all-observations)))
       (for-each
        (lambda (obs-subset)
          (if (simple-def-should-test? simple-def-result obs-subset)
@@ -221,6 +218,30 @@
                               mark-sufficient-simple-def!))
                       (else (begin (pp "=> Insufficient")
                                    mark-insufficient-simple-def!)))
+                simple-def-result obs-subset)
+               (simplify-definitions-result! simple-def-result))
+             (pprint `(skipping ,obs-subset))))
+       (shuffle (all-subsets eligible-observations)))
+      (pprint simple-def-result)
+      simple-def-result)))
+
+
+(define (get-simple-definitions term)
+  (let ((def (lookup term))
+        (simple-def-result (make-simple-definitions-result)))
+    (let* ((object ((definition-generator def)))
+           (fig (figure (as-premise (name-polygon object) 0)))
+           (all-observations (analyze-figure fig))
+           (eligible-observations
+            (filter observation->constraint all-observations)))
+      (for-each
+       (lambda (obs-subset)
+         (if (simple-def-should-test? simple-def-result obs-subset)
+             (let ((polygon
+                    (polygon-from-object-observations object obs-subset)))
+               ((cond ((false? polygon) mark-unknown-simple-def!)
+                      ((is-a? term polygon) mark-sufficient-simple-def!)
+                      (else mark-insufficient-simple-def!))
                 simple-def-result obs-subset)
                (simplify-definitions-result! simple-def-result))
              (pprint `(skipping ,obs-subset))))

@@ -14,12 +14,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Conjecture ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-record-type <conjecture>
-  (make-conjecture premises constructions construction-procedures
+  (make-conjecture construction-dependencies
+                   construction-source-procedures
                    relationship)
   conjecture?
-  (premises conjecture-premises)
-  (constructions conjecture-constructions)
-  (construction-procedures conjecture-construction-procedures)
+  (construction-dependencies conjecture-constructions)
+  (construction-source-procedures conjecture-construction-procedures)
   (relationship conjecture-relationship))
 
 (define (print-conjecture conj)
@@ -40,23 +40,21 @@
 
 (define (satisfies-conjecture? conj premise-instance)
   (or (true? (observation-from-conjecture conj premise-instance))
-      (begin (if *explain*
-                 (pprint `(failed-conjecture ,conj)))
+      (begin (if *explain* (pprint `(failed-conjecture ,conj)))
              #f)))
 
 
 (define (conjecture-from-observation obs)
   (make-conjecture
-   '()
    (map element-dependencies->list (observation-args obs))
    (map element-source (observation-args obs))
    (observation-relationship obs)))
 
 (define (observation-from-conjecture conj premise-instance)
-  (let ((new-args (map
-                   (lambda (construction-proc)
-                     (construction-proc premise-instance))
-                   (conjecture-construction-procedures conj)))
+  (let ((new-args
+         (map (lambda (construction-proc)
+                (construction-proc premise-instance))
+              (conjecture-construction-procedures conj)))
         (rel (conjecture-relationship conj)))
     (and (relationship-holds rel new-args)
          (make-observation rel new-args))))

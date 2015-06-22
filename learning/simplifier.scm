@@ -63,11 +63,8 @@
 
 (define (observations->figure-one-trial topology observations)
   (initialize-scheduler)
-  (let ((m (apply
-            m:mechanism
-            (list
-             topology
-             (observations->constraints observations)))))
+  (let* ((constraints (observations->constraints observations))
+         (m (m:mechanism topology constraints)))
     (m:build-mechanism m)
     (if (not (m:solve-mechanism m))
         (begin (pp "Could not solve mechanism") #f)
