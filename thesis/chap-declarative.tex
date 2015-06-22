@@ -185,6 +185,10 @@ before explaining linkages and how mechanisms are built and solved.
 \newpage
 \section{Partial Information Structures}
 
+Radul's propagation system typically used numeric intervals for
+partial information. The declarative constraint solver uses standard
+some numeric intervals, but also
+
 \subsection{Regions}
 
 Propagating partial information across bars and joints yields a new
@@ -192,6 +196,26 @@ region system: Regions include point sets of one or more possible
 points, an entire ray, or an entire arc. These rays and arcs are
 from an anchored bar with only one of direction or length specified,
 for instance.
+
+\begin{code-listing}
+[label=regions]
+{Region Structures}
+(define-record-type <m:point-set>
+  (%m:make-point-set points)
+  m:point-set? ...)
+
+(define-record-type <m:arc>
+  (m:make-arc center-point radius dir-interval)
+  m:arc? ...)
+
+(define-record-type <m:ray>
+  (%m:make-ray endpoint direction)
+  m:ray? ...)
+
+(define-record-type <m:region-contradiction>
+  (m:make-region-contradiction error-regions)
+  m:region-contradiction? ...)
+\end{code-listing}
 
 \subsection{Direction Intervals}
 
@@ -201,41 +225,103 @@ subtracting intervals of direction and thetas gets complicated at times.
 Challenges with intersection, multiple segments. Eventually just
 return nothing is okay.
 
-\section{Bar and Joint Linkages}
+\section{Linkages and Basic Constraints}
+
+The solver uses bar and joint linkages.
 
 Bars have endpoints, directions and length. Joints have a vertex point
 and two directions. Currently, most joints are directioned and have
 max value of 180 degrees.
 
-\section{Propagator Constraints}
+\begin{code-listing}
+[label=point-region]
+{Points and Regions}
+(define (m:make-point)
+  (let-cells (x y region)
+    (p:m:x-y->region x y region)
+    (p:m:region->x region x)
+    (p:m:region->y region y)
+    (%m:make-point x y region)))
 
-System uses propagators to solve these mechanism constraints.
+(define (m:x-y->region x y)
+  (m:make-singular-point-set (make-point x y)))
+(propagatify m:x-y->region)
 
-\subsection{Basic Linkage Constraints}
-
-Direction, dx, dy, length, thetas. ``Bars'' + ``Joints''
-
-\begin{code-listing}{Basic Bar Constraints}
-(define (m:make-bar bar-id)
-  (let ((bar-key (m:make-bar-name-key bar-id)))
-    (let ((p1 (m:make-point (symbol bar-key '-p1)))
-          (p2 (m:make-point (symbol bar-key '-p2))))
-      (name! p1 (symbol bar-key '-p1))
-      (name! p2 (symbol bar-key '-p2))
-      (let ((v (m:make-vec bar-key)))
-        (c:+ (m:point-x p1)
-             (m:vec-dx v)
-             (m:point-x p2))
-        (c:+ (m:point-y p1)
-             (m:vec-dy v)
-             (m:point-y p2))
-        (let ((bar (%m:make-bar p1 p2 v)))
-          (m:p1->p2-bar-propagator p1 p2 bar)
-          (m:p2->p1-bar-propagator p2 p1 bar)
-          bar)))))
+(define (m:region->x region)
+  (if (m:singular-point-set? region)
+      (point-x (m:singular-point-set-point region))
+      nothing))
+(propagatify m:region->x)
+(propagatify m:region->y)
 \end{code-listing}
 
-\subsection{User-specified Constraints}
+\begin{code-listing}
+[label=bar-struct]
+{Vectors}
+(define (m:make-vec)
+  (let-cells (dx dy length direction)
+    (p:make-direction (e:atan2 dy dx) direction)
+    (p:sqrt (e:+ (e:square dx)
+                 (e:square dy))
+            length)
+    (p:* length (e:direction-cos direction) dx)
+    (p:* length (e:direction-sin direction) dy)
+    (%m:make-vec dx dy length direction)))
+\end{code-listing}
+
+\begin{code-listing}
+[label=bar-struct]
+{Basic Bar Structure}
+(define (m:make-bar bar-id)
+  (let ((p1 (m:make-point))
+        (p2 (m:make-point))
+        (v (m:make-vec)))
+    (c:+ (m:point-x p1) (m:vec-dx v)
+         (m:point-x p2))
+    (c:+ (m:point-y p1) (m:vec-dy v)
+         (m:point-y p2))
+    (let ((bar (%m:make-bar p1 p2 v)))
+      (m:p1->p2-bar-propagator p1 p2 bar)
+      (m:p2->p1-bar-propagator p2 p1 bar)
+      bar)))
+\end{code-listing}
+
+\begin{code-listing}
+[label=bar-propagator]
+{Bar Propagator}
+(define (m:p1->p2-bar-propagator p1 p2 bar)
+  (let ((p1x (m:point-x p1))
+        (p1y (m:point-y p1))
+        (p1r (m:point-region p1))
+        (p2r (m:point-region p2))
+        (length (m:bar-length bar))
+        (dir (m:bar-direction bar)))
+    (p:m:x-y-direction->region p1x p1y dir p2r)
+    (p:m:x-y-length-di->region p1x p1y length dir p2r)
+    (p:m:region-length-direction->region p1r length dir p2r)))
+
+(define (m:x-y-length-di->region px py length dir-interval)
+  (if (direction-interval? dir-interval)
+      (let ((vertex (make-point px py)))
+        (m:make-arc vertex length dir-interval))
+      nothing))
+(propagatify m:x-y-length-di->region)
+\end{code-listing}
+
+\subsection{Joint Constraints}
+\begin{code-listing}
+{Joint Constraints}
+(define (m:make-joint)
+  (let ((vertex (m:make-point)))
+    (let-cells (dir-1 dir-2 theta)
+      (p:m:add-to-direction dir-1 theta dir-2)
+      (p:m:add-to-direction dir-2 (e:negate theta) dir-1)
+      (p:m:subtract-directions dir-2 dir-1 theta)
+      (m:instantiate theta (make-interval 0 *max-joint-swing*) 'theta)
+      (%m:make-joint vertex dir-1 dir-2 theta))))
+\end{code-listing}
+
+\section{User-specified Constraints}
 
 \begin{code-listing}{User Constraints}
 (define-record-type <m:constraint>
@@ -252,9 +338,8 @@ Direction, dx, dy, length, thetas. ``Bars'' + ``Joints''
    (lambda (m)
      (let ((bar-1 (m:lookup m bar-id-1))
            (bar-2 (m:lookup m bar-id-2)))
-       (c:id
-        (m:bar-length bar-1)
-        (m:bar-length bar-2))))))
+       (c:id (m:bar-length bar-1)
+             (m:bar-length bar-2))))))
 \end{code-listing}
 
 Angle sum of polygon, or scan through polygon and ensure that the
@@ -263,11 +348,67 @@ instance... Could also observe always ``60 degrees'' as an interesting
 fact and put that in as a constraint. They're alebgraically quite
 similar, but my propagators currently don't perform symbolic algebra.
 
-\subsection{Building Mechanisms}
+\subsection{Slices}
+
+\begin{code-listing}
+[label=sum-slice]
+{Sum Slice}
+(define (m:equal-values-in-sum equal-cells all-cells total-sum)
+  (let ((other-values (set-difference all-cells equal-cells eq?)))
+    (c:id (car equal-cells)
+          (ce:/ (ce:- total-sum (ce:multi+ other-values))
+                (length equal-cells)))))
+
+(define (m:sum-slice elements cell-transformer equality-predicate total-sum)
+  (let* ((equivalence-classes
+          (partition-into-equivalence-classes elements equality-predicate))
+         (nonsingular-classes (filter nonsingular? equivalence-classes))
+         (all-cells (map cell-transformer elements)))
+    (cons (c:id total-sum (ce:multi+ all-cells))
+          (map (lambda (equiv-class)
+                 (m:equal-values-in-sum
+                  (map cell-transformer equiv-class) all-cells total-sum))
+               equivalence-classes))))
+\end{code-listing}
+
+\begin{code-listing}
+[label=poly-sum-slice]
+{Polygon Sum Slice}
+(define (m:polygon-sum-slice all-joint-ids)
+  (m:make-slice
+   (m:make-constraint 'm:joint-sum all-joint-ids
+    (lambda (m)
+      (let ((all-joints (m:multi-lookup m all-joint-ids))
+            (total-sum (n-gon-angle-sum (length all-joint-ids))))
+        (m:joints-constrained-in-sum all-joints total-sum))))))
+
+(define (m:joints-constrained-in-sum all-joints total-sum)
+  (m:sum-slice all-joints m:joint-theta
+   m:joints-constrained-equal-to-one-another? total-sum))
+\end{code-listing}
+
+\section{Building Mechanisms}
 
 The Mechanism in our declarative system is analogous to Figure,
 grouping elements. Also computes various caching and lookup tables to
 more easily access elements.
+
+\begin{code-listing}
+[label=mechanism-struct]
+{Mechanism Structure}
+(define-record-type <m:mechanism>
+    (%m:make-mechanism bars joints constraints slices
+                       bar-table joint-table joint-by-vertex-table)
+    m:mechanism? ...)
+
+(define (m:mechanism . args)
+  (let ((elements (flatten args)))
+    (let ((bars (m:dedupe-bars (filter m:bar? elements)))
+          (joints (filter m:joint? elements))
+          (constraints (filter m:constraint? elements))
+          (slices (filter m:slice? elements)))
+      (m:make-mechanism bars joints constraints slices))))
+\end{code-listing}
 
 \begin{code-listing}
 [label=est-topo]
@@ -276,22 +417,18 @@ more easily access elements.
   (if (< (length point-names) 3)
       (error "Min polygon size: 3"))
   (let ((extended-point-names
-         (append point-names
-                 (list (car point-names) (cadr point-names)))))
-    (let ((bars
-           (map (lambda (p1-name p2-name)
-                  (m:make-named-bar p1-name p2-name))
-                point-names
-                (cdr extended-point-names)))
-          (joints
-           (map (lambda (p1-name vertex-name p2-name)
-                  (m:make-named-joint p1-name vertex-name p2-name))
-                (cddr extended-point-names)
-                (cdr extended-point-names)
-                point-names)))
+         (append point-names (list (car point-names) (cadr point-names)))))
+    (let ((bars (map (lambda (p1-name p2-name)
+                       (m:make-named-bar p1-name p2-name))
+                     point-names
+                     (cdr extended-point-names)))
+          (joints (map (lambda (p1-name vertex-name p2-name)
+                         (m:make-named-joint p1-name vertex-name p2-name))
+                       (cddr extended-point-names)
+                       (cdr extended-point-names)
+                       point-names)))
       (append bars joints
-              (list (m:polygon-sum-slice
-                     (map m:joint-name joints)))))))
+              (list (m:polygon-sum-slice (map m:joint-name joints)))))))
 \end{code-listing}
 
 \begin{code-listing}
@@ -302,6 +439,23 @@ more easily access elements.
                        (m:mechanism-joints m))
   (m:apply-mechanism-constraints m)
   (m:apply-slices m))
+\end{code-listing}
+
+\begin{code-listing}
+[label=identifying-points]
+{Identifying points}
+(define (m:identify-into-arm-1 joint bar)
+  (m:set-joint-arm-1 joint bar)
+  (m:identify-points (m:joint-vertex joint)
+                     (m:bar-p2 bar))
+  (c:id (ce:reverse-direction (m:joint-dir-1 joint))
+        (m:bar-direction bar)))
+
+(define (m:identify-points p1 p2)
+  (for-each (lambda (getter)
+              (c:id (getter p1)
+                    (getter p2)))
+            (list m:point-x m:point-y m:point-region)))
 \end{code-listing}
 
 \section{Solving Mechanisms}
@@ -323,12 +477,39 @@ more easily access elements.
           (else 'mechanism-built))))
 \end{code-listing}
 
+\begin{code-listing}
+[label=specify-something]
+{Specifying and Instantiating Values}
+(define (m:specify-something m)
+  (or
+   (m:specify-bar-if m m:constrained?)
+   (m:specify-joint-if m m:constrained?)
+   (m:specify-joint-if m m:joint-anchored-and-arm-lengths-specified?)
+   (m:initialize-bar-if m m:bar-length-specified?)
+   ...)
+
+(define (m:instantiate cell value premise)
+  (add-content cell
+    (make-tms (contingent value (list premise)))))
+\end{code-listing}
+
+
 Given a wired diagram, process is repeatedly specifying values for elements
 
 
 \subsection{Interfacing with existing diagrams}
 
 Converts between figures and symbolic relationships.
+
+\begin{code-listing}
+[label=to-figure]
+{Converting to Figure}
+(define (m:mechanism->figure m)
+  (let ((points (map m:joint->figure-point (m:mechanism-joints m)))
+        (segments (map m:bar->figure-segment (m:mechanism-bars m)))
+        (angles (map m:joint->figure-angle (m:mechanism-joints m))))
+    (apply figure (filter identity (append points segments angles)))))
+\end{code-listing}
 
 \section{Discussion and Extensions}
 

@@ -272,15 +272,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Conversion to Figure ;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define (m:joint->figure-point joint)
+  (m:point->figure-point (m:joint-vertex joint)))
+
+
 (define (m:mechanism->figure m)
-  (let ((points
-         (map (lambda (joint)
-                (m:point->figure-point (m:joint-vertex joint)))
-              (m:mechanism-joints m)))
+  (let ((points (map m:joint->figure-point (m:mechanism-joints m)))
         (segments (map m:bar->figure-segment (m:mechanism-bars m)))
         (angles (map m:joint->figure-angle (m:mechanism-joints m))))
-    (apply figure (flatten (filter (lambda (x) (or x))
-                           (append points segments angles))))))
+    (apply figure (flatten (filter identity (append points segments angles))))))
 
 (define (m:draw-mechanism m c)
   (draw-figure (m:mechanism->figure m) c))

@@ -36,7 +36,7 @@
 
 (define (m:instantiate cell value premise)
   (add-content cell
-               (make-tms (contingent value (list premise)))))
+  (make-tms (contingent value (list premise)))))
 
 (define (m:examine-cell cell)
   (let ((v (content cell)))

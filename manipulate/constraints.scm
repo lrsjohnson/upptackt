@@ -30,9 +30,8 @@
    (lambda (m)
      (let ((bar-1 (m:lookup m bar-id-1))
            (bar-2 (m:lookup m bar-id-2)))
-       (c:id
-        (m:bar-length bar-1)
-        (m:bar-length bar-2))))))
+       (c:id (m:bar-length bar-1)
+             (m:bar-length bar-2))))))
 
 (define (m:c-angle-equal joint-id-1 joint-id-2)
   (m:make-constraint
@@ -94,9 +93,7 @@
 
 (define (m:polygon-sum-slice all-joint-ids)
   (m:make-slice
-   (m:make-constraint
-    'm:joint-sum
-    all-joint-ids
+   (m:make-constraint 'm:joint-sum all-joint-ids
     (lambda (m)
       (let ((all-joints (m:multi-lookup m all-joint-ids))
             (total-sum (n-gon-angle-sum (length all-joint-ids))))
@@ -130,7 +127,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Slices ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; Slices are constraints that are processed once the normal
+;;; Slices are constraints that are processed after the normal
 ;;; constraints have been aplied.
 
 (define-record-type <m:slice>
@@ -155,27 +152,22 @@
 (define (m:equal-values-in-sum equal-cells all-cells total-sum)
   (let ((other-values (set-difference all-cells equal-cells eq?)))
     (c:id (car equal-cells)
-          (ce:/
-           (ce:- total-sum
-                 (ce:multi+ other-values))
-           (length equal-cells)))))
+          (ce:/ (ce:- total-sum (ce:multi+ other-values))
+                (length equal-cells)))))
 
 (define (m:sum-slice elements cell-transformer equality-predicate total-sum)
-  (let ((equivalence-classes
-         (partition-into-equivalence-classes elements equality-predicate))
-        (all-cells (map cell-transformer elements)))
-    (cons
-     (c:id total-sum
-           (ce:multi+ all-cells))
-     (filter identity
-             (map (lambda (equiv-class)
-                    (and (> (length equiv-class) 1)
-                         (begin
-                           (m:equal-values-in-sum
-                            (map cell-transformer equiv-class)
-                            all-cells
-                            total-sum))))
-                  equivalence-classes)))))
+  (let* ((equivalence-classes
+          (partition-into-equivalence-classes elements equality-predicate))
+         (nonsingular-classes (filter nonsingular? equivalence-classes))
+         (all-cells (map cell-transformer elements)))
+    (cons (c:id total-sum (ce:multi+ all-cells))
+          (map (lambda (equiv-class)
+                 (m:equal-values-in-sum
+                  (map cell-transformer equiv-class) all-cells total-sum))
+               equivalence-classes))))
+
+(define (nonsingular? equivalence-class)
+  (> (length equivalence-class) 1))
 
 (define (angle-equal-constraint? c)
   (eq? (m:constraint-type c) 'm:c-angle-equal))

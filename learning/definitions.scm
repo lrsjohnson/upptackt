@@ -84,7 +84,7 @@
   definition?)
 
 (define (print-primitive-definition def)
-  `(primitive-definition ,(definition-term def)))
+  `(primitive-definition ,(definition-name def)))
 
 (defhandler print print-primitive-definition
   primitive-definition?)
