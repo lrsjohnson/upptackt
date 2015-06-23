@@ -283,7 +283,12 @@ place. Example~\ref{ortho-interesting} shows a concrete example of this.
 \end{code-listing}
 
 Listing~\ref{mark-obvious} shows the implementation of the
-\texttt{save-obvious-observation!} procedure
+\texttt{save-obvious-observation!} procedure. Construction procedures
+can use this to mark obvious relationships for the elements it is
+creating. For instance, the procedure that creates the perpendicular
+bisector of a segment could create and save an observation that the
+line it is creating is perpendicular to the original segment before
+returning the bisector line.
 
 \begin{code-listing}
 [label=mark-obvious]
@@ -296,7 +301,12 @@ Listing~\ref{mark-obvious} shows the implementation of the
 
 Example~\ref{interesting-analysis} in the demonstration chapter
 demonstrated a simple example of a construction procedure that marked
-obvious properties of its results.
+obvious properties of its results. Example~\ref{ortho-interesting},
+demonstrates the other technique of simplifying observations. Although
+there were 21 total observations found in the resulting figure, after
+examining the types polygons in the figure and removing observations
+previously discovered about those elements, only two observations
+remain:
 
 \begin{img-example}
 [label=ortho-interesting]
@@ -304,19 +314,19 @@ obvious properties of its results.
 {images/inner-investigation-2.png}
 (define (orthodiagonal-inner-polygon)
   (let-geo*
-      (((cq (a b c d)) (random-orthodiagonal-quadrilateral))
+      (((oq (a b c d)) (random-orthodiagonal-quadrilateral))
        (e (midpoint a b))
        (f (midpoint b c))
        (g (midpoint c d))
        (h (midpoint d a))
        (inner-p (polygon-from-points e f g h)))
-    (figure cq inner-p)))
+    (figure oq inner-p)))
 
 => (length (all-observations orthodiagonal-inner-polygon))
 21
 
 => (pprint (interesting-observations orthodiagonal-inner-polygon)
-((orthodiagonal cq) (rectangle inner-p))
+((orthodiagonal oq) (rectangle inner-p))
 \end{img-example}
 
 \section{Discussion and Extensions}
@@ -373,7 +383,14 @@ instance, is quite a challenge.
 A final process I explored involved merging related observations into
 larger, combined results. For instance, when reporting segment length
 equality for a square, it is excessive to report all possible pairs of
-equal sides.
+equal sides. I initially implemented a step to merge such observations
+to simply report that all four sides are congruent. However, as more
+relationships were added, the merge process became complicated as the
+arguments for all observations were not commutative and transitive
+(e.g. merging pairs of relationships about angles being equal would
+require a different approach than merging sets of three points with a
+fourth as its center. Generalizing and adding such merge procedures
+would be an interesting extension.
 
 %% Initial Stuff:
 
