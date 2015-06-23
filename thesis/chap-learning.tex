@@ -95,8 +95,7 @@ to teach or compare multiple students in the future.
 [label=student-structure]
 {Student Structure}
 (define-record-type <student>
-  (%make-student definition-dictionary term-lattice)
-  student? ...)
+  (%make-student definition-dictionary term-lattice) ...)
 
 (define (student-lookup-definition s name)
   (hash-table/get (student-dictionary s) name #f))
@@ -112,38 +111,59 @@ to teach or compare multiple students in the future.
 
 \subsection{Definition Structure}
 
-Definition structures
-
-The last two fields, \texttt{classifications} and
-\texttt{specific conjectures} are derived properties that are updated
-based on the definition's relation to other terms.
-
 \begin{code-listing}
 [label=def-struct]
 {Definition Structure}
 (define-record-type <definition>
-  (%make-definition name generator base-predicate
+  (%make-definition name generator primitive-predicate
                      primitive?
                      all-conjectures
-                     classifications specific-conjectures)
-  definition?
-  ...)
+                     classifications specific-conjectures) ...)
 \end{code-listing}
+
+Listing~\ref{def-struct} shows the implementation of definition
+structures. Definition combine the name and generator procedure
+provided when originally learning the definition with a list of all
+conjectures known about that class of object. \texttt{primitive?} is a
+boolean indicator of whether the definition is a primitive, built-in
+definition. In such cases, \texttt{base-predicate} is a imperative
+system-level predicate that tests whether an object satisfies the
+definition. In non-primitive definitions, the \texttt{base-predicate}
+is that of the primitive that the definition is a specialization
+of. Storing and checking against this primitive predicate prevents
+inapplicable operations from being performed such as attempting to
+obtain the angles of a segment object.
+
+The last two fields, \texttt{classifications} and \texttt{specific
+  conjectures} are derived fields that are updated based on the
+definition's relation to other terms. A definition's
+\texttt{classifications} are the next-least specific terms its class
+of objects also satisfy and \texttt{specific-conjectures} are added
+conjectures that differentiate the definition from being the union of
+those classification definitions.
 
 
 \section{Testing Definitions}
 
-The learning module provides the \texttt{is-a?} procedure to. As seen
-in
+The learning module provides the \texttt{is-a?} procedure to test
+whether a given object satisfies a known term. As shown in
+Listing~\ref{def-holds}, testing whether a definition holds involves
+ensuring that it is the right type of object by checking the
+underlying primitive predicate and then ensuring the relevant
+conjectures are satisfied.
 
-Testing whether a definition holds involves checking
+In this nonrecursive version, the system checks that an object
+satisfies all known conjectures, but a recursive version shown later
+first checks that it satisfies the parent classifications before
+checking definition-specific conjectures that differentiate it from
+its classifications.
 
 \begin{code-listing}
 [label=def-holds]
 {Definition Checking}
 (define (definition-holds-nonrecursive? def obj)
   (let ((all-conjectures (definition-conjectures def)))
-    (and ((definition-predicate def) obj)
+    (and ((definition-primitive-predicate def) obj)
          (every (lambda (conjecture)
                   (satisfies-conjecture? conjecture (list obj)))
                 all-conjectures))))
@@ -151,12 +171,28 @@ Testing whether a definition holds involves checking
 
 \subsection{Conjecture Structure}
 
+Conjectures are similar to observations in that they associate a
+perception relationship with information about what satisfies the
+relationship. However, instead of associating a relationship with
+actual elements that satisfy the relationship, conjectures abstract
+this observation by storing only the symbolic dependencies and source
+procedures of those arguments.
+
+Similar to how Example~\ref{new-premise} in the imperative system used
+the element source procedures to obtain constructed elements
+corresponding to those observed in an original diagram, satisfying a
+conjecture involves applying its source-procedures to a new premise
+structure for the conjecture to obtain new relationship
+arguments. These new arguments are then checked to see if they satisfy
+the underlying relationship. This process is shown in
+Listing\ref{conj-struct}. The interface procedure \texttt{is-a?}
+creates a list of the object in question to use as the new premise.
+
 \begin{code-listing}
 [label=conj-struct]
 {Conjecture Structure}
 (define-record-type <conjecture>
-  (make-conjecture dependencies source-procedures relationship)
-  conjecture? ...))
+  (make-conjecture dependencies source-procedures relationship) ...)
 
 (define (satisfies-conjecture? conj premise-instance)
   (or (true? (observation-from-conjecture conj premise-instance))
@@ -274,6 +310,7 @@ extension.
         (check-new-def new-def)
         'done))))
 
+
 (define (conjecture-from-observation obs)
   (make-conjecture
    (map element-dependencies->list (observation-args obs))
@@ -288,8 +325,8 @@ that they have the intent of the analysis results being placed in the
 geometry knowledge repository. This separation also allows for
 dependence information about where properties were derived from.
 
-Given the lattice structure of definitions, an interesting question when exploring
-new investigations is whether the given
+Given the lattice structure of definitions, an interesting question
+when exploring new investigations is whether the given
 
 \section{Simplifying Definitions}
 

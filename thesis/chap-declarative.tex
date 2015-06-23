@@ -581,10 +581,39 @@ into their corresponding figures so they can be observed and analyzed.
 
 \section{Discussion and Extensions}
 
-Future efforts involve an improved backtrack-search mechanism if
-constraints fail, and a system of initializing the diagram with
-content from an existing figure, kicking out and wiggling arbitrary
-premises, and seeing how the resulting diagram properties respond.
+The process of incrementally specifying values and propagating
+properties implied by constraints is able to solve many geometry
+constraint problems. Radul's propagator network framework helps with
+propagating local constraints, representing partial information, and
+merging updates.
+
+Although the module successfully solves many useful mechanism
+configurations, adding propagation alone is not a magic wand. Even
+with selecting values based on updated partial information and
+heuristics for choosing items to specify, there are several instances
+in which the module can fail to solve a mechanism specification that
+actually has a solution. Because of such false negatives, the
+constraint solver is not able to report that a set of constraints is
+infeasible, just that it hasn't been able to produce a solution.
+
+As an example of this, imagine the system attempting to solve a
+specification that should yield an isoceles trapezoid and that the
+angle measures and non-parallel side lengths have been determined. The
+remaining step to fully specify the polygon is to determine how long
+the parallel sides are. If the shorter parallel side is selected to be
+specified first, any length value chosen for that side will yield a
+valid solution. However, if the longer parallel side is selected to be
+specified first, choosing too small of a length value yields a
+contradiction since the shorter parallel side must be additively
+shorter than the longer one. In this case, computing the minimum is
+possible but adding such computations to the system would require
+measuring and representing distances between arbitrary region
+structures and still does not solve the general problem of the system
+sometimes failing to solve some otherwise feasible constraint sets.
+
+The two main ways of reducing this problem are to change the order of
+how elements are selected to be specified and to change how values are
+chosen. These are the focus of several proposed extensions to the system:
 
 \subsection{Backtracking}
 
@@ -593,6 +622,23 @@ first try some neighboring values, then backtrack and try a new value
 for the previous element. After a number of failed attempts, it will
 abort and claim that at this time, it is unable to build a diagram
 satisfying the constraints.
+
+\subsection{Improved Partial Information}
+
+Increasing the complexity of partial information could help
+
+\subsection{Wiggling Existing Values}
+
+implementing more
+complex and insightful partial information representations or
+selectively backtracking
+
+Future efforts involve an improved backtrack-search mechanism if
+constraints fail, and a system of initializing the diagram with
+content from an existing figure, kicking out and wiggling arbitrary
+premises, and seeing how the resulting diagram properties respond.
+
+
 
 %%% Extra:
 
