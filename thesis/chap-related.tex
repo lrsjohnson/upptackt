@@ -4,7 +4,15 @@
 The topics of working with geometry theorems and diagrams have rich
 histories yet are still areas of active research.
 
-Despite this rich history, several examples of related work are still
+As a seminal paper in the field, in the early 1960s, Herbert Gelernter
+created a ``Geometry Theorem Proving Machine'' \cite{gelernter}. His
+machine focused on a deductive process to search for proofs and used a
+formal system based on strings of characters. In addition to purely
+logic-based inference rules, the system also asks the user requesting
+a proof to provide a coordinate-backed diagram against which the
+system checks various subgoals it is considering in a proof.
+
+Despite this long history, several examples of related work are still
 found in the proceedings of annual conferences such as \emph{Automated
   Deduction in Geometry} \cite{autoDeduction} and \emph {Diagrammatic
   Representation and Inference} \cite{diagramInference}.  In addition,
@@ -28,7 +36,17 @@ reformulations rather than inductive reasoning and exploration.
 
 \section{Automated Geometry Proof}
 
-The main focus of historic Artificial Intelligence efforts
+As opposed to my system which focuses on modeling a student's
+investigations and \emph{discoveries} about geometry, the main focus
+of historic Artificial Intelligence efforts related to geometry
+theorems was obtaining \emph{proofs} for theorems given by a
+user. Several approaches were explored both alebgraic and synthetic,
+some of which involved using diagrams in addition to purely symbolic
+manipulations \cite{chou1988mechanical},
+\cite{goldstein1973elementary}, \cite{nevins1975plane}. Texts such as
+\cite{jamnik2001mathematical} include a more detailed history and
+description of such systems. These systems generally led to long
+proofs.
 
 \section{Automated Geometry Discovery}
 Several papers also describe automated \emph{discovery} in
@@ -42,8 +60,29 @@ theorems \cite{deductiveDatabase}.  However, all of these methods
 focused either on deductive reasoning or complex algebraic
 reformulations.
 
-The effort closest to my system's approach is \cite{fromImages}. This
-paper includes \ldots
+The effort closest to my system's approach is Chen, Song and Wang's
+``Automated Generation of Geometric Theorems from Images of Diagrams''
+\cite{fromImages}. This paper includes an initial section several
+image processing algorithms for detecting points and segments from
+images, but then applies a series of heuristic strategies to determine
+which elements are particularly relevant and propose candidate
+theorems. These strategies generally involved assigning weights to
+points to determine which are ``characteristic points'' or ``points of
+attraction.'' Integrating some of these strategies into my system would be
+an interesting extension.
+
+\section{Mechanical Analogies and Geometry Constraint Solving}
+
+Ideas about solving geometry diagram constraints are related to the
+field of kinematic mechanism design and computer-aided design. Glenn
+Kramar provides a system for solving goemetry constraints in
+mechanisms \cite{kramer1992solving}, but focuses on several practical
+three-dimensional case studies with complicated joints. Summaries such
+as \cite{joan2009basics} provide more information about other
+graph-based, logic-based, and algebraic methods for solving 2D
+geometry constraints. My system builds on a propagator system by
+Alexey Radul and Gerald Jay Sussman \cite{radul-propagator} and
+applies it to simple geomtery constraints.
 
 \section{Dynamic Geometry}
 From an education perspective, there are several texts that emphasize
@@ -55,10 +94,6 @@ methods \cite{geoTransformations} while others question whether they
 appropriately encourages deductive reasoning skills
 \cite{geoTeaching}.
 
-\section{Mechanical Analogies}
-
-Ideas about solving geometry diagram constraints are related to the
-field of kinematic mechanism design.
 
 \section{Software}
 Some of these teaching methods include accompanying software such as
@@ -90,8 +125,3 @@ are drawing. This is a similar to the observations and manipulations
 in my system but requires the user to manually manipulate elements in
 the figure rather than automatically arbitrary choices in a specified
 construction.
-
-\section{Other Code Resources}
-
-As discussed in Chapter~\ref{chap:declarative},
-GJS / Radul Propagators, ghelper code, etc.
