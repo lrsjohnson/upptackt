@@ -22,7 +22,7 @@
             "core"
             "figure"
             "graphics"
-            "manipulate"
+            "solver"
             "perception"
             "learning"
             "content"))
