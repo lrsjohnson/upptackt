@@ -262,7 +262,7 @@ determine the most specific definitions each satisfies. The procedure
 obtains in \texttt{polygon-implied-observations} all
 previously-discovered facts about such shapes to remove from the final
 result and adds new polygon observations in their
-place. Example~\ref{cyc-interesting} shows a concrete example of this.
+place. Example~\ref{ortho-interesting} shows a concrete example of this.
 
 \newpage
 
@@ -299,10 +299,24 @@ demonstrated a simple example of a construction procedure that marked
 obvious properties of its results.
 
 \begin{img-example}
-[label=cyc-interesting]
+[label=ortho-interesting]
 {Substituting Polygon Observations}
-{images/inner-investigation-1.png}
-Observations
+{images/inner-investigation-2.png}
+(define (orthodiagonal-inner-polygon)
+  (let-geo*
+      (((cq (a b c d)) (random-orthodiagonal-quadrilateral))
+       (e (midpoint a b))
+       (f (midpoint b c))
+       (g (midpoint c d))
+       (h (midpoint d a))
+       (inner-p (polygon-from-points e f g h)))
+    (figure cq inner-p)))
+
+=> (length (all-observations orthodiagonal-inner-polygon))
+21
+
+=> (pprint (interesting-observations orthodiagonal-inner-polygon)
+((orthodiagonal cq) (rectangle inner-p))
 \end{img-example}
 
 \section{Discussion and Extensions}
