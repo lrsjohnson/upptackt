@@ -153,8 +153,8 @@ underlying primitive predicate and then ensuring the relevant
 conjectures are satisfied.
 
 In this nonrecursive version, the system checks that an object
-satisfies all known conjectures, but a recursive version shown later
-first checks that it satisfies the parent classifications before
+satisfies \emph{all} known conjectures. A recursive version shown
+later first checks that it satisfies the parent classifications before
 checking definition-specific conjectures that differentiate it from
 its classifications.
 
@@ -185,7 +185,7 @@ conjecture involves applying its source-procedures to a new premise
 structure for the conjecture to obtain new relationship
 arguments. These new arguments are then checked to see if they satisfy
 the underlying relationship. This process is shown in
-Listing\ref{conj-struct}. The interface procedure \texttt{is-a?}
+Listing~\ref{conj-struct}. The interface procedure \texttt{is-a?}
 creates a list of the object in question to use as the new premise.
 
 \begin{code-listing}
@@ -211,8 +211,16 @@ creates a list of the object in question to use as the new premise.
 
 \section{Examining Objects}
 
-\texttt{examine}, the last interface function shown in
-Listing~\ref{l-interface}
+Given these tests, \texttt{examine}, the last interface function shown
+in Listing~\ref{l-interface} allows a user to provide a geometry
+object and ask the system to examine it and report what it is. Its
+implementation (in Listing~\ref{l-interface}) first determines all
+terms that apply to an object and then removes terms that are
+supplanted by others in the list. It uses the procedure
+\texttt{more-specific?} to determine which terms supplant others. As
+shown in Listing~\ref{more-specific}, this procedure generates checks
+if an example object of the proposed less specific term satisfies the
+definition of the proposed more specific term.
 
 \begin{code-listing}
 [label=more-specific]
@@ -225,9 +233,31 @@ Listing~\ref{l-interface}
 
 \subsection{Maintaining the Term Lattice}
 
-Discoveries are represented within a lattice of premises (discoveries
-about quadrilaterals < discoveries about rhombuses < discoveries about
-squares, but are separate from discoveries about circles or segments).
+In addition to helping remove redundant information in results, this
+partial order on terms is used to build and maintain a lattice of
+terms in the student structure. This lattice can be rendered to a
+figure using dot/Graphviz as shown in Example~\ref{full-lattice-pic}.
+
+\begin{img-example}
+[label=full-lattice-pic,
+breakable=false,
+comment style={size=fbox,frame hidden,height=8cm}]
+{Full Definition Lattice}{images/full-lattice.png}
+=> (show-definition-lattice)
+\end{img-example}
+
+The lattice is implemented as a general lattice data structure I
+created that can be used with any partial order comparator. It
+correctly positions nodes and updates the relevant parent and child
+pointers as nodes are added and removed.
+
+Information from the lattice is used to update the derived fields of
+terms. As seen in Listing~\ref{updating-terms}, after a new definition
+term is added to the lattice, it and its child terms (determined from
+lattice) are updated. The immediate parent nodes in the lattice become
+the definitions classifications, and definition-specific conjectures
+are the set difference of all their conjectures and the conjectures
+known about their ancestors in the lattice.
 
 \begin{code-listing}
 [label=updating-terms]
@@ -251,6 +281,15 @@ squares, but are separate from discoveries about circles or segments).
     (set-definition-specific-conjectures! def new-conjectures)))
 \end{code-listing}
 
+This lattice structure allows terms definitions to build off of one
+another and allows definitions to report only . These updated
+classification and definition-specific properties are also used in the
+full version of checking when a definition holds as shown in
+Listing~\ref{def-holds-2}. This version checks that a definition
+satisfies all parent classifications first before checking the
+definition-specific conjectures that differentiate it from those
+classifications.
+
 \begin{code-listing}
 [label=def-holds-2]
 {Recursive Definition Holds}
@@ -267,6 +306,10 @@ squares, but are separate from discoveries about circles or segments).
 \end{code-listing}
 
 \subsection{Core Knowledge}
+
+To initialize the system, the student structure is provided with
+several primitive definitions at startup as shown in
+Listing~\ref{core-knowledge}.
 
 \begin{code-listing}
 [label=core-knowledge]
@@ -294,7 +337,9 @@ parallelograms, not just rectangles). However, reconciling mixed
 information about what constitutes a term could be an interesting
 extension.
 
-\begin{code-listing}{Learning a new term}
+\begin{code-listing}
+[label=learn-term]
+{Learning a new term}
 (define (learn-term term object-generator)
   (if (term-known? term) (error "Term already known:" term))
   (let ((term-example (name-polygon (object-generator))))
@@ -304,12 +349,11 @@ extension.
            (conjectures (map conjecture-from-observation observations)))
       (pprint conjectures)
       (let ((new-def
-             (make-restrictions-definition term object-generator
+             (make-definition term object-generator
                 primitive-predicate conjectures)))
         (add-definition! new-def)
         (check-new-def new-def)
         'done))))
-
 
 (define (conjecture-from-observation obs)
   (make-conjecture
@@ -318,22 +362,54 @@ extension.
    (observation-relationship obs)))
 \end{code-listing}
 
+Listing~\ref{learn-term} shows the implementation of the
+\texttt{learn-term} procedure. It uses the provided generator
+procedure to produce an example object for the term, creates a figure
+with that object as its premise and obtains observations. These
+observations are converted to conjectures via
+\texttt{conjecture-from-observation} and the resulting definition is
+added to the student dictionary and term lattice.
+
 \subsection{Performing Investigations}
 
-Investigations are similar to analyzing various figures above except
-that they have the intent of the analysis results being placed in the
-geometry knowledge repository. This separation also allows for
-dependence information about where properties were derived from.
-
-Given the lattice structure of definitions, an interesting question
-when exploring new investigations is whether the given
+As demonstrated in Example~\ref{diag-investigation} (page
+\pageref{diag-investigation}), the learning module also supports
+investigations to learn conjectures based on elements constructed from
+the base element.  Performing investigations are similar to learning
+terms except that, rather than providing a procedure that just
+generates an example of the term in consideration, an investigation
+uses a procedure which takes an instance of the premise (polygon in
+these cases) and constructs an entire figure to analyze. In addition
+to reporting the interesting observations of such investigations,
+conjectures for new observations derived by that investigation are
+added to the definition for the term under investigation.
 
 \section{Simplifying Definitions}
 
-To simplify definitions, we interface with the constraint solver
-observations->figure to convert our observations back into a figure.
+As properties accumulate from analysis and investigation, the need to
+satisfy all known properties for a shape overconstraints the resulting
+definitions. Thus, the final role of the learning module is to
+simplify term definitions by checking declarative constraints.
 
-\begin{code-listing}{Simplifying Definitions}
+As seen in Listing~\ref{simple-def}, \texttt{get-simple-definitions}
+takes a known term, looks up the known properties for that term, and
+tests all reasonable subsets of those properties as constraints using
+the constraint solver. For each subset of properties, if the
+constraint solver was able to create a diagram satisfying exactly
+those properties, the resulting diagram is checked using with the
+\texttt{is-a?} procedure to see if all the other known properties of
+the original term still hold.
+
+If so, the subset of properties is reported as a sufficient definition
+of the term, and if the resulting diagram fails some properties, the
+subset is reported as an insufficient set of constraints. These
+resulting sufficient definitions can be treated as equivalent, simpler
+definitions and used as the premises in new theorems about the
+objects.
+
+\begin{code-listing}
+[label=simple-def]
+{Simplifying Definitions}
 (define (get-simple-definitions term)
   (let ((def (lookup term))
         (simple-def-result (make-simple-definitions-result)))
@@ -348,20 +424,35 @@ observations->figure to convert our observations back into a figure.
              (let ((polygon
                     (polygon-from-object-observations object obs-subset)))
                ((cond ((false? polygon) mark-unknown-simple-def!)
-                      ((is-a? term polygon)
-                       (begin (pp "=> Sufficient")
-                              mark-sufficient-simple-def!))
-                      (else (begin (pp "=> Insufficient")
-                                   mark-insufficient-simple-def!)))
+                      ((is-a? term polygon) mark-sufficient-simple-def!)
+                      (else mark-insufficient-simple-def!))
                 simple-def-result obs-subset)
                (simplify-definitions-result! simple-def-result))
              (pprint `(skipping ,obs-subset))))
        (shuffle (all-subsets eligible-observations)))
-      (pprint simple-def-result)
       simple-def-result)))
 \end{code-listing}
 
-\begin{code-listing}{Converting Observations to a Figure}
+The \texttt{simple-definitions-result} structure maintains information
+about what subsets are known to sufficient or insufficient as the
+analysis proceeds and provides the predicate
+\texttt{simple-def-should-test?} to skip over subsets where the result
+is already known.
+
+The main workhorse in this definition simplification process is the
+procedure \texttt{polygon-from-object-observations}. It interfaces
+with the constraint solver via observations->figure to convert our
+observations back into a figure. Its implementation is shown below in
+Listing~\ref{convert-obs}. The object provided is used to determine
+the topology and names of bars and linkages in the mechanism and the
+objects in the observation structures in the provided observation
+subset is used to add the necessary mechanism constraints. If the
+declarative system can solve the mechanism, it once again uses the
+element names to extract the resulting object and return the a figure.
+
+\begin{code-listing}
+[label=convert-obs]
+{Converting Observations to a Figure}
 (define (polygon-from-object-observations object obs-subset)
   (let* ((topology (topology-for-object object))
          (new-figure (observations->figure topology obs-subset)))
@@ -383,6 +474,19 @@ observations->figure to convert our observations back into a figure.
            fig))
 \end{code-listing}
 
+\newpage
 \section{Discussion}
 
-%% Old Stuff:
+The learning module has been able to successfully integrate with the
+other system modules to discover and learn dozens of simple elementary
+geometry terms and theorems through its investigations. These include
+simple properties such as ``the base angles in an isoceles triangle
+are congruent,'' derived properties such as ``the diagonals of a
+rhombus are orthogonal and bisect one another'' or ``the polygon found
+by connecting consecutive side midpoints of an orthodiagonal
+quadrilateral is always a rectangle,'' and simplified definitions such
+as ``a quadrilateral with two pairs of congruent opposite angles is a
+parallelogram.''
+
+The current system has focused on discoveries related to
+polygons. Further extensions of the module could.

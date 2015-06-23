@@ -126,10 +126,10 @@
 
 (define (simplify-definitions-result! def-result)
   (set-simple-def-result-sufficient! def-result
-   (remove-supplants eq-subset?
+   (remove-supplanted eq-subset?
                      (simple-def-result-sufficient def-result)))
   (set-simple-def-result-insufficient! def-result
-   (remove-supplants (flip-args eq-subset?)
+   (remove-supplanted (flip-args eq-subset?)
                      (simple-def-result-insufficient def-result)))
   ;; Subsets of any insufficient ones are insufficient
   (set-simple-def-result-unknown! def-result

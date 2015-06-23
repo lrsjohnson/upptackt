@@ -59,7 +59,7 @@
           (lambda (term)
             (is-a? term object))
           (known-terms))))
-    (remove-supplants more-specific? satisfying-terms)))
+    (remove-supplanted more-specific? satisfying-terms)))
 
 (define (examine-primitive object)
   (let ((satisfying-terms
@@ -69,7 +69,7 @@
                  (is-a? term object)))
           (known-terms))))
     (pp satisfying-terms)
-    (remove-supplants more-specific? satisfying-terms)))
+    (remove-supplanted more-specific? satisfying-terms)))
 
 (define (show-definition-lattice)
   (show-lattice (definition-lattice)))

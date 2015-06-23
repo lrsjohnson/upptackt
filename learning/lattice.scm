@@ -175,7 +175,7 @@
   (let ((children (dedupe-by eq? (lattice-node-children node))))
     (set-lattice-node-children!
      node
-     (remove-supplants
+     (remove-supplanted
       (lattice-partial-order-proc lattice)
       children))))
 
@@ -183,7 +183,7 @@
   (let ((parents (dedupe-by eq? (lattice-node-parents node))))
     (set-lattice-node-parents!
      node
-     (remove-supplants
+     (remove-supplanted
       (flip-args (lattice-partial-order-proc lattice))
       parents))))
 

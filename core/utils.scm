@@ -154,9 +154,9 @@
 ;;; supplanted-by-prediate takes two args: an element under consideration
 ;;; and an existing element in the list. If true, the first element
 ;;; will be removed from the list.
-(define (remove-supplants supplanted-by-predicate elements)
+(define (remove-supplanted supplants-predicate elements)
   (define member-predicate (member-procedure
-                            supplanted-by-predicate))
+                            supplants-predicate))
   (let lp ((elements-tail elements)
            (elements-head '()))
     (if (null? elements-tail)
