@@ -2,14 +2,18 @@
 \label{chap:code}
 
 This chapter contains code listings for the thesis presented in this
-thesis. Code is implemented using MIT Scheme 9.2
+thesis. Code is implemented using MIT Scheme 9.2. In addition to the
+code provided here, the system is dependent on the propagator system
+used in Alexey Radul and Gerald Jay Sussman's \emph{Revised Report on
+  the Propagator Model} available at
+\url{http://groups.csail.mit.edu/mac/users/gjs/propagators/}.
 
-\section{Repository Structure}
-
-\section{External Dependencies}
-
-GJS Propagator system, some scmutils, ghelper, eq-properties.
-
+The three files in \texttt{lib/} are code used with permission from
+external sources, and include excerpts of code created by Gerald
+Sussman and others from the MIT Scheme Mechanics Library
+\cite{scmutils}. These excerpts handle numeric accuracy, generic
+operations, and hash-table based eq-properties. All other code in
+these listings is written by me for this thesis.
 
 \lstlistoflistings
 
@@ -32,9 +36,9 @@ GJS Propagator system, some scmutils, ghelper, eq-properties.
 \begin{landscape}
 \begin{multicols}{2}
 \includecode{load.scm}
-\includecode{main.scm}
 
-\includecode{figure/load.scm}
+%\includecode{learning/walkthrough.scm}
+
 \includecode{figure/core.scm}
 \includecode{figure/line.scm}
 \includecode{figure/direction.scm}
@@ -53,17 +57,15 @@ GJS Propagator system, some scmutils, ghelper, eq-properties.
 \includecode{figure/dependencies.scm}
 \includecode{figure/randomness.scm}
 \includecode{figure/transforms.scm}
+\includecode{figure/direction-interval.scm}
 
-\includecode{perception/load.scm}
+\includecode{perception/relationship.scm}
 \includecode{perception/observation.scm}
 \includecode{perception/analyzer.scm}
 
-
-\includecode{graphics/load.scm}
 \includecode{graphics/appearance.scm}
 \includecode{graphics/graphics.scm}
 
-\includecode{manipulate/load.scm}
 \includecode{manipulate/linkages.scm}
 \includecode{manipulate/region.scm}
 \includecode{manipulate/constraints.scm}
@@ -71,20 +73,17 @@ GJS Propagator system, some scmutils, ghelper, eq-properties.
 \includecode{manipulate/mechanism.scm}
 \includecode{manipulate/main.scm}
 
-\includecode{learning/load.scm}
-\includecode{learning/core-knowledge.scm}
+\includecode{learning/interface.scm}
 \includecode{learning/lattice.scm}
 \includecode{learning/definitions.scm}
 \includecode{learning/conjecture.scm}
 \includecode{learning/simplifier.scm}
 \includecode{learning/student.scm}
-\includecode{learning/walkthrough.scm}
+\includecode{learning/core-knowledge.scm}
+\includecode{learning/investigation.scm}
 
-\includecode{content/load.scm}
 %\includecode{content/investigations.scm}
-\includecode{content/thesis-demos.scm}
 
-\includecode{core/load.scm}
 \includecode{core/animation.scm}
 \includecode{core/macros.scm}
 \includecode{core/print.scm}
