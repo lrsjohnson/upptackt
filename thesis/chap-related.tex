@@ -1,8 +1,10 @@
 \chapter{Related Work}
 \label{chap:related-work}
 
-The topics of automating geometric proofs and working with diagrams
-are areas of active research.  Several examples of related work can be
+The topics of working with geometry theorems and diagrams have rich
+histories yet are still areas of active research.
+
+Despite this rich history, several examples of related work are still
 found in the proceedings of annual conferences such as \emph{Automated
   Deduction in Geometry} \cite{autoDeduction} and \emph {Diagrammatic
   Representation and Inference} \cite{diagramInference}.  In addition,
@@ -13,11 +15,35 @@ images of diagrams \cite{fromImages}, and a paper by Seo and
 Hajishirzi describes using textual descriptions of problems to improve
 recognition of their accompanying figures \cite{diagramUnderstanding}.
 
-Further related work includes descriptions of the educational impacts
-of dynamic geometry approaches and some software to explore geometric
-diagrams and proofs.  However, such software typically uses alternate
-approaches to automate such processes, and few focus on inductive
-reasoning.
+The main areas of work related to my thesis are automated geometry
+theorem proof, automated geometry theorem discovery, and mechanical
+analogs of geometry concepts. After explaining some systems in these
+areas, I will discuss further related work including descriptions of
+the educational impacts of dynamic geometry approaches and some
+software to explore geometric diagrams and proofs.
+
+Some systems use techniques similar to those in this system's modules,
+but most approaches focus on deductive proof or complicated algebraic
+reformulations rather than inductive reasoning and exploration.
+
+\section{Automated Geometry Proof}
+
+The main focus of historic Artificial Intelligence efforts
+
+\section{Automated Geometry Discovery}
+Several papers also describe automated \emph{discovery} in
+geometry. However, most of these use alternate, more algebraic methods
+to find and prove theorems.  These approaches include an area method
+\cite{autoTools}, Wu's Method involving systems of polynomial
+equations \cite{wuMethod}, and a system based on Gr\"obner Bases
+\cite{grobner}.  Some papers discuss reasoning systems including the
+construction and application of a deductive database of geometric
+theorems \cite{deductiveDatabase}.  However, all of these methods
+focused either on deductive reasoning or complex algebraic
+reformulations.
+
+The effort closest to my system's approach is \cite{fromImages}. This
+paper includes \ldots
 
 \section{Dynamic Geometry}
 From an education perspective, there are several texts that emphasize
@@ -28,6 +54,11 @@ this thesis project.  Some researchers praise these investigative
 methods \cite{geoTransformations} while others question whether they
 appropriately encourages deductive reasoning skills
 \cite{geoTeaching}.
+
+\section{Mechanical Analogies}
+
+Ideas about solving geometry diagram constraints are related to the
+field of kinematic mechanism design.
 
 \section{Software}
 Some of these teaching methods include accompanying software such as
@@ -41,29 +72,26 @@ features.  For instance, GeoProof \cite{geoProof} integrates diagram
 construction with verified proofs using a number of symbolic methods
 carried out by the Coq Proof Assistant, and Geometry Explorer
 \cite{geoExplorer} uses a full-angle method of chasing angle relations
-to check assertions requested by the user.  However, almost none of
-the software described simulates the exploratory, inductive
+to check assertions requested by the user.  However, none of the
+software described simulates or automates the exploratory, inductive
 investigation process used by students first discovering new
 conjectures.
 
-The closest example is Geometer
+One interesting piece of software is Geometer \cite{geometer} created
+by Tom Davis. Like the other programs, Geometer is primarily a user
+interface for accurately constructing diagrams. It doesn't attempt to
+produce or prove theorems, but does have a ``Test Diagram'' mode. When
+this mode is activated, the user can wiggle elements in the digram as
+they please. When ``End Test'' is selected, the program lists all
+features that were maintained during the users' manipulations. The
+creator claims that these observations can be useful components for a
+user attempting to deductively prove a theorem about the figure they
+are drawing. This is a similar to the observations and manipulations
+in my system but requires the user to manually manipulate elements in
+the figure rather than automatically arbitrary choices in a specified
+construction.
 
-\section{Mechanical Analogies to Geometry Constraint Solving}
+\section{Other Code Resources}
 
-Books about Mechanical Analogies
-
-\section{Automated Proof and Discovery}
-Although there are several papers that describe automated discovery or
-proof in geometry, most of these use alternate, more algebraic methods
-to prove theorems.  These approaches include an area method
-\cite{autoTools}, Wu's Method involving systems of polynomial
-equations \cite{wuMethod}, and a system based on Gr\"obner Bases
-\cite{grobner}.  Some papers discuss reasoning systems including the
-construction and application of a deductive database of geometric
-theorems \cite{deductiveDatabase}.  However, all of these methods
-focused either on deductive reasoning or complex algebraic
-reformulations.
-
-\section{Other Resources}
-
+As discussed in Chapter~\ref{chap:declarative},
 GJS / Radul Propagators, ghelper code, etc.
