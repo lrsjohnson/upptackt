@@ -187,51 +187,61 @@ before explaining linkages and how mechanisms are built and solved.
 
 Radul's propagation system typically used numeric intervals for
 partial information. The declarative constraint solver uses standard
-some numeric intervals, but also
+some numeric intervals, but also uses its own module-specific partial
+information structures. These include \texttt{regions} and
+\texttt{direction-intervals}, described below:
 
 \subsection{Regions}
 
-Propagating partial information across bars and joints yields a new
-region system: Regions include point sets of one or more possible
-points, an entire ray, or an entire arc. These rays and arcs are
-from an anchored bar with only one of direction or length specified,
-for instance.
+Regions are the partial information structure for point locations and
+represent subsets of the plane where the points could be
+located. These could be arbitrarily complex regions of the plane, but
+the module currently implements point sets, rays, and arcs as shown in
+Listing~\ref{regions}. As new information about locations are
+provided, regions are merged by intersection. A contradiction region
+represents an empty region.
 
+\enlargethispage*{\baselineskip}
 \begin{code-listing}
 [label=regions]
 {Region Structures}
 (define-record-type <m:point-set>
-  (%m:make-point-set points)
-  m:point-set? ...)
-
-(define-record-type <m:arc>
-  (m:make-arc center-point radius dir-interval)
-  m:arc? ...)
+  (%m:make-point-set points) ...)
 
 (define-record-type <m:ray>
-  (%m:make-ray endpoint direction)
-  m:ray? ...)
+  (%m:make-ray endpoint direction) ...)
+
+(define-record-type <m:arc>
+  (m:make-arc center-point radius dir-interval) ...)
 
 (define-record-type <m:region-contradiction>
-  (m:make-region-contradiction error-regions)
-  m:region-contradiction? ...)
+  (m:make-region-contradiction error-regions) ...)
+
+(defhandler merge m:intersect-regions m:region? m:region?)
 \end{code-listing}
 
 \subsection{Direction Intervals}
 
-Ranges of intervals. Full circle + invalid intervals. Adding and
-subtracting intervals of direction and thetas gets complicated at times.
-
-Challenges with intersection, multiple segments. Eventually just
-return nothing is okay.
+In addition, a module-specific direction interval structure is used
+for the partial information about directions. Several additional
+utilities were needed for working with and merging direction intervals
+since directions form a periodic range $[0,2\pi)$. Currently, the
+  subsystem treats an intersection of direction intervals that would
+  yield multiple distinct direction intervals as providing no
+  new information.
 
 \section{Linkages and Basic Constraints}
 
-The solver uses bar and joint linkages.
+The solver uses bar and joint linkages to represent segments and
+angles. These structures are composed of propagator cells storing
+information about locations, lengths, directions, and angles. To
+assist with some of the propagation between these cells, the module
+uses substructures for and vectors.
 
-Bars have endpoints, directions and length. Joints have a vertex point
-and two directions. Currently, most joints are directioned and have
-max value of 180 degrees.
+Point structures contain both numeric Cartesian coordinates and a cell
+containing Region structures. The propagators \texttt{m:x-y->region}
+and \texttt{m:region->x,y} transform location information between
+these representations.
 
 \begin{code-listing}
 [label=point-region]
@@ -252,8 +262,10 @@ max value of 180 degrees.
       (point-x (m:singular-point-set-point region))
       nothing))
 (propagatify m:region->x)
-(propagatify m:region->y)
 \end{code-listing}
+
+Vectors represent the difference between two point and bidirectionally
+propagate rectangular and polar information about the vector.
 
 \begin{code-listing}
 [label=vec-struct]
@@ -268,6 +280,16 @@ max value of 180 degrees.
     (p:* length (e:direction-sin direction) dy)
     (%m:make-vec dx dy length direction)))
 \end{code-listing}
+
+\subsection{Bar Structure and Constraints}
+
+As seen in Listing~\ref{bar-struct}, bar structure contains two
+\texttt{m:point}s and a \texttt{m:vec} representing the distance and
+direction between the points. The bar links these structures together
+using simple bidirectional constraints on the coordinates. These
+constrains will only propagate information when the bar's length and
+direction are fully specified. \texttt{m:p1->p2-bar-propagator}
+handles the other cases.
 
 \begin{code-listing}
 [label=bar-struct]
@@ -286,9 +308,17 @@ max value of 180 degrees.
       bar)))
 \end{code-listing}
 
+The propagators specified by \texttt{m:p1->p2-bar-propagator} shown in
+Listing~\ref{bar-propagator} propagate partial information about point
+locations based on whether the bar's direction or length is
+determined. \texttt{m:x-y-length-di->region} handles the case where
+only the length of the bar is specifies and adds information to the
+other endpoint's region cell that it is on the arc formed from the
+bar's length and current direction interval.
+
 \begin{code-listing}
 [label=bar-propagator]
-{Bar Propagator}
+{Bar Region Propagator}
 (define (m:p1->p2-bar-propagator p1 p2 bar)
   (let ((p1x (m:point-x p1))
         (p1y (m:point-y p1))
@@ -299,7 +329,6 @@ max value of 180 degrees.
     (p:m:x-y-direction->region p1x p1y dir p2r)
     (p:m:x-y-length-di->region p1x p1y length dir p2r)
     (p:m:region-length-direction->region p1r length dir p2r)))
-
 (define (m:x-y-length-di->region px py length dir-interval)
   (if (direction-interval? dir-interval)
       (let ((vertex (make-point px py)))
@@ -308,7 +337,15 @@ max value of 180 degrees.
 (propagatify m:x-y-length-di->region)
 \end{code-listing}
 
-\subsection{Joint Constraints}
+\subsection{Joint Structure and Constraints}
+
+Joints are represented by a vertex point, two directions, and an angle
+representing the measure between the directions. Propagators express
+this relationship between the direction. Special mechanism-specific
+operators adding and subtracting directions were created since both
+the direction and angle argument could be intervals. Creating
+a joint also initializes its measure to the range $[0, \pi]$.
+
 \begin{code-listing}
 {Joint Constraints}
 (define (m:make-joint)
@@ -321,16 +358,25 @@ max value of 180 degrees.
       (%m:make-joint vertex dir-1 dir-2 theta))))
 \end{code-listing}
 
+\enlargethispage*{\baselineskip}
 \section{User-specified Constraints}
 
-\begin{code-listing}{User Constraints}
-(define-record-type <m:constraint>
-  (m:make-constraint type args constraint-procedure)
-  m:constraint?
-  (type m:constraint-type)
-  (args m:constraint-args)
-  (constraint-procedure m:constraint-procedure))
+In addition to constraints resulting from the bar and joint
+connections, users can specify constraints on the
+mechanism. Listing~\ref{constraint-struct} shows the structure for a
+user constraint. These structures include a name, a list of bar or
+joint identifiers the constraint applies to and a procedure used to
+apply the constraint.
 
+\begin{code-listing}
+[label=constraint-struct]
+{User Constraints}
+(define-record-type <m:constraint>
+  (m:make-constraint type args constraint-procedure) ...)
+\end{code-listing}
+\begin{code-listing}
+[label=bar-eq]
+{Bar Length Equality}
 (define (m:c-length-equal bar-id-1 bar-id-2)
   (m:make-constraint
    'm:c-length-equal
@@ -342,14 +388,215 @@ max value of 180 degrees.
              (m:bar-length bar-2))))))
 \end{code-listing}
 
-Angle sum of polygon, or scan through polygon and ensure that the
-angles don't not match. Example is equilateral triangle, for
-instance... Could also observe always ``60 degrees'' as an interesting
-fact and put that in as a constraint. They're alebgraically quite
-similar, but my propagators currently don't perform symbolic algebra.
+This constraint procedure takes the assembled mechanism as its
+argument. As shown in Listing~\ref{bar-eq}, such procedures
+typically look up mechanism elements by bar or joint identifiers and
+introduce additional constraints. In \texttt{m:c-length-equal}, the
+lengths of the two bars are set to be identical to one another.
 
-\subsection{Slices}
+\subsection{Slice Constraints}
 
+In addition to general user constraints, mechanisms are also support
+slice constraints. These slices are structured in the manner as
+constraints but are applied after all other user constraints, and thus
+can use information about user constraints in adding their
+propagators. In particular, the system uses slices to determine the
+values of cells that are constrained as equal to one another within a
+sum, once the total of the sum and all other cells in the sum have
+been determined. This process is inspired by Gerald Jay Sussman's use
+of slices to represent local patterns and help determine values in
+propagation networks for circuit design \cite{gjs-slices}.
+
+\section{Assembling Mechanisms}
+\enlargethispage*{\baselineskip}
+
+Mechanism structures in the declarative system are the analogs of
+figures from the imperative system.  Here, instead of grouping
+geometry elements, the mechanism group linkages and constraints. As
+seen in Listing~\ref{mechanism-struct}, \texttt{m:mechanism} will
+flatten and separate its arguments. Then, in addition to storing the
+components in a record \texttt{m:make-mechanism} will also hash tables
+for looking up bars and joints by their endpoint and vertex names.
+
+\begin{code-listing}
+[label=mechanism-struct]
+{Mechanism Structure}
+(define-record-type <m:mechanism>
+    (%m:make-mechanism bars joints constraints slices
+                        bar-table joint-table joint-by-vertex-table)...)
+
+(define (m:mechanism . args)
+  (let ((elements (flatten args)))
+    (let ((bars (m:dedupe-bars (filter m:bar? elements)))
+          (joints (filter m:joint? elements))
+          (constraints (filter m:constraint? elements))
+          (slices (filter m:slice? elements)))
+      (m:make-mechanism bars joints constraints slices))))
+\end{code-listing}
+
+To assist with specifying the bars and joints for a closed polygon,
+the utility \texttt{m:establish-polygon-topology} is often used. The
+procedure takes $n$ vertex names as its arguments and returns $n$ bars
+and $n$ joints. It uses the linkage constructors
+\texttt{m:make-named-*} to attach names to the structures.  Such names
+are later used to attach linkages to one another and to lookup
+elements in constraint procedures.
+
+\begin{code-listing}
+[label=est-topo]
+{Establishing Topology}
+(define (m:establish-polygon-topology . point-names)
+  (if (< (length point-names) 3)
+      (error "Min polygon size: 3"))
+  (let ((extended-point-names
+         (append point-names (list (car point-names) (cadr point-names)))))
+    (let ((bars (map (lambda (p1-name p2-name)
+                       (m:make-named-bar p1-name p2-name))
+                     point-names (cdr extended-point-names)))
+          (joints (map (lambda (p1-name vertex-name p2-name)
+                         (m:make-named-joint p1-name vertex-name p2-name))
+                       (cddr extended-point-names)
+                       (cdr extended-point-names)
+                       point-names)))
+      (append bars joints
+              (list (m:polygon-sum-slice (map m:joint-name joints)))))))
+\end{code-listing}
+
+Once specified, mechanisms can be assembled using
+\texttt{m:build-mechanism}.  That procedure first identifies all joint
+vertices with the same names as being identical to one another to
+handle topologies in which multiple joints share vertices. Then it
+assembles bars and joints based on their names.
+
+\begin{code-listing}
+{Building Mechanisms}
+(define (m:build-mechanism m)
+  (m:identify-vertices m)
+  (m:assemble-linkages (m:mechanism-bars m)
+                       (m:mechanism-joints m))
+  (m:apply-mechanism-constraints m)
+  (m:apply-slices m))
+\end{code-listing}
+
+When assembling the mechanism, bars are identified into or out of the
+arms of joints that share their names. Joints names refer to the three
+vertices they connect and bar names refer to their two endpoint
+vertices.  \texttt{m:identify-into-arm-1} demonstrates how bars and
+joints get attached to one another. Corresponding point locations and
+directions are constrained to be identical to one another via
+\texttt{c:id}. Identifying two points involves identifying all of its
+component properties.
+
+\begin{code-listing}
+[label=identifying-points]
+{Identifying points}
+(define (m:identify-into-arm-1 joint bar)
+  (m:set-joint-arm-1 joint bar)
+  (m:identify-points (m:joint-vertex joint) (m:bar-p2 bar))
+  (c:id (ce:reverse-direction (m:joint-dir-1 joint))
+        (m:bar-direction bar)))
+
+(define (m:identify-points p1 p2)
+  (for-each (lambda (getter)
+              (c:id (getter p1) (getter p2)))
+            (list m:point-x m:point-y m:point-region)))
+\end{code-listing}
+
+\section{Solving Mechanisms}
+
+Once assembled, mechanisms can be solved via
+\texttt{m:solve-mechanism}. Solving a mechanism involves repeatedly
+selecting position, lengths, angles, and directions that are not fully
+specified and selecting values within the domain of that element's
+current partial information structure. As values are specified, the
+constraint wiring of the propagator model propagates updated partial
+information to other values.
+
+
+\begin{code-listing}
+[label=solve-mechanism]
+{Solving Mechanisms}
+(define (m:solve-mechanism m)
+  (m:initialize-solve)
+  (let lp ()
+    (run)
+    (cond ((m:mechanism-contradictory? m)
+           (m:draw-mechanism m c)
+           #f)
+          ((not (m:mechanism-fully-specified? m))
+           (if (m:specify-something m)
+               (lp)
+               (error "Couldn't find anything to specify.")))
+          (else 'mechanism-built))))
+\end{code-listing}
+
+The ordering of what is specified is guided by a heuristic in
+\texttt{m:specify-something}. This heuristic was determined
+empirically and helps the majority the examples considered converge to
+solutions. It generally prefers specifying the most constrained values
+first. However, in some scenarios, specifying values in the wrong
+order can yield premature contradictions. Additionally, sometimes
+partial information about a value is incomplete and picking a value
+arbitrarily may fail. A planned extension will attempt to recover from
+such situations more gracefully by trying other values or orderings
+for specifying components.
+
+The system uses \texttt{m:instantiate} to add content to cells. As
+seen in Listing~\ref{specify-something}, \texttt{m:instantiate} wraps
+the value in a truth management system structure provided by Radul's
+propagator system. These structures maintain dependencies for values, can report
+which sets of premises are at odds with one another and allow
+individual choices to be removed and replaced with new values.
+\enlargethispage*{\baselineskip}
+\begin{code-listing}
+[label=specify-something]
+{Specifying and Instantiating Values}
+(define (m:specify-something m)
+  (or
+   (m:specify-bar-if m m:constrained?)
+   (m:specify-joint-if m m:constrained?)
+   (m:specify-joint-if m m:joint-anchored-and-arm-lengths-specified?)
+   (m:initialize-bar-if m m:bar-length-specified?)
+   ...)
+
+(define (m:instantiate cell value premise)
+  (add-content cell (make-tms (contingent value (list premise)))))
+\end{code-listing}
+
+\subsection{Interfacing with imperative diagrams}
+
+Finally, as shown in Listing~\ref{to-figure},
+\texttt{m:mechanism->figure} can convert fully specified mechanisms
+into their corresponding figures so they can be observed and analyzed.
+
+\begin{code-listing}
+[label=to-figure]
+{Converting to Figure}
+(define (m:mechanism->figure m)
+  (let ((points (map m:joint->figure-point (m:mechanism-joints m)))
+        (segments (map m:bar->figure-segment (m:mechanism-bars m)))
+        (angles (map m:joint->figure-angle (m:mechanism-joints m))))
+    (apply figure (filter identity (append points segments angles)))))
+\end{code-listing}
+
+\section{Discussion and Extensions}
+
+Future efforts involve an improved backtrack-search mechanism if
+constraints fail, and a system of initializing the diagram with
+content from an existing figure, kicking out and wiggling arbitrary
+premises, and seeing how the resulting diagram properties respond.
+
+\subsection{Backtracking}
+
+If it can't build a figure with a given set of specifications, it will
+first try some neighboring values, then backtrack and try a new value
+for the previous element. After a number of failed attempts, it will
+abort and claim that at this time, it is unable to build a diagram
+satisfying the constraints.
+
+%%% Extra:
+
+\if false
 \begin{code-listing}
 [label=sum-slice]
 {Sum Slice}
@@ -387,141 +634,5 @@ similar, but my propagators currently don't perform symbolic algebra.
    m:joints-constrained-equal-to-one-another? total-sum))
 \end{code-listing}
 
-\section{Building Mechanisms}
 
-The Mechanism in our declarative system is analogous to Figure,
-grouping elements. Also computes various caching and lookup tables to
-more easily access elements.
-
-\begin{code-listing}
-[label=mechanism-struct]
-{Mechanism Structure}
-(define-record-type <m:mechanism>
-    (%m:make-mechanism bars joints constraints slices
-                       bar-table joint-table joint-by-vertex-table)
-    m:mechanism? ...)
-
-(define (m:mechanism . args)
-  (let ((elements (flatten args)))
-    (let ((bars (m:dedupe-bars (filter m:bar? elements)))
-          (joints (filter m:joint? elements))
-          (constraints (filter m:constraint? elements))
-          (slices (filter m:slice? elements)))
-      (m:make-mechanism bars joints constraints slices))))
-\end{code-listing}
-
-\begin{code-listing}
-[label=est-topo]
-{Establishing Topology}
-(define (m:establish-polygon-topology . point-names)
-  (if (< (length point-names) 3)
-      (error "Min polygon size: 3"))
-  (let ((extended-point-names
-         (append point-names (list (car point-names) (cadr point-names)))))
-    (let ((bars (map (lambda (p1-name p2-name)
-                       (m:make-named-bar p1-name p2-name))
-                     point-names
-                     (cdr extended-point-names)))
-          (joints (map (lambda (p1-name vertex-name p2-name)
-                         (m:make-named-joint p1-name vertex-name p2-name))
-                       (cddr extended-point-names)
-                       (cdr extended-point-names)
-                       point-names)))
-      (append bars joints
-              (list (m:polygon-sum-slice (map m:joint-name joints)))))))
-\end{code-listing}
-
-\begin{code-listing}
-{Building Mechanisms}
-(define (m:build-mechanism m)
-  (m:identify-vertices m)
-  (m:assemble-linkages (m:mechanism-bars m)
-                       (m:mechanism-joints m))
-  (m:apply-mechanism-constraints m)
-  (m:apply-slices m))
-\end{code-listing}
-
-\begin{code-listing}
-[label=identifying-points]
-{Identifying points}
-(define (m:identify-into-arm-1 joint bar)
-  (m:set-joint-arm-1 joint bar)
-  (m:identify-points (m:joint-vertex joint)
-                     (m:bar-p2 bar))
-  (c:id (ce:reverse-direction (m:joint-dir-1 joint))
-        (m:bar-direction bar)))
-
-(define (m:identify-points p1 p2)
-  (for-each (lambda (getter)
-              (c:id (getter p1)
-                    (getter p2)))
-            (list m:point-x m:point-y m:point-region)))
-\end{code-listing}
-
-\section{Solving Mechanisms}
-
-\begin{code-listing}
-[label=solve-mechanism]
-{Solving Mechanisms}
-(define (m:solve-mechanism m)
-  (m:initialize-solve)
-  (let lp ()
-    (run)
-    (cond ((m:mechanism-contradictory? m)
-           (m:draw-mechanism m c)
-           #f)
-          ((not (m:mechanism-fully-specified? m))
-           (if (m:specify-something m)
-               (lp)
-               (error "Couldn't find anything to specify.")))
-          (else 'mechanism-built))))
-\end{code-listing}
-
-\begin{code-listing}
-[label=specify-something]
-{Specifying and Instantiating Values}
-(define (m:specify-something m)
-  (or
-   (m:specify-bar-if m m:constrained?)
-   (m:specify-joint-if m m:constrained?)
-   (m:specify-joint-if m m:joint-anchored-and-arm-lengths-specified?)
-   (m:initialize-bar-if m m:bar-length-specified?)
-   ...)
-
-(define (m:instantiate cell value premise)
-  (add-content cell
-    (make-tms (contingent value (list premise)))))
-\end{code-listing}
-
-
-Given a wired diagram, process is repeatedly specifying values for elements
-
-
-\subsection{Interfacing with existing diagrams}
-
-Converts between figures and symbolic relationships.
-
-\begin{code-listing}
-[label=to-figure]
-{Converting to Figure}
-(define (m:mechanism->figure m)
-  (let ((points (map m:joint->figure-point (m:mechanism-joints m)))
-        (segments (map m:bar->figure-segment (m:mechanism-bars m)))
-        (angles (map m:joint->figure-angle (m:mechanism-joints m))))
-    (apply figure (filter identity (append points segments angles)))))
-\end{code-listing}
-
-\section{Discussion and Extensions}
-
-Future efforts involve an improved backtrack-search mechanism if
-constraints fail, and a system of initializing the diagram with
-content from an existing figure, kicking out and wiggling arbitrary
-premises, and seeing how the resulting diagram properties respond.
-
-\subsection{Backtracking}
-
-If it can't build a figure with a given set of specifications, it will
-first try some neighboring values, then backtrack and try a new value
-for the previous element. After a number of failed attempts, it will
-abort and claim that at this time, it is unable to build a diagram
-satisfying the constraints.
+\fi
