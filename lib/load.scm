@@ -1,7 +1,6 @@
 ;;; load.scm -- Load core
 (load-module "propagator")
 (for-each (lambda (f) (load f))
-          '("stack-queue"
+          '("close-enuf"
             "ghelper"
-            "scmutils-basic"
-            "multimin"))
+            "scmutils-basic"))

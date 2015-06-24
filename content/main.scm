@@ -127,8 +127,7 @@
        (let ((current-figure (current-figure-proc)))
          (draw-figure current-figure c)
          (let ((analysis-results (analyze-figure current-figure)))
-           (save-results (print analysis-results) analysis-data))
-         )))
+           (save-results (print analysis-results) analysis-data)))))
     (display "--- Results ---\n")
     (print-analysis-results analysis-data)))
 

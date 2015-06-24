@@ -26,9 +26,13 @@
             "perception"
             "learning"
             "content"))
-(load "main")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Initialize ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define c (if (environment-bound? (the-environment) 'c) c (canvas)))
+
+(define (close) (ignore-errors (lambda () (graphics-close (canvas-g c)))))
+
 
 (set! *random-state* (fasload "a-random-state"))
 (initialize-scheduler)
