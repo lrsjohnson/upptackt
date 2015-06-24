@@ -5,7 +5,7 @@
 
 As the final module, the learning module integrates information from
 the other modules and provides the primary, top-level interface for
-interacting with the system. It provides means for users to query its
+interacting with the system. It defines means for users to query its
 knowledge and provide investigations for the system to carry
 out. Through performing such investigations, the learning module
 formulates conjectures based on its observations and maintains a
@@ -15,13 +15,13 @@ geometry concepts.
 I will first discuss the interface for interacting with the
 system. Then, after describing the structures for representing and
 storing definitions and conjectures, I demonstrate how the system
-module new terms and conjectures. Finally, I will explain the cyclic
+learns new terms and conjectures. Finally, I will explain the cyclic
 interaction between the imperative and declarative modules used to
 simplify definitions and discuss some limitations and future
 extensions.
 
-The Demonstration Chapter (Sections~\ref{sec:end-goal-1}
-and~\ref{sec:end-goal-2}) included several use cases and examples of
+Sections~\ref{sec:end-goal-1} and~\ref{sec:end-goal-2} in the
+demonstration chapter included several use cases and examples of
 working with the learning module. As a result, this discussion will
 focus on structures and implementation rather than uses and
 applications. Refer to the demonstration for examples.
@@ -35,12 +35,12 @@ applications. Refer to the demonstration for examples.
 
 \section{Learning Module Interface}
 
-As seen in the demonstration, the learning module provides the primary
+As seen in the demonstration, the learning module defines the primary
 interface by which users interact with the system. As such, it
 provides means by which users can both query the system to discover
 and use what it has known, as well as to teach the system information
 by suggesting investigations it should
-undertake. Listing~\ref{l-interface} shows the implementation for some
+explore. Listing~\ref{l-interface} shows the implementation for some
 of these methods.
 
 \begin{code-example}
@@ -66,8 +66,8 @@ of these methods.
     (remove-supplants more-specific? satisfying-terms)))
 \end{code-example}
 
-Explaining these interface implementations provide a context for
-introducing the representation of definitions and conjectures.
+Explaining these interface implementations serves as a context for
+introducing the representations of definitions and conjectures.
 \enlargethispage*{\baselineskip}
 
 \section{Querying}
@@ -83,13 +83,14 @@ minimal set of properties needed to specify the object.
 \subsection{Student Structure}
 
 Internally, geometry knowledge is stored in a \texttt{student} object
-that maintains a \texttt{dictionary} mapping terms to definitions and
-a \texttt{term lattice} representing how these definitions relate to
-one another. Listing~\ref{student-structure} demonstrates how the
-interfaces above use a global \texttt{*current-student*} variable to
-access information. Although the system currently only ever
-instantiates one student, this architecture provides the flexibility
-to teach or compare multiple students in the future.
+that maintains a definition \texttt{dictionary} mapping terms to
+definitions and a \texttt{term-lattice} representing how these
+definitions relate to one another. Listing~\ref{student-structure}
+demonstrates how the interfaces above use a global
+\texttt{*current-student*} variable to access information. Although
+the system currently only ever instantiates one student, this
+architecture provides the flexibility to teach or compare multiple
+students in the future.
 
 \begin{code-listing}
 [label=student-structure]
@@ -122,25 +123,26 @@ to teach or compare multiple students in the future.
 \end{code-listing}
 
 Listing~\ref{def-struct} shows the implementation of definition
-structures. Definition combine the name and generator procedure
+structures. Definitions combine the name and generator procedure
 provided when originally learning the definition with a list of all
 conjectures known about that class of object. \texttt{primitive?} is a
 boolean indicator of whether the definition is a primitive, built-in
-definition. In such cases, \texttt{base-predicate} is a imperative
-system-level predicate that tests whether an object satisfies the
-definition. In non-primitive definitions, the \texttt{base-predicate}
-is that of the primitive that the definition is a specialization
-of. Storing and checking against this primitive predicate prevents
-inapplicable operations from being performed such as attempting to
-obtain the angles of a segment object.
+definition. In such cases, \texttt{primitive-predicate} is an
+imperative system predicate that tests whether an object satisfies the
+definition. In non-primitive definitions, the
+\texttt{primitive-predicate} is that of the primitive that the
+definition is a specialization of. Storing and checking against this
+primitive predicate prevents inapplicable operations from being
+performed such as attempting to obtain the angles of a segment object.
 
-The last two fields, \texttt{classifications} and \texttt{specific
-  conjectures} are derived fields that are updated based on the
-definition's relation to other terms. A definition's
-\texttt{classifications} are the next-least specific terms its class
-of objects also satisfy and \texttt{specific-conjectures} are added
-conjectures that differentiate the definition from being the union of
-those classification definitions.
+The last two fields, \texttt{classifications} and
+\texttt{specific-conjectures}, are derived fields that are updated
+based on the definition's relation to other terms in the lattice. A
+definition's \texttt{classifications} are the next-least specific
+terms that its class of objects also satisfy and
+\texttt{specific-conjectures} are added conjectures that differentiate
+the definition from being the union of those classification
+definitions.
 
 
 \section{Testing Definitions}
@@ -148,7 +150,7 @@ those classification definitions.
 The learning module provides the \texttt{is-a?} procedure to test
 whether a given object satisfies a known term. As shown in
 Listing~\ref{def-holds}, testing whether a definition holds involves
-ensuring that it is the right type of object by checking the
+ensuring that it is the right type of primitive object by checking the
 underlying primitive predicate and then ensuring the relevant
 conjectures are satisfied.
 
@@ -182,11 +184,11 @@ Similar to how Example~\ref{new-premise} in the imperative system used
 the element source procedures to obtain constructed elements
 corresponding to those observed in an original diagram, satisfying a
 conjecture involves applying its source-procedures to a new premise
-structure for the conjecture to obtain new relationship
-arguments. These new arguments are then checked to see if they satisfy
-the underlying relationship. This process is shown in
-Listing~\ref{conj-struct}. The interface procedure \texttt{is-a?}
-creates a list of the object in question to use as the new premise.
+structure to obtain new relationship arguments. These new arguments
+are then checked to see if they satisfy the underlying
+relationship. This process is shown in Listing~\ref{conj-struct}. The
+interface procedure \texttt{is-a?}  creates a list of the object in
+question to use as the new premise.
 
 \begin{code-listing}
 [label=conj-struct]
@@ -218,8 +220,8 @@ implementation (in Listing~\ref{l-interface}) first determines all
 terms that apply to an object and then removes terms that are
 supplanted by others in the list. It uses the procedure
 \texttt{more-specific?} to determine which terms supplant others. As
-shown in Listing~\ref{more-specific}, this procedure generates checks
-if an example object of the proposed less specific term satisfies the
+shown in Listing~\ref{more-specific}, this procedure checks if an
+example object of the proposed less specific term satisfies the
 definition of the proposed more specific term.
 
 \begin{code-listing}
@@ -246,18 +248,19 @@ comment style={size=fbox,frame hidden,height=8cm}]
 => (show-definition-lattice)
 \end{img-example}
 
-The lattice is implemented as a general lattice data structure I
-created that can be used with any partial order comparator. It
-correctly positions nodes and updates the relevant parent and child
-pointers as nodes are added and removed.
+The definition lattice is implemented as a general lattice data
+structure I created that can be used with any partial order
+comparator. It correctly positions nodes and updates the relevant
+parent and child pointers as nodes are added and removed.
 
-Information from the lattice is used to update the derived fields of
-terms. As seen in Listing~\ref{updating-terms}, after a new definition
-term is added to the lattice, it and its child terms (determined from
-lattice) are updated. The immediate parent nodes in the lattice become
-the definitions classifications, and definition-specific conjectures
-are the set difference of all their conjectures and the conjectures
-known about their ancestors in the lattice.
+Information from the lattice is used to update the derived definition
+fields. As seen in Listing~\ref{updating-terms}, after a new
+definition term is added to the lattice, it and its child terms
+(determined from lattice) are updated. The immediate parent nodes in
+the lattice become the definition's \texttt{classifications}.  Then
+\texttt{definition-specific-conjectures} is updated to be the set
+difference of the definition's current conjectures and the conjectures
+known about its ancestors in the lattice.
 
 \begin{code-listing}
 [label=updating-terms]
@@ -282,13 +285,13 @@ known about their ancestors in the lattice.
 \end{code-listing}
 
 This lattice structure allows terms definitions to build off of one
-another and allows definitions to report only . These updated
-classification and definition-specific properties are also used in the
-full version of checking when a definition holds as shown in
-Listing~\ref{def-holds-2}. This version checks that a definition
-satisfies all parent classifications first before checking the
-definition-specific conjectures that differentiate it from those
-classifications.
+another and allows definitions to report only definition-specific
+conjectures. These updated classification and definition-specific
+properties are also used in the full version of checking when a
+definition holds as shown in Listing~\ref{def-holds-2}. This version
+checks that a definition satisfies all parent classifications first
+before checking the definition-specific conjectures that differentiate
+it from those classifications.
 
 \begin{code-listing}
 [label=def-holds-2]
@@ -375,7 +378,7 @@ added to the student dictionary and term lattice.
 As demonstrated in Example~\ref{diag-investigation} (page
 \pageref{diag-investigation}), the learning module also supports
 investigations to learn conjectures based on elements constructed from
-the base element.  Performing investigations are similar to learning
+base premises.  Performing investigations are similar to learning
 terms except that, rather than providing a procedure that just
 generates an example of the term in consideration, an investigation
 uses a procedure which takes an instance of the premise (polygon in
@@ -441,14 +444,13 @@ is already known.
 
 The main workhorse in this definition simplification process is the
 procedure \texttt{polygon-from-object-observations}. It interfaces
-with the constraint solver via observations->figure to convert our
-observations back into a figure. Its implementation is shown below in
-Listing~\ref{convert-obs}. The object provided is used to determine
-the topology and names of bars and linkages in the mechanism and the
-objects in the observation structures in the provided observation
-subset is used to add the necessary mechanism constraints. If the
-declarative system can solve the mechanism, it once again uses the
-element names to extract the resulting object and return the a figure.
+with the constraint solver via \texttt{observations->figure} to
+convert observations back into a figure. Its implementation is shown
+below in Listing~\ref{convert-obs}. The object provided is used to
+determine the topology and names of bars and linkages in the mechanism
+and the observation structures are used to add the necessary mechanism
+constraints. If the declarative system can solve the mechanism, it
+once again uses the element names to extract and return the resulting object.
 
 \begin{code-listing}
 [label=convert-obs]
@@ -480,7 +482,7 @@ element names to extract the resulting object and return the a figure.
 The learning module has been able to successfully integrate with the
 other system modules to discover and learn dozens of simple elementary
 geometry terms and theorems through its investigations. These include
-simple properties such as ``the base angles in an isoceles triangle
+simple properties such as ``the base angles in an isosceles triangle
 are congruent,'' derived properties such as ``the diagonals of a
 rhombus are orthogonal and bisect one another'' or ``the polygon found
 by connecting consecutive side midpoints of an orthodiagonal
@@ -492,8 +494,10 @@ The current system has focused on discoveries related to
 polygons. Further extensions of the module could explore ideas related
 to other object types (segments, lines, circles) or derive conjectures
 that depend on several arbitrary choices. Finally, an interesting
-extension of the learning module would be to investigation properties
-about constructions ``this is how you create a perpendicular
-bisector'' so that the system could infer what interesting properties
-such constructions yield and omit those observations when that
-construction is used.
+extension of the learning module would be to investigate properties
+about constructions. This would be similar to a teacher instructing a
+student ``this is how you create a perpendicular bisector...'' The
+student could then independently explore creating perpendicular
+bisectors of various elements so that the system could infer what
+interesting properties such constructions yield and omit those
+observations when that construction is used.

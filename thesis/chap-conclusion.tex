@@ -8,30 +8,31 @@ building, exploring, and analyzing geometry diagrams. As shown in the
 demonstrations, the modules can both be used independently to
 construct and analyze interesting properties in geometric figures, and
 combined with one another to discover new geometry concepts. By
-constructing and examining figures, generalizing observations,
-solving constraints, and aggregating results, the system has been
-able to discover, learn, and simplify dozens of properties and
-theorems invariant to geometry objects.
+constructing and examining figures, generalizing observations, solving
+constraints, and aggregating results, the system has been able to
+discover, learn, and simplify dozens of elementary geometry properties
+and theorems.
 
 In doing so, the process modeled and emulated the human-like process
 of imagining and manipulating instance of problems ``in the mind's
 eye'' to better understand new concepts. By focusing on noticing
-interesting properties in externally-specified investigations, it
+interesting invariants in externally-specified investigations, it
 simulates the effectiveness of an investigative-based approach to
 learning and discovering geometry concepts.
 
 Although the architecture of the four interrelated imperative
-construction, perception, declarative constraint solver, and learning
-modules serves as a proof of concept of and foundation for exploring
-such a learning approach, it has room for further improvement and
-extensions. Several chapters conclude with a discussion section
-including ideas for future extensions and improvements.
+construction building, perceiving, declarative constraint solving, and
+learning modules serves as a proof of concept of and foundation for
+exploring such a learning approach, it has room for further
+improvement and extension. Several chapters conclude with a discussion
+section including ideas for future extensions and improvements.
 
 In addition, while the techniques developed in this system generally
 reflect my own approach to visualizing and thinking about geometry and
 background in learning geometry via an investigative approach, there
-is room to integrate the \emph{discovery} techniques in this system
-with the richer history of automated geometry theorem \emph{proving}.
+is room to integrate the \emph{discovery} ideas in this system with
+some of the techniques from the rich history of automated geometry
+theorem \emph{proving}.
 
 \section{Limitations}
 
@@ -39,11 +40,12 @@ Despite its successes, there are certainly limitations to the system's
 current abilities. Reasoning about geometry concepts is a very broad
 domain, and it becomes difficult to develop general techniques that
 can apply in a wide variety of circumstances.
-Chapters~\ref{chap:observer} and~\ref{chap:declarative} discussed how
+Chapters~\ref{chap:observer} and~\ref{chap:declarative} discuss how
 this challenge arises when trying to filter more categories of obvious
-observations and determine the ideal technique for specifying values
+observations and when deciding the ideal method for specifying values
 in the constraint solver.  There are also some sizable limitations to
-the system's approach that restrict what it is able to discover:
+the system's purely-investigative approach that restrict what it is
+able to discover:
 
 \subsection{Probabilistic Approach}
 
@@ -53,71 +55,68 @@ coordinate-based, inductive technique for discovering concepts is
 dealing with numerical inaccuracies. Although techniques were used to
 lessen some of the effects of floating point errors, such techniques
 also emphasize the probabilistic nature of the system.  Without using
-deductive reasoning, the system cannot ever prove its findings are
-correct and may occasionally report false properties due to
+deductive reasoning, the system cannot ever fully confirm its findings
+are correct and may occasionally report false properties due to
 uncertainty. However, reporting likely results is sufficient for
 encouraging discovery as results in question could be further explored
 and checked using external approaches.
 
 \subsection{Negative Relations and Definitions}
 
-In addition to only providing probabilistic confidence of its
+In addition to only providing probabilistic confidence for its
 findings, there are some relations and definitions that are hard to
 notice via a purely inductive, random-sampling based approach. For
 instance, negative definitions such as learning that \texttt{scalene}
-triangles are ones with \emph{no} equal sides would require the
-system to handle more complicated logical combinations of
-relationships.
+triangles are ones with \emph{no} equal sides would require the system
+to handle more complicated logical combinations of relationships.
 
 \subsection{Generality of Theorems}
 
 Finally, the full space of theorems about geometry is quite broad.
-Some of these statements include a richer set of tools than, for
-instance, noticing the fact that that ``the shortest distance from a
-point to a line is along the perpendicular to the line'' would require
-the current system to be testing and searching for maxima and minima
-in its manipulations. The current system is limited to discovering
-conjectures regarding simple relationships among objects that are
-constructed from some initial premises.
+Some of these statements require a richer set of tools than provided
+in this system. For instance, noticing the fact that that ``the
+shortest distance from a point to a line is along the perpendicular to
+the line'' would require the current system to be testing and
+searching for maxima and minima in its manipulations. The current
+system is limited to discovering conjectures regarding simple
+relationships among objects that are constructed from some initial
+premises.
 
-\section{Extensions}
+\section{System-level Extensions}
 
 In addition to improvements to individual modules to reduce the
-effects of randomness, filter out more semi-obvious properties,
-and support more declarative constraints, there are several
-interesting larger-scale extensions that could integrate with the
-system.
+effects of randomness, filter out additional obvious properties, and
+support more declarative constraints, there are several interesting
+larger-scale extensions that could integrate with the system.
 
 \subsection{Deductive Proof Systems}
 
 One of the main extensions is to integrate the results from the system
 with an automated, deductive geometry prover. Although such provers
-often use less human-like approaches to verifying statements, having
+often use less human-like approaches when verifying statements, having
 access to such a system could increase this system's confidence in the
-properties and conjectures it finds as it continues to explore new concepts.
+properties and conjectures it finds as it continues to explore new
+concepts.
 
 \subsection{Learning Constructions}
 
 In addition to generating formal, deductive proofs about the
 properties and theorems resulting from the system's explorations,
-another interesting extension would be for the system to learn
-deductively from the process it performed in generating such
-results. For example, the sequence and dependencies for how values
-were determined in solving a set of declarative constraints could be
-abstracted into a sequence of more typical construction procedures
-that produces the same diagram. Unlike solving constraints resulting
-from observations of actual figures, in this process, the system would
-also have to deal with noticing and resolving impossible diagram
-specifications.
+another interesting extension would be for the system to learn from
+the \emph{process} it uses in generating its results. For example, the
+sequence and dependencies for how values were determined in solving a
+set of declarative constraints might be able to be abstracted into a
+sequence of more typical construction procedures that produce the same
+diagram.
 
 \subsection{Self-directed Explorations}
 
-A final exciting addition to the system would be to build a
-self-directed mode of operation in which the system proposes its own
-constructions and diagrams to investigate rather than being prompted
-from an outside user.  As the system increases its repository of
-knowledge about constructions and conjectures, it could use these
-findings to direct further explorations.  This would provide some full
-circle closure to the discovery process and could even lead to the
-system creatively devising interesting exercises or exam questions
-that test what it has acquired.
+A final exciting addition to the system is to build a self-directed
+mode of operation in which the system proposes its own constructions
+and diagrams to investigate rather than being prompted from an outside
+user.  As the system expands its repository of knowledge about
+constructions and conjectures, it could use these findings to direct
+further explorations.  This would provide some full circle closure to
+the discovery process and could even lead to the system creatively
+devising interesting exercises or exam questions that test the
+knowledge it has acquired.

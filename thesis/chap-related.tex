@@ -38,21 +38,20 @@ reformulations rather than inductive reasoning and exploration.
 
 As opposed to my system which focuses on modeling a student's
 investigations and \emph{discoveries} about geometry, the main focus
-of historic Artificial Intelligence efforts related to geometry
-theorems was obtaining \emph{proofs} for theorems given by a
-user. Several approaches were explored both alebgraic and synthetic,
-some of which involved using diagrams in addition to purely symbolic
-manipulations \cite{chou1988mechanical},
-\cite{goldstein1973elementary}, \cite{nevins1975plane}. Texts such as
-\cite{jamnik2001mathematical} include a more detailed history and
-description of such systems. These systems generally led to long
-proofs.
+of historic Artificial Intelligence efforts related to geometry was
+obtaining \emph{proofs} for theorems given by a user. Projects
+explored both algebraic and synthetic approaches, some of which
+involved using diagrams in addition to purely symbolic manipulations
+\cite{chou1988mechanical}, \cite{goldstein1973elementary},
+\cite{nevins1975plane}. Texts such as \cite{jamnik2001mathematical}
+include a more detailed history and description of such systems. These
+systems are reasonably powerful but generally produce long proofs.
 
 \section{Automated Geometry Discovery}
 Several papers also describe automated \emph{discovery} in
 geometry. However, most of these use alternate, more algebraic methods
-to find and prove theorems.  These approaches include an area method
-\cite{autoTools}, Wu's Method involving systems of polynomial
+to find and later prove theorems.  These approaches include an area
+method \cite{autoTools}, Wu's Method involving systems of polynomial
 equations \cite{wuMethod}, and a system based on Gr\"obner Bases
 \cite{grobner}.  Some papers discuss reasoning systems including the
 construction and application of a deductive database of geometric
@@ -62,20 +61,22 @@ reformulations.
 
 The effort closest to my system's approach is Chen, Song and Wang's
 ``Automated Generation of Geometric Theorems from Images of Diagrams''
-\cite{fromImages}. This paper includes an initial section several
+\cite{fromImages}. This paper includes an initial section with several
 image processing algorithms for detecting points and segments from
-images, but then applies a series of heuristic strategies to determine
+images. It then applies a series of heuristic strategies to determine
 which elements are particularly relevant and propose candidate
 theorems. These strategies generally involved assigning weights to
 points to determine which are ``characteristic points'' or ``points of
-attraction.'' Integrating some of these strategies into my system would be
-an interesting extension.
+attraction.'' By doing so, their system successfully proposed several
+nontrivial theorems that the original image could have been
+illustrating.  Integrating some of these strategies into my system
+would be an interesting extension.
 
 \section{Mechanical Analogies and Geometry Constraint Solving}
 
 Ideas about solving geometry diagram constraints are related to the
-field of kinematic mechanism design and computer-aided design. Glenn
-Kramar provides a system for solving goemetry constraints in
+fields of kinematic mechanisms and computer-aided design. Glenn
+Kramar provides a system for solving geometry constraints in
 mechanisms \cite{kramer1992solving}, but focuses on several practical
 three-dimensional case studies with complicated joints. Summaries such
 as \cite{joan2009basics} provide more information about other
@@ -86,21 +87,19 @@ applies it to simple geomtery constraints.
 
 \section{Dynamic Geometry}
 From an education perspective, there are several texts that emphasize
-an investigative, conjecture-based approach to teaching such as
+an investigative, conjecture-based approach to teaching.These include
 \emph{Discovering Geometry} by Michael Serra \cite{serraDiscovering},
 the text I used to learn geometry and that served as an inspiration to
 this thesis project.  Some researchers praise these investigative
 methods \cite{geoTransformations} while others question whether they
-appropriately encourages deductive reasoning skills
-\cite{geoTeaching}.
-
+appropriately encourage deductive reasoning skills \cite{geoTeaching}.
 
 \section{Software}
 Some of these teaching methods include accompanying software such as
 Cabri Geometry \cite{cabri} and the Geometer's Sketchpad
 \cite{geoSketchpad} designed to enable students to explore
 constructions interactively.  These programs occasionally provide
-scripting features, but have no proof-related automation.
+scripting tools, but have no theorem or proof-related automation.
 
 A few more academic analogs of these programs introduce some proof
 features.  For instance, GeoProof \cite{geoProof} integrates diagram
@@ -119,9 +118,9 @@ produce or prove theorems, but does have a ``Test Diagram'' mode. When
 this mode is activated, the user can wiggle elements in the digram as
 they please. When ``End Test'' is selected, the program lists all
 features that were maintained during the users' manipulations. The
-creator claims that these observations can be useful components for a
-user attempting to deductively prove a theorem about the figure they
-are drawing. This is a similar to the observations and manipulations
-in my system but requires the user to manually manipulate elements in
-the figure rather than automatically arbitrary choices in a specified
+creator claims that these observations can be useful pieces for a user
+attempting to deductively prove a theorem about the figure they are
+drawing. This is a similar to the observations and manipulations in my
+system but requires the user to manually manipulate elements in the
+figure rather than automatically arbitrary choices in a specified
 construction.

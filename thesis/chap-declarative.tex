@@ -10,10 +10,10 @@ by instantiating a figure that satisfies the constraints.
 
 The solver is implemented using propagators, uses new types of partial
 information about point regions and direction intervals, and focuses
-on emulating the mental process of wiggling constrained figures in the
-mind's eye. The physical nature of this process is captured by forming
-analogies between geometry diagrams and mechanical linkages of bars
-and joints.
+on emulating the mental process of building and solving constrained
+figures in the mind's eye. The physical nature of this process is
+captured by forming analogies between geometry diagrams and mechanical
+linkages of bars and joints.
 
 After providing a brief overview of the mechanical analogies and quick
 background on the propagator system, I examine an example of the
@@ -35,22 +35,21 @@ some limitations and extensions are discussed.
 \subsection{Mechanical Analogies}
 
 Mechanical analogies are often applied to mathematical problems to
-yield alternate, sometimes more-intuitive solutions. Several texts
-such as \cite{levi2009mathematical} and \cite{uspenskii1961some}
-explore this and provide examples such as deriving the Pythagorean
-Theorem from a physical example dealing with water pressure in and
-torque on a rotating drum.
+yield alternate, often more-intuitive solutions. Several texts such as
+\cite{levi2009mathematical} and \cite{uspenskii1961some} explore this
+and provide examples such as deriving the Pythagorean Theorem from a
+physical example dealing with water pressure in and torque on a
+rotating drum.
 
 In this system, mechanical analogies are used to represent the physics
 simulation going on as one mentally manipulates a diagram ``in the
 mind's eye''. Often, given a diagram with constraints, one can imagine
 assembling a physical example of the figure out of bars and joints in
 one's head.  Some bars can be sliding to make their lengths adjustable
-whereas others are constrained to be of equal length as one another.
-As a person moves and wiggles these pieces to assemble satisfying
-mechanisms, they can examine whether the resulting mechanisms retain
-properties across instances and generalize such invariants into
-theorems.
+whereas others are constrained to be of equal length.  As a person
+moves and wiggles these pieces to assemble satisfying mechanisms, they
+can examine whether the resulting mechanisms retain properties across
+instances and generalize such invariants into theorems.
 
 This module simulates this process by assembling mechanisms of bars
 and joints, and using a propagator system to simulate incrementally
@@ -177,21 +176,22 @@ model propagates further partial information to other values.
 \vspace{-1.5em}
 \end{figure}
 Similar steps allow propagation to solve specifications for many
-figures including isoceles triangles, parallelograms, and
+figures including isosceles triangles, parallelograms, and
 quadrilaterals from their diagonals. Several of these are shown in
 Section \ref{demo:sec:declarative}. In cases when bars have their
-length and one endpoint specified first, the propagators specify that
+length and one endpoint determined first, the propagators specify that
 the other endpoint is on an arc of a circle. The next sections
 describe the implementation of these partial information structures
-before explaining linkages and how mechanisms are built and solved.
+before explaining bar and joint structures and how mechanisms are
+built and solved.
 
 \newpage
 \section{Partial Information Structures}
 
 Radul's propagation system typically used numeric intervals for
-partial information. The declarative constraint solver uses standard
-some numeric intervals, but also uses its own module-specific partial
-information structures. These include \texttt{regions} and
+partial information. The declarative constraint solver uses some
+standard numeric intervals, but also uses its own module-specific
+partial information structures. These include \texttt{regions} and
 \texttt{direction-intervals}, described below:
 
 \subsection{Regions}
@@ -233,16 +233,16 @@ since directions form a periodic range $[0,2\pi)$. Currently, the
   yield multiple distinct direction intervals as providing no
   new information.
 
-\section{Linkages and Basic Constraints}
+\section{Bar and Joint Constraints}
 
 The solver uses bar and joint linkages to represent segments and
 angles. These structures are composed of propagator cells storing
 information about locations, lengths, directions, and angles. To
 assist with some of the propagation between these cells, the module
-uses substructures for and vectors.
+uses substructures for points and vectors.
 
-Point structures contain both numeric Cartesian coordinates and a cell
-containing Region structures. The propagators \texttt{m:x-y->region}
+Point structures contain both numeric Cartesian coordinate cells and a cell
+containing region structures. The propagators \texttt{m:x-y->region}
 and \texttt{m:region->x,y} transform location information between
 these representations.
 
@@ -267,8 +267,8 @@ these representations.
 (propagatify m:region->x)
 \end{code-listing}
 
-Vectors represent the difference between two point and bidirectionally
-propagate rectangular and polar information about the vector.
+Vectors represent the difference between two points and bidirectionally
+constrain both rectangular and polar information.
 
 \begin{code-listing}
 [label=vec-struct]
@@ -291,8 +291,8 @@ As seen in Listing~\ref{bar-struct}, bar structure contains two
 direction between the points. The bar links these structures together
 using simple bidirectional constraints on the coordinates. These
 constrains will only propagate information when the bar's length and
-direction are fully specified. \texttt{m:p1->p2-bar-propagator}
-handles the other cases.
+direction are fully specified. \texttt{m:p1->p2-bar-propagator} and
+its reverse handle the other cases.
 
 \begin{code-listing}
 [label=bar-struct]
@@ -317,7 +317,8 @@ locations based on whether the bar's direction or length is
 determined. \texttt{m:x-y-length-di->region} handles the case where
 only the length of the bar is specifies and adds information to the
 other endpoint's region cell that it is on the arc formed from the
-bar's length and current direction interval.
+bar's length and current direction interval. This implementation is
+seen in Listing \ref{bar-propagator}.
 
 \begin{code-listing}
 [label=bar-propagator]
@@ -337,17 +338,18 @@ bar's length and current direction interval.
       (let ((vertex (make-point px py)))
         (m:make-arc vertex length dir-interval))
       nothing))
-(propagatify m:x-y-length-di->region)
 \end{code-listing}
-
+\vspace{-1em}
 \subsection{Joint Structure and Constraints}
 
 Joints are represented by a vertex point, two directions, and an angle
-representing the measure between the directions. Propagators express
-this relationship between the direction. Special mechanism-specific
+representing the measure between the directions. Propagators
+bidirectionally constrain the angle measure to reflect and update the
+ranges of the joint's directions.  Special mechanism-specific
 operators adding and subtracting directions were created since both
-the direction and angle argument could be intervals. Creating
-a joint also initializes its measure to the range $[0, \pi]$.
+the direction and angle argument could be intervals. Creating a joint
+also initializes its measure to the range $[0, \pi]$, reflecting the
+maximum angle sweep.
 
 \begin{code-listing}
 {Joint Constraints}
@@ -362,13 +364,14 @@ a joint also initializes its measure to the range $[0, \pi]$.
 \end{code-listing}
 
 \enlargethispage*{\baselineskip}
+\vspace{-1em}
 \section{User-specified Constraints}
 
 In addition to constraints resulting from the bar and joint
-connections, users can specify constraints on the
+connections, users can specify additional constraints on the
 mechanism. Listing~\ref{constraint-struct} shows the structure for a
 user constraint. These structures include a name, a list of bar or
-joint identifiers the constraint applies to and a procedure used to
+joint identifiers the constraint constrains, and a procedure used to
 apply the constraint.
 
 \begin{code-listing}
@@ -400,7 +403,7 @@ lengths of the two bars are set to be identical to one another.
 \subsection{Slice Constraints}
 
 In addition to general user constraints, mechanisms are also support
-slice constraints. These slices are structured in the manner as
+slice constraints. These slices are structured in the same manner as
 constraints but are applied after all other user constraints, and thus
 can use information about user constraints in adding their
 propagators. In particular, the system uses slices to determine the
@@ -418,8 +421,9 @@ figures from the imperative system.  Here, instead of grouping
 geometry elements, the mechanism group linkages and constraints. As
 seen in Listing~\ref{mechanism-struct}, \texttt{m:mechanism} will
 flatten and separate its arguments. Then, in addition to storing the
-components in a record \texttt{m:make-mechanism} will also hash tables
-for looking up bars and joints by their endpoint and vertex names.
+components in a record structure, \texttt{m:make-mechanism} will also
+build hash tables for looking up bars and joints by their endpoint and
+vertex names.
 
 \begin{code-listing}
 [label=mechanism-struct]
@@ -484,11 +488,11 @@ assembles bars and joints based on their names.
 When assembling the mechanism, bars are identified into or out of the
 arms of joints that share their names. Joints names refer to the three
 vertices they connect and bar names refer to their two endpoint
-vertices.  \texttt{m:identify-into-arm-1} demonstrates how bars and
-joints get attached to one another. Corresponding point locations and
-directions are constrained to be identical to one another via
-\texttt{c:id}. Identifying two points involves identifying all of its
-component properties.
+vertices.  \texttt{m:identify-into-arm-1} (\ref{identifying-points})
+demonstrates how bars and joints get attached to one
+another. Corresponding point locations and directions are constrained
+to be identical to one another via \texttt{c:id}. Identifying two
+points involves identifying all of its component properties.
 
 \begin{code-listing}
 [label=identifying-points]
@@ -534,19 +538,20 @@ information to other values.
 \end{code-listing}
 
 The ordering of what is specified is guided by a heuristic in
-\texttt{m:specify-something}. This heuristic was determined
-empirically and helps the majority the examples considered converge to
-solutions. It generally prefers specifying the most constrained values
-first. However, in some scenarios, specifying values in the wrong
-order can yield premature contradictions. Additionally, sometimes
-partial information about a value is incomplete and picking a value
-arbitrarily may fail. A planned extension will attempt to recover from
-such situations more gracefully by trying other values or orderings
-for specifying components.
+\texttt{m:specify-something} (\ref{specify-something}). This heuristic
+was determined empirically and helps the majority of the examples I
+explored converge to solutions. It generally prefers specifying the
+most constrained values first. However, in some scenarios, specifying
+values in the wrong order can yield premature
+contradictions. Additionally, sometimes partial information about a
+value is incomplete and picking a value arbitrarily may fail. A
+planned extension will attempt to recover from such situations more
+gracefully by trying other values or orderings for specifying
+components.
 
 The system uses \texttt{m:instantiate} to add content to cells. As
 seen in Listing~\ref{specify-something}, \texttt{m:instantiate} wraps
-the value in a truth management system structure provided by Radul's
+the value in a truth maintenance system structure provided by Radul's
 propagator system. These structures maintain dependencies for values, can report
 which sets of premises are at odds with one another and allow
 individual choices to be removed and replaced with new values.
@@ -596,21 +601,23 @@ with selecting values based on updated partial information and
 heuristics for choosing items to specify, there are several instances
 in which the module can fail to solve a mechanism specification that
 actually has a solution. Because of such false negatives, the
-constraint solver is not able to report that a set of constraints is
-infeasible, just that it hasn't been able to produce a solution.
+constraint solver is never able to report that a set of constraints is
+infeasible, just that it hasn't been able to produce a solution. This
+works for my main use cases as the module is typically used to explore
+the diversity represented by subsets of satisfiable constraints.
 
-As an example of this, imagine the system attempting to solve a
-specification that should yield an isoceles trapezoid and that the
-angle measures and non-parallel side lengths have been determined. The
-remaining step to fully specify the polygon is to determine how long
-the parallel sides are. If the shorter parallel side is selected to be
-specified first, any length value chosen for that side will yield a
-valid solution. However, if the longer parallel side is selected to be
-specified first, choosing too small of a length value yields a
-contradiction since the shorter parallel side must be additively
-shorter than the longer one.
+As an example with premature contradictions, imagine the system
+attempting to solve a specification that should yield an isosceles
+trapezoid and that the angle measures and non-parallel side lengths
+have already been determined. The remaining step to fully specify the
+polygon is to determine how long the parallel sides are. If the
+shorter parallel side is selected to be specified first, any length
+value chosen will yield a valid solution. However, if the longer
+parallel side is selected to be specified first, choosing too small of
+a length value yields a contradiction since the shorter parallel side
+must be additively shorter than the longer one.
 
-The two main ways of reducing this problem are to change the order of
+The two main ways of alleviating this problem are to change the order of
 how elements are selected to be specified and to change how values are
 chosen. These are the focus of several proposed extensions to the system:
 
@@ -626,31 +633,32 @@ I started implementing this ability but ended up focusing efforts
 elsewhere. The current system only has support for retrying an entire
 figure specification on failure. However, the module does already use
 a feature of the underlying propagator system that tracks dependency
-and contingency information so the task of identifying the choices
-that led to such contradictions can be identified and replaced should
-be rather straightforward. Deciding what values to try in one's place
-(binary search-like process?) is more complicated.
+and contingency information. Thus, the task of identifying and
+replacing the choices that led to such contradictions should be rather
+straightforward. Deciding what values to try in a choice's place,
+possibly through a binary search-like process, is more complicated.
 
 \subsection{Improved Partial Information}
 
-In the isoceles trapezoid case, computing the minimum is
-possible. However adding such computations to the system would require
-measuring and representing distances between more complicated region
-structure representations. Although such extensions may fix some
-cases, it still does not solve the general problem of the system
-sometimes failing to solve some otherwise feasible constraint sets.
+In the isosceles trapezoid case, computing the minimum feasible length
+is possible given sufficient information. However adding such
+computations to the system would require measuring and representing
+distances between more complicated region structure
+representations. Although such extensions may fix some cases, it still
+does not solve the general problem of the system sometimes failing to
+solve some otherwise feasible constraint sets.
 
-\subsection{Wiggling Existing Values}
+\subsection{Basing Choices on Existing Values}
 
 A final idea for an extension to improve value selection is to base
 values chosen as slight variations on an already-satisfied solved
 instance of the constraint specification. Although this wouldn't help
-with solving general specifications, the learning module often is
-testing declarative specifications for which it already has one
-solution instance to see what other instances exist. Choosing values
-in such a manner may limit the breadth of solutions found but could
-eliminate some extreme value choices made in the existing system that
-lead to contradictions.
+with solving general specifications, in the typical use case the
+learning module is testing declarative specifications for which it
+already has one solution instance to see what other instances
+exist. Choosing values in such a manner may limit the diversity of
+solutions found but could eliminate some extreme value choices made in
+the existing system that lead to contradictions.
 
 %%% Extra:
 

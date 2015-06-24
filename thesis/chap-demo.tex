@@ -469,9 +469,9 @@ To demonstrate the constraint solving working on a more complicated
 example, Example~\ref{is-rect-2} represents the constraints from the
 middle ``Is this a rectangle?'' question from Chapter
 \ref{chap:motivation} (page \pageref{example-1}). This question asks
-whether a quadrilateral in which a pair of opposite sides are
-congruent, a pair of opposite angles are congruent, and one of the
-other angles is a right angle is always a rectangle. Try working this
+whether a quadrilateral in which a pair of opposite sides is
+congruent, a pair of opposite angles is congruent, and one of the
+other angles is a right angle, is always a rectangle. Try working this
 constraint problem by hand or in your mind's eye.
 
 \begin{code-example}
@@ -718,7 +718,7 @@ whether other elements also satisfy the current definition of a
 term. As shown in example \ref{test-def}, results are correctly
 returned for any polygon that satisfies the observed properties. In
 cases where the properties are not satisfied, the system reports the
-failed conjectures or classifications (e.g. an equaliteral triangle is
+failed conjectures or classifications (e.g. an equilateral triangle is
 not a parallelogram: It failed the necessary classification that it
 must be a quadrilateral because it didn't have 4 sides).
 
@@ -919,14 +919,14 @@ Thus, user-specified investigations can represent broader explorations
 for the system to perform.  Although not yet implemented, a similar
 process using a multi-element premise structure could explore
 relationships yielded by a applying a construction procedure to its
-arguments. In future executions these observations could be marked as
+arguments. In future executions, these observations could be marked as
 uninteresting and excluded from reporting.
 
 \section{Final Example: Simplifying Definitions}
 \label{sec:end-goal-2}
 
 As properties accumulate from analysis and investigation, the need to
-satisfy all known properties for a shape overconstraints the resulting
+satisfy all known properties for a shape over-constrains the resulting
 definitions. For example, satisfying some small subset of the known
 properties of a parallelogram is sufficient to determine whether an
 unknown object is a parallelogram without checking \emph{every}
