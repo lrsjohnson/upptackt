@@ -1,6 +1,7 @@
 
 (define make-generic-operation make-generic-operator)
-
+;;; Propagators also provide this. The above makes the below a
+;;; compatible extension of that version
 #|
 ;;;;           Most General Generic-Operator Dispatch
 (declare (usual-integrations))		; for compiler

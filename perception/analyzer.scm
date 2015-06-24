@@ -17,7 +17,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Main Interface ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (all-observations figure-proc)
-  (analyze-figure (figure-proc)))
+  (require-majority
+   (lambda () (analyze-figure (figure-proc)))
+   observation-equal?))
 
 ;;; Given a figure, report what's interesting
 (define (analyze-figure figure)

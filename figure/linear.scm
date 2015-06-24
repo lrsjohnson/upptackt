@@ -36,25 +36,6 @@
   (list (segment-endpoint-1 s)
         (segment-endpoint-2 s)))
 
-#|
-(define (set-segment-dependency! segment dependency)
-  (set-dependency! segment dependency)
-  (set-dependency!
-   (segment-endpoint-1 segment)
-   `(segment-endpoint-1 segment))
-  (set-dependency!
-   (segment-endpoint-2 segment)
-   `(segment-endpoint-2 segment)))
-
-;;; Alternate, helper constructors
-
-(define (make-segment p1 p2)
-  (let ((seg (%segment p1 p2)))
-    (with-dependency
-     `(segment ,p1 ,p2)
-     seg)))
-|#
-
 (declare-element-component-handler
  (component-procedure-from-getters segment-endpoint-1
                                    segment-endpoint-2)

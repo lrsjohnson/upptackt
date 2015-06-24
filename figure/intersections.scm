@@ -14,7 +14,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Computations ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; http://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
 ;;; line 1 through p1, p2 with line 2 through p3, p4
 (define (intersect-lines-by-points p1 p2 p3 p4)
   (let ((x1 (point-x p1))
@@ -47,7 +46,6 @@
                (py (/ num-y denom)))
             (list (make-point px py)))))))
 
-;;; http://mathforum.org/library/drmath/view/51836.html
 (define (intersect-circles-by-centers-radii c1 r1 c2 r2)
   (let* ((a (point-x c1))
          (b (point-y c1))
@@ -75,7 +73,6 @@
 
 ;;; Intersect circle centered at c with radius r and line through
 ;;; points p1, p2
-;;; http://mathworld.wolfram.com/Circle-LineIntersection.html
 (define (intersect-circle-line-by-points c r p1 p2)
   (let ((offset (sub-points (make-point 0 0) c)))
     (let ((p1-shifted (add-to-point p1 offset))

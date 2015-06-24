@@ -1,12 +1,48 @@
 (define (assert boolean error-message)
   (if (not boolean) (error error-message)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;; List Utilities ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (sort-by-key l key)
+  (sort l (lambda (v1 v2)
+            (< (key v1)
+               (key  v2)))))
+
+(define (index-of el list equality-predicate)
+  (let lp ((i 0)
+           (l list))
+    (cond ((null? l) #f)
+          ((equality-predicate (car l) el)
+           i)
+          (else (lp (+ i 1) (cdr l))))))
+
+;;; Swaps the elements at indices i and j in the vector
+(define (swap vec i j)
+  (let ((tmp (vector-ref vec i)))
+    (vector-set! vec i (vector-ref vec j))
+    (vector-set! vec j tmp)))
+
+(define (shuffle alts)
+  (let ((alts-vec (list->vector alts))
+        (num-alts (length alts)))
+    (if (= num-alts 0)
+        alts
+        (let lp ((to-index (- num-alts 1)))
+          (cond
+           ((= to-index 0) (vector->list alts-vec))
+           (else (let ((from-index
+                        (random (+ 1 to-index))))
+                   (swap alts-vec from-index to-index)
+                   (lp (- to-index 1)))))))))
+
 (define (flatten list)
   (cond ((null? list) '())
         ((list? (car list))
          (append (flatten (car list))
                  (flatten (cdr list))))
         (else (cons (car list) (flatten (cdr list))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define ((notp predicate) x)
   (not (predicate x)))
@@ -22,6 +58,8 @@
 
 (define (true? x)
   (if x #t #f))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Set Operations ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; ps1 \ ps2
 (define (set-difference set1 set2 equality-predicate)
@@ -66,45 +104,6 @@
               elements elements
               (member-procedure equality-predicate)))))
 
-(define (eq-append! element key val)
-  (eq-put! element key
-           (cons val
-                 (or (eq-get element key) '()))))
-
-(define (sort-by-key l key)
-  (sort l (lambda (v1 v2)
-            (< (key v1)
-               (key  v2)))))
-
-(define (sort-by-key-2 l key)
-  (let ((v (sort-by-key-2 l key)))
-    (pprint (map (lambda (x) (cons (name x) (key x))) v))
-    v))
-
-(define ((negatep f) x)
-  (- (f x)))
-
-(define ((flip-args f) x y)
-  (f y x))
-
-(define (index-of el list equality-predicate)
-  (let lp ((i 0)
-           (l list))
-    (cond ((null? l) #f)
-          ((equality-predicate (car l) el)
-           i)
-          (else (lp (+ i 1) (cdr l))))))
-
-;;; (nth-letter-symbol 1) => 'a , 2 => 'b, etc.
-(define (nth-letter-symbol i)
-  (symbol (make-char (+ 96 i) 0)))
-
-(define (hash-table/append table key element)
-  (hash-table/put! table
-                   key
-                   (cons element
-                         (hash-table/get table key '()))))
-
 (define (dedupe-eq elements)
   (dedupe-by eq? elements))
 
@@ -137,6 +136,14 @@
                   elements-head
                   (cons el elements-head)))))))
 
+(define (all-subsets elements)
+  (append-map
+   (lambda (n)
+     (all-n-tuples n elements))
+   (iota (+ (length elements) 1))))
+
+;;;;;;;;;;;;;;;;;;;;;;;; Equivalence Classes ;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (partition-into-equivalence-classes elements equivalence-predicate)
   (let lp ((equivalence-classes '())
            (remaining-elements elements))
@@ -162,11 +169,43 @@
                                               element
                                               memp))))))
 
-(define (all-subsets elements)
-  (append-map
-   (lambda (n)
-     (all-n-tuples n elements))
-   (iota (+ (length elements) 1))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Majorities ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define *majority-trials-total* 3)
+(define *majority-trials-required* 2)
+
+(define (require-majority f equality-predicate)
+  (require-enough f *majority-trials-total* *majority-trials-required*
+                  equality-predicate))
+
+(define (require-enough f total-trials num-required equality-predicate)
+  (let ((all-executions
+         (map (lambda (x) (f)) (iota total-trials))))
+    (pprint all-executions)
+    (check-enough all-executions num-required equality-predicate)))
+
+(define (check-enough execution-results num-required equality-predicate)
+  (let ((hash-table ((weak-hash-table/constructor
+                      (lambda (a b) 1) equality-predicate))))
+    (for-each (lambda (execution-result)
+                (for-each (lambda (element)
+                            (hash-table/append hash-table
+                             element element))
+                          execution-result))
+              execution-results)
+    (filter identity
+            (map (lambda (a-pair)
+                   (and (>= (length (cdr a-pair)) num-required)
+                        (car a-pair)))
+                 (hash-table->alist hash-table)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;; Function Utilities ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define ((negatep f) x)
+  (- (f x)))
+
+(define ((flip-args f) x y)
+  (f y x))
 
 (define (memoize-function f)
   (let ((cache (make-key-weak-eq-hash-table)))
@@ -176,21 +215,19 @@
        arg
        (lambda () (f arg))))))
 
-;;; Swaps the elements at indices i and j in the vector
-(define (swap vec i j)
-  (let ((tmp (vector-ref vec i)))
-    (vector-set! vec i (vector-ref vec j))
-    (vector-set! vec j tmp)))
+;;;;;;;;;;;;;;;;;;;;;;;;;; Other Utilities ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (shuffle alts)
-  (let ((alts-vec (list->vector alts))
-        (num-alts (length alts)))
-    (if (= num-alts 0)
-        alts
-        (let lp ((to-index (- num-alts 1)))
-          (cond
-           ((= to-index 0) (vector->list alts-vec))
-           (else (let ((from-index
-                        (random (+ 1 to-index))))
-                   (swap alts-vec from-index to-index)
-                   (lp (- to-index 1)))))))))
+(define (eq-append! element key val)
+  (eq-put! element key
+           (cons val
+                 (or (eq-get element key) '()))))
+
+;;; (nth-letter-symbol 1) => 'a , 2 => 'b, etc.
+(define (nth-letter-symbol i)
+  (symbol (make-char (+ 96 i) 0)))
+
+(define (hash-table/append table key element)
+  (hash-table/put! table
+                   key
+                   (cons element
+                         (hash-table/get table key '()))))
