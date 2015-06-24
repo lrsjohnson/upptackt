@@ -14,7 +14,7 @@ are derived from inductive observation, I will typically refer to them
 as conjectures. Once the conjectures are reported, they can easily be
 integrated into existing automated proof systems if a deductive proof
 is desired. The conjectures explored can be grouped into three areas:
-definitions, properties, and theorems:
+properties, definitions, and theorems:
 
 \begin{description}
 
@@ -34,23 +34,22 @@ definitions, properties, and theorems:
   definitions when possible: ``A square is a rhombus and a rectangle''
 
 \item[Theorems] Theorems involve relations among additional elements
-  constructions from an initial premise. For instance, theorems about
+  constructed from an initial premise. For instance, theorems about
   triangles may involve the construction of angle bisectors, incenters
   or circumcenters, or the interaction among several polygons in the
   same diagram.
 
 \end{description}
 
-Given a repository of these conjectures about geometry, the system
-will be able to apply its findings in future investigations by
-examining elements to display its knowledge of definitions, and
-focusing future investigations by omitting results implied by prior
-theorems.
+Given a repository of these conjectures about geometry, the system is
+able to apply its findings in future investigations by examining
+elements to display its knowledge of definitions, and focusing future
+investigations by omitting results implied by prior theorems.
 
 \section{Diagram Representations}
 
 The system and modules are built around three core diagram
-representations. As discussed in the motivation section, we use the
+representations. As discussed in the motivation chapter, we use the
 term ``diagram'' to represent the abstract geometric object
 represented by these means:
 
@@ -84,11 +83,11 @@ represented by these means:
 
 While construction steps are primarily used as input and to generate
 examples, as the system investigates a figure, the analytic figure and
-symbolic relationship models get increasingly intertwined. The ``mind's
-eye'' perception aspects of observing relationships in the analytic
-figure lead to new symbolic relationships and a propagator-like
-approach of wigging solutions to the symbolic constraints yields new
-analytic figures.
+symbolic relationship models get increasingly intertwined. The
+``mind's eye'' perception aspects of observing relationships in the
+analytic figure lead to new symbolic relationships and a
+propagator-based approach of finding solutions to the symbolic
+constraints yields new analytic figures.
 
 As relationships are verified and simplified, results are output and
 stored in the student's repository of geometry knowledge.
@@ -183,6 +182,7 @@ informative.  To do so, the construction process interacts with
 properties known in the learning module to maintain a list of facts
 that can be reasoned from construction assumptions so that these can
 be omitted in the final reporting. Finally, given several properties
-true of a figure, the learning module uses the constraint solver in an
-attempt to reconstruct a figure satisfying a subset of the constraints
-to determine which are essential in the original diagram.
+that are true of a figure, the learning module uses the constraint
+solver in an attempt to reconstruct a figure satisfying a subset of
+the constraints to determine which are essential in the original
+diagram.

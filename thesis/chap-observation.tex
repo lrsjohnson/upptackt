@@ -10,15 +10,15 @@
 
 \section{Overview}
 
-The perception module focuses on ``seeing'' figures in our mind's eye.
-Given analytic figures represented using structures of the imperative
-construction module, the perception module is concerned with finding
-and reporting interesting relationships seen in the figure. In a
-generate-and-test-like fashion, it is rather liberal in the
-observations it returns. The module uses several technique to attempt
-to omit obvious properties, and combines with the learning module
-(Chapter~\ref{chap:learning}) to filter already-learned discoveries
-and simplify results.
+The perception module focuses on ``seeing'' figures and simulating our
+mind's eye.  Given analytic figures represented using structures of
+the imperative construction module, the perception module is concerned
+with finding and reporting interesting relationships seen in the
+figure. In a generate-and-test-like fashion, it is rather liberal in
+the observations it returns. The module uses several technique to
+attempt to omit obvious properties, and combines with the learning
+module (Chapter~\ref{chap:learning}) to filter already-learned
+discoveries and simplify results.
 
 To explain the module, I will first describe the implementation of
 underlying relationship and observation structures before examining
@@ -84,10 +84,10 @@ over all 3-tuples of linear elements (lines, rays, segments) and
 \end{code-listing}
 
 In addition to the type, arity, and predicate checked against
-arguments, the relationship structures also include an equivalence
+arguments, the relationship structure also includes an equivalence
 predicate that is used in determining whether two observations using
-the relationship are equivalent, as will be discussed after
-explaining the observation structure in Section~\ref{sec:obs}.
+the relationship are equivalent, as will be discussed after explaining
+the observation structure in Section~\ref{sec:obs}.
 
 \subsection{What is Interesting?}
 The system currently checks for:
@@ -259,10 +259,10 @@ extracts all observations from the figure and aggregates a list of
 obvious relations specified during the construction. It then uses the
 learning module to examine all polygons found in the figure and
 determine the most specific definitions each satisfies. The procedure
-obtains in \texttt{polygon-implied-observations} all
-previously-discovered facts about such shapes to remove from the final
-result and adds new polygon observations in their
-place. Example~\ref{ortho-interesting} shows a concrete example of this.
+obtains all previously-discovered facts about such shapes to remove
+from the final result and adds new polygon observations in their
+place. Example~\ref{ortho-interesting} shows a concrete example of
+this.
 
 \newpage
 
@@ -284,10 +284,10 @@ place. Example~\ref{ortho-interesting} shows a concrete example of this.
 
 Listing~\ref{mark-obvious} shows the implementation of the
 \texttt{save-obvious-observation!} procedure. Construction procedures
-can use this to mark obvious relationships for the elements it is
-creating. For instance, the procedure that creates the perpendicular
-bisector of a segment could create and save an observation that the
-line it is creating is perpendicular to the original segment before
+can use this to mark obvious relationships for the elements they
+create. For instance, the procedure that creates the perpendicular
+bisector of a segment creates and saves an observation that the line
+it is creating is perpendicular to the original segment before
 returning the bisector line.
 
 \begin{code-listing}
@@ -302,11 +302,11 @@ returning the bisector line.
 Example~\ref{interesting-analysis} in the demonstration chapter
 demonstrated a simple example of a construction procedure that marked
 obvious properties of its results. Example~\ref{ortho-interesting},
-demonstrates the other technique of simplifying observations. Although
-there were 21 total observations found in the resulting figure, after
-examining the types polygons in the figure and removing observations
-previously discovered about those elements, only two observations
-remain:
+demonstrates the other, polygon definition-based technique of
+simplifying observations. Although there were 21 total observations
+found in the resulting figure, after examining the types of polygons
+in the figure and removing observations previously discovered about
+those elements, only two observations remain:
 
 \begin{img-example}
 [label=ortho-interesting]
@@ -331,21 +331,23 @@ remain:
 
 \section{Discussion and Extensions}
 
-Perfectly determining is a large task, particularly since filtering
-out obvious relations often requires relationship-specific information:
+Perfectly determining what observations are interesting or non-obvious
+is a large task, particularly since filtering out obvious relations
+often requires relationship-specific information:
 
-As one example, imagine implementing and a \texttt{collinear?}
-predicate that only reports non-obvious relations. Testing whether
-three arbitrary coordinate-based points are collinear is
+As one example, imagine implementing a \texttt{collinear?}  predicate
+that only reports non-obvious relations. Testing whether three
+arbitrary coordinate-based points are collinear is
 straightforward. However, it is not interesting that a random point on
 a line is collinear with the two points from which the line was
 defined. In order to accurately know whether or not it is interesting
-that three points are collinear, the system would need to have access
+that such points are collinear, the system would need to have access
 to a graph-like representation of which points were specified to be on
-which lines.
+which lines. Similar auxiliary structures can help filter other types
+of relationships.
 
-The analysis routine was initially one large, arbitrarily complicated
-procedure in which individual checks were added. This reformulation to
+The analysis routine was initially one large, complicated procedure in
+which individual checks were arbitrarily added. The restructuring to
 use relationships and observations has simplified the complexity and
 enabled better interactions with the learning module, but limited the
 ability for adding many relationship-specific optimizations.
@@ -355,7 +357,7 @@ to discover several relations via the learning model and use basic
 filtering of obvious relations to present intelligible results.
 
 The examples below describe further efforts explored for improving the
-perception module. This involves extracting relationships for elements
+perception module. These involve extracting relationships for elements
 not explicitly specified in a figure, such as auxiliary segments
 between all pairs of points in the figure, treating all intersections
 as points, extracting angles, or merging results. These are areas for
@@ -363,20 +365,22 @@ future work.
 
 \subsection{Auxiliary Segments}
 
-In some circumstances, the system can insert and consider segments
-between all pairs of points. Although this can sometimes produce
-interesting results, it can often lead to too many elements being
-considered. This option is off by default but could be extended and
-enabled in a self-exploration mode.
+In some circumstances, it is useful for the system to insert and
+consider segments between all pairs of points. Although this can
+sometimes produce interesting results, it can often lead to too many
+uninteresting observations. This option is off by default but could be
+extended and enabled in a self-exploration mode, for instance.
 
 \subsection{Extracting Angles}
 
-In addition, I briefly explored a system in which the construction
-module also maintains a graph-like representation of the connectedness
-and adjacencies in the figure. In addition to the complexity of
-determining which angles to keep, keeping track of ``obvious''
-relationships between such extracted angles due to parallel lines, for
-instance, is quite a challenge.
+In addition, I briefly explored an implementation in which the
+construction module also maintains a graph-like representation of the
+connectedness and adjacencies in the figure. Such a representation
+could help with extracting angles not explicitly created in a
+figure. However, in addition to the complexity of determining which
+angles to keep, keeping track of obvious relationships between such
+extracted angles due to parallel lines, for instance, is quite a
+challenge.
 
 \subsection{Merging Related Observations}
 
@@ -386,11 +390,12 @@ equality for a square, it is excessive to report all possible pairs of
 equal sides. I initially implemented a step to merge such observations
 to simply report that all four sides are congruent. However, as more
 relationships were added, the merge process became complicated as the
-arguments for all observations were not commutative and transitive
-(e.g. merging pairs of relationships about angles being equal would
-require a different approach than merging sets of three points with a
-fourth as its center. Generalizing and adding such merge procedures
-would be an interesting extension.
+arguments for all observations were not commutative and transitive.
+For example merging relationships about angles being supplementary to
+one another and merging sets of three concentric points with a fourth
+as its center would each require a unique merge
+procedure. Generalizing and adding such merge procedures would be an
+interesting extension.
 
 %% Initial Stuff:
 
