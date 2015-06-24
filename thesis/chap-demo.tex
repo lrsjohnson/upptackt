@@ -403,7 +403,7 @@ components.
 \end{pdf-example}
 
 To include some user-specified constraints, Example~\ref{solve-i-t}
-shows the steps involved in solving an isoceles triangle from the fact
+shows the steps involved in solving an isosceles triangle from the fact
 that its base angles are congruent. Notice that the only two values
 that must be specified are one joint angle and one bar length. The
 rest is handled by propagation.
@@ -421,15 +421,15 @@ bars until they reach one another.
 
 \begin{pdf-example}
 [label=solve-i-t]
-{Constraint Solving for Isoceles Triangle}
-{images/isoceles.pdf}
-(define (isoceles-triangle-by-angles)
+{Constraint Solving for Isosceles Triangle}
+{images/isosceles.pdf}
+(define (isosceles-triangle-by-angles)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c)
    (m:c-angle-equal (m:joint 'a)
                     (m:joint 'b))))
 
-=> (m:run-mechanism  isoceles-triangle-by-angles)
+=> (m:run-mechanism  isosceles-triangle-by-angles)
 
 (specifying-joint-angle m:joint:c:b:a .6219719886662947)
 (initializing-direction m:joint:c:b:a-dir-1 (direction .9330664240883363))
@@ -547,15 +547,15 @@ comment style={frame hidden,
 opacityback=0,
 height=5.6cm,
 raster columns=2,graphics pages={1,2}}]
-{Isoceles Trapezoids from Diagonals}
+{Isosceles Trapezoids from Diagonals}
 {images/it-diag.pdf}
-(define (isoceles-trapezoid-from-diagonals)
+(define (isosceles-trapezoid-from-diagonals)
   (m:mechanism
    (m:quadrilateral-with-intersecting-diagonals 'a 'b 'c 'd 'e)
    (m:c-length-equal (m:bar 'a 'e) (m:bar 'b 'e))
    (m:c-length-equal (m:bar 'c 'e) (m:bar 'd 'e))))
 
-=> (m:run-mechanism isoceles-trapezoid-from-diagonals)
+=> (m:run-mechanism isosceles-trapezoid-from-diagonals)
 \end{pdf-example}
 
 \begin{pdf-example}
@@ -597,7 +597,7 @@ geometry. The lattice in Example~\ref{initial-lattice} represents the
 built-in objects the system understands. Although it has some
 knowledge of points, segments, lines, rays, angles, circles and
 polygons, upon startup, it knows nothing about higher-level terms such
-as trapezoids, parallelograms, or isoceles triangles.
+as trapezoids, parallelograms, or isosceles triangles.
 
 \begin{img-example}
 [label=initial-lattice,
@@ -669,7 +669,7 @@ Example~\ref{learn-terms}.
 => (learn-term 'parallelogram random-parallelogram)
 done
 
-=> (learn-term 'isoceles-triangle random-isoceles-triangle)
+=> (learn-term 'isosceles-triangle random-isosceles-triangle)
 done
 \end{repl-example}
 
@@ -951,7 +951,7 @@ definitions and used as the premises in new theorems about the
 objects.
 
 In the Example~\ref{simple-definitions}, the initial necessary
-properties of an isoceles triangle are that it both has congruent
+properties of an isosceles triangle are that it both has congruent
 legs \emph{and} congruent base angles. After the definition
 simplification via constraint solving, we correctly discover that
 either of these constraints alone is sufficient: either a single pair
@@ -960,14 +960,14 @@ of congruent base angles or a pair of congruent sides.
 \begin{repl-example}
 [label=simple-definitions]
 {Learning Simple Definitions}
-=> (what-is 'isoceles-triangle)
-(isoceles-triangle
+=> (what-is 'isosceles-triangle)
+(isosceles-triangle
  (triangle)
  ((equal-length (polygon-segment 0 1 <premise>)
                 (polygon-segment 2 0 <premise>))
   (equal-angle (polygon-angle 1 <premise>) (polygon-angle 2 <premise>))))
 
-=> (get-simple-definitions 'isoceles-triangle)
+=> (get-simple-definitions 'isosceles-triangle)
 
 ((sufficient
   (((equal-angle (*angle* b) (*angle* c)))

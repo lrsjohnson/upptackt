@@ -38,27 +38,27 @@
 
 ;;;;;;;;;;;;;;;;;; Can learn and explain new terms ;;;;;;;;;;;;;;;;;;;
 
-(what-is 'isoceles-triangle)
+(what-is 'isosceles-triangle)
 
-(learn-term 'isoceles-triangle random-isoceles-triangle)
+(learn-term 'isosceles-triangle random-isosceles-triangle)
 
-(what-is 'isoceles-triangle)
+(what-is 'isosceles-triangle)
 
-(is-a? 'isoceles-triangle (random-isoceles-triangle))
+(is-a? 'isosceles-triangle (random-isosceles-triangle))
 
-(is-a? 'isoceles-triangle (random-equilateral-triangle))
+(is-a? 'isosceles-triangle (random-equilateral-triangle))
 
-(is-a? 'isoceles-triangle (random-triangle))
+(is-a? 'isosceles-triangle (random-triangle))
 
 (learn-term 'equilateral-triangle random-equilateral-triangle)
 
 (what-is 'equilateral-triangle)
 
-(is-a? 'equilateral-triangle (random-isoceles-triangle))
+(is-a? 'equilateral-triangle (random-isosceles-triangle))
 
 (is-a? 'equilateral-triangle (random-equilateral-triangle))
 
-(learn-term 'right-isoceles-triangle random-right-isoceles-triangle)
+(learn-term 'right-isosceles-triangle random-right-isosceles-triangle)
 
 (learn-term 'right-triangle random-right-triangle)
 
@@ -101,9 +101,9 @@
 
 (what-is 'cyclic)
 
-(learn-term 'isoceles-trapezoid random-isoceles-trapezoid)
+(learn-term 'isosceles-trapezoid random-isosceles-trapezoid)
 
-(what-is 'isoceles-trapezoid)
+(what-is 'isosceles-trapezoid)
 
 (learn-term 'three-equal-trapezoid random-3-equal-trapezoid)
 
@@ -118,4 +118,4 @@
 
 ;;; (show-definition-lattice)
 
-;;; (get-simple-definitions 'isoceles-triangle)
+;;; (get-simple-definitions 'isosceles-triangle)

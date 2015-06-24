@@ -60,13 +60,13 @@
    ))
 
 ;;; Works:
-(define (isoceles-triangle)
+(define (isosceles-triangle)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c)
    (m:c-length-equal (m:bar 'a 'b)
                      (m:bar 'b 'c))))
 
-(define (isoceles-triangle-by-angles)
+(define (isosceles-triangle-by-angles)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c)
    (m:c-angle-equal (m:joint 'a)
@@ -76,7 +76,7 @@
     (list (m:joint 'a) (m:joint 'b) (m:joint 'c))
     pi)))
 
-(define (isoceles-triangle-by-angles)
+(define (isosceles-triangle-by-angles)
   (m:mechanism
    (m:establish-polygon-topology 'a 'b 'c)
    (m:c-angle-equal (m:joint 'a)

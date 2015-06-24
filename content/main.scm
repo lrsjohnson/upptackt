@@ -1,5 +1,5 @@
 (define (i-t-figure)
-  (let-geo* (((t (a b c)) (random-isoceles-triangle)))
+  (let-geo* (((t (a b c)) (random-isosceles-triangle)))
     (figure t)))
 
 
@@ -21,7 +21,7 @@
     (figure r m1 m2 (make-segment m1 m2))))
 
 (define (demo-figure)
-  (let-geo* (((t (a b c)) (random-isoceles-triangle))
+  (let-geo* (((t (a b c)) (random-isosceles-triangle))
              (d (midpoint a b))
              (e (midpoint a c))
              (f (midpoint b c))

@@ -38,26 +38,26 @@
       (ray-endpoint r1)
       p1 p2))))
 
-(define (random-isoceles-triangle)
+(define (random-isosceles-triangle)
   (let* ((s1 (random-segment))
          (base-angle (rand-angle-measure))
          (s2 (rotate-about (segment-endpoint-1 s1)
                            base-angle
                            s1)))
     (with-dependency
-     (make-random-dependency 'random-isoceles-triangle)
+     (make-random-dependency 'random-isosceles-triangle)
      (polygon-from-points
       (segment-endpoint-1 s1)
       (segment-endpoint-2 s1)
       (segment-endpoint-2 s2)))))
 
-(define (random-right-isoceles-triangle)
+(define (random-right-isosceles-triangle)
   (let* ((s1 (random-segment))
          (s2 (rotate-about (segment-endpoint-1 s1)
                            (/ pi 2)
                            s1)))
     (with-dependency
-     (make-random-dependency 'random-right-isoceles-triangle)
+     (make-random-dependency 'random-right-isosceles-triangle)
      (polygon-from-points
       (segment-endpoint-1 s1)
       (segment-endpoint-2 s1)
@@ -186,7 +186,7 @@
                          (segment-endpoint-2 s)
                          (segment-endpoint-2 s2))))
 
-(define (random-isoceles-trapezoid)
+(define (random-isosceles-trapezoid)
   (let* ((a1 (random-obtuse-angle))
          (p1 (angle-vertex a1))
          (r1 (ray-from-arm-1 a1))

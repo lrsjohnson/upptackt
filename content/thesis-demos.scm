@@ -107,7 +107,7 @@
    (m:c-right-angle (m:joint 'b 'e 'c)) ;; Right Angle in Center
    (m:c-length-equal (m:bar 'c 'e) (m:bar 'a 'e))))
 
-(define (isoceles-trapezoid-from-diagonals)
+(define (isosceles-trapezoid-from-diagonals)
   (m:mechanism
    (m:quadrilateral-with-intersecting-diagonals 'a 'b 'c 'd 'e)
 
