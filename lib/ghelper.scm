@@ -32,34 +32,6 @@
 ;;; implemented using #f as a failure return, requiring
 ;;; further search.
 
-#| ;;; For example.
-(define foo (make-generic-operator 2 'foo))
-
-(defhandler foo + number? number?)
-
-(define (symbolic? x)
-  (or (symbol? x)
-      (and (pair? x) (symbolic? (car x)) (list? (cdr x)))))
-
-(define (+:symb x y) (list '+ x y))
-
-(defhandler foo +:symb number? symbolic?)
-(defhandler foo +:symb symbolic? number?)
-(defhandler foo +:symb symbolic? symbolic?)
-
-(foo 1 2)
-;Value: 3
-
-(foo 1 'a)
-;Value: (+ 1 a)
-
-(foo 'a 1)
-;Value: (+ a 1)
-
-(foo '(+ a 1) '(+ 1 a))
-;Value: (+ (+ a 1) (+ 1 a))
-|#
-
 (define (make-generic-operator arity
                    #!optional name default-operation)
   (let ((record (make-operator-record arity)))
@@ -87,49 +59,6 @@
 
     (assign-operation operator default-operation)
     operator))
-
-#|
-;;; To illustrate the structure we populate the
-;;; operator table with quoted symbols rather
-;;; than actual procedures.
-
-(define blend
-  (make-generic-operator 2 'blend 'blend-default))
-
-(pp (get-operator-record blend))
-(2 . blend-default)
-
-(defhandler blend 'b+b 'blue?  'blue?)
-(defhandler blend 'g+b 'green? 'blue?)
-(defhandler blend 'b+g 'blue?  'green?)
-(defhandler blend 'g+g 'green? 'green?)
-
-(pp (get-operator-record blend))
-(2 (green? (green? . g+g) (blue? . g+b))
-   (blue? (green? . b+g) (blue? . b+b))
-   .
-   blend-default)
-|#
-
-#|
-;;; Backtracking
-
-;;; An operator satisfies bleen?
-;;; if it satisfies either blue? or green?
-
-(defhandler blend 'e+r 'bleen? 'red?)
-(defhandler blend 'e+u 'bleen? 'grue?)
-
-(pp (get-operator-record blend))
-(2 (bleen? (grue? . e+u) (red? . e+r))
-   (green? (green? . g+g) (blue? . g+b))
-   (blue? (green? . b+g) (blue? . b+b))
-   .
-   blend-default)
-
-;;; Consider what happens if we invoke
-;;; (blend <bleen> <blue>)
-|#
 
 ;;; This is the essence of the search.
 
@@ -235,62 +164,4 @@
     (and (fix:<= (procedure-arity-min arity) len)
          (or (not (procedure-arity-max arity))
              (fix:>= (procedure-arity-max arity) len)))))
-
-#|
-;;; Demonstration of handler tree structure.
-;;; Note: symbols were used instead of procedures
-
-(define foo (make-generic-operator 3 'foo 'foo-default))
-
-(pp (get-operator-record foo))
-(3 . foo-default)
-
-(defhandler foo 'two-arg-a-b 'a 'b)
-(pp (get-operator-record foo))
-(3 (a (b . two-arg-a-b)) . foo-default)
-
-(defhandler foo 'two-arg-a-c 'a 'c)
-(pp (get-operator-record foo))
-(3 (a (c . two-arg-a-c) (b . two-arg-a-b)) . foo-default)
-
-(defhandler foo 'two-arg-b-c 'b 'c)
-(pp (get-operator-record foo))
-(3 (b (c . two-arg-b-c))
-   (a (c . two-arg-a-c) (b . two-arg-a-b))
-   . foo-default)
-|#
-
-#|
-(defhandler foo 'one-arg-b 'b)
-(pp (get-operator-record foo))
-(3 (b (c . two-arg-b-c) . one-arg-b)
-   (a (c . two-arg-a-c) (b . two-arg-a-b))
-   . foo-default)
-
-(defhandler foo 'one-arg-a 'a)
-(pp (get-operator-record foo))
-(3 (b (c . two-arg-b-c) . one-arg-b)
-   (a (c . two-arg-a-c) (b . two-arg-a-b) . one-arg-a)
-   .
-   foo-default)
-
-(defhandler foo 'one-arg-a-prime 'a)
-;Warning: Replacing a default handler:
-;         one-arg-a one-arg-a-prime
-
-(defhandler foo 'two-arg-a-b-prime 'a 'b)
-;Warning: Replacing a handler:
-;         two-arg-a-b two-arg-a-b-prime
-
-(defhandler foo 'three-arg-x-y-z 'x 'y 'z)
-(pp (get-operator-record foo))
-(3 (x (y (z . three-arg-x-y-z)))
-   (b (c . two-arg-b-c) . one-arg-b)
-   (a (c . two-arg-a-c)
-      (b . two-arg-a-b-prime)
-      .
-      one-arg-a-prime)
-   .
-   foo-default)
-|#
 |#
