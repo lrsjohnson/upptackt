@@ -15,7 +15,8 @@ Sussman and others from the MIT Scheme Mechanics Library
 operations, and hash-table based eq-properties. All other code in
 these listings is written by me for this thesis.
 
-\lstlistoflistings
+\section*{List of Listings}
+\lolnoheading
 
 \lstdefinestyle{includes}{
   numbers=left,
@@ -23,9 +24,9 @@ these listings is written by me for this thesis.
   basicstyle=\fontsize{8pt}{9pt}\ttfamily,
 }
 
-
-\newcommand{\includecode}[2][c]{\lstinputlisting[caption=#2, style=includes]{code/#2}}
+\newcommand{\includecode}[2][c]{\lstinputlisting[caption=~#2, style=includes]{code/#2}}
 % ...
+\newpage
 \linespread{1}
 
 % Reset them at the end of this chapter!
@@ -39,6 +40,7 @@ these listings is written by me for this thesis.
 
 %\includecode{learning/walkthrough.scm}
 
+\addtocontents{lol}{{\bf Imperative Construction System:}}
 \includecode{figure/core.scm}
 \includecode{figure/line.scm}
 \includecode{figure/direction.scm}
@@ -59,13 +61,16 @@ these listings is written by me for this thesis.
 \includecode{figure/transforms.scm}
 \includecode{figure/direction-interval.scm}
 
+\addtocontents{lol}{{\bf Perception Module:}}
 \includecode{perception/relationship.scm}
 \includecode{perception/observation.scm}
 \includecode{perception/analyzer.scm}
 
+\addtocontents{lol}{{\bf Graphics Utilities:}}
 \includecode{graphics/appearance.scm}
 \includecode{graphics/graphics.scm}
 
+\addtocontents{lol}{{\bf Declarative Constraint Solver:}}
 \includecode{solver/linkages.scm}
 \includecode{solver/region.scm}
 \includecode{solver/constraints.scm}
@@ -73,6 +78,7 @@ these listings is written by me for this thesis.
 \includecode{solver/mechanism.scm}
 \includecode{solver/main.scm}
 
+\addtocontents{lol}{{\bf Learning Module:}}
 \includecode{learning/interface.scm}
 \includecode{learning/lattice.scm}
 \includecode{learning/definitions.scm}
@@ -82,13 +88,21 @@ these listings is written by me for this thesis.
 \includecode{learning/core-knowledge.scm}
 \includecode{learning/investigation.scm}
 
-%\includecode{content/investigations.scm}
+\addtocontents{lol}{{\bf Example Content:}}
+\includecode{content/random-polygons.scm}
+\includecode{content/thesis-demos.scm}
+\includecode{content/walkthrough.scm}
+\includecode{content/investigations.scm}
+\includecode{content/main.scm}
 
+\addtocontents{lol}{{\bf Core Components and Utilities:}}
 \includecode{core/animation.scm}
 \includecode{core/macros.scm}
 \includecode{core/print.scm}
 \includecode{core/utils.scm}
 
+\addtocontents{lol}{{\bf External Library Procedures:}}
+\includecode{lib/close-enuf.scm}
 \includecode{lib/eq-properties.scm}
 \includecode{lib/ghelper.scm}
 % ...
