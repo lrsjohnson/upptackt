@@ -153,7 +153,7 @@
   m:region-contradiction?
   (error-regions m:contradiction-error-regions))
 
-;;; TODO: Maybe differeniate by error values
+;;;  Maybe differeniate by error values?
 (define (m:region-contradictions-equivalent? rc1 rc2) #t)
 
 (define (m:region-contradiction->figure-elements rc)
@@ -169,7 +169,6 @@
     (if (direction-equal? dir-1 dir-2)
         (cond ((m:on-ray? endpoint-1 ray2) ray1)
               ((m:on-ray? endpoint-2 ray1) ray2)
-              ;; TODO: Determine error value
               (else (m:make-region-contradiction (list ray1 ray2))))
         (let ((ray1-p2 (m:p2-on-ray ray1))
               (ray2-p2 (m:p2-on-ray ray2)))
@@ -182,7 +181,6 @@
                  (if (and (m:on-ray? intersection ray1)
                           (m:on-ray? intersection ray2))
                      (m:make-point-set (list intersection))
-                     ;; TODO: Determine error value
                      (m:make-region-contradiction (list ray1 ray2))))))))))
 
 (define (m:intersect-arcs arc1 arc2)
@@ -207,7 +205,6 @@
                          intersections)))
             (if (> (length points) 0)
                 (m:make-point-set points)
-                ;; TODO: Determine error value
                 (m:make-region-contradiction (list arc1 arc2))))))))
 
 (define (m:intersect-ray-arc ray arc)
@@ -225,7 +222,6 @@
                      intersections)))
         (if (> (length points) 0)
             (m:make-point-set points)
-            ;; TODO: Determine error value
             (m:make-region-contradiction (list ray arc)))))))
 
 (define (m:intersect-arc-ray arc ray)
@@ -254,7 +250,6 @@
                          point-intersections)))))))
     (if (> (length results) 0)
         (m:make-point-set results)
-        ;;; TODO: Determine error value
         (m:make-region-contradiction (list ps1 region)))))
 
 (define (m:intersect-region-with-point-set region ps)

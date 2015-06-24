@@ -41,7 +41,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; TODO: Where to put these?
 (define (on-segment? p seg)
   (let ((seg-start (segment-endpoint-1 seg))
         (seg-end (segment-endpoint-2 seg)))

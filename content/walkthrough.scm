@@ -91,7 +91,7 @@
 ;; (run-investigation (diagonal-investigation))
 ;; (run-investigation (midsegment-investigation))
 
-;;;;;;;;;;;;;;;;;;;;;;;;; Check definition-lattice ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;; Check definition-lattice ;;;;;;;;;;;;;;;;;;;;;;
 (show-definition-lattice)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Check Simple Terms ;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -141,9 +141,10 @@
                   (angle-measure a2))
                (/ pi 2.0)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;; Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;; Ideas for Definitions ;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; TODO? Consider learning or putiting elsewhere
+;;; Not currently used, but could be learned later?
+
 (define (linear-pair? a1 a2)
   (define (linear-pair-internal? a1 a2)
     (and (point-equal? (angle-vertex a1)

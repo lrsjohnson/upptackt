@@ -164,7 +164,6 @@
 (defhandler m:subtract-directions
   subtract-directions direction? direction?)
 
-;;; TODO: Support Intervals for thetas?
 (defhandler m:subtract-directions
   (lambda (di1 di2)
     nothing)
@@ -331,7 +330,6 @@
           (m:p2->p1-bar-propagator p2 p1 bar)
           bar)))))
 
-;;; TODO: Combine p1->p2 / p2->p1
 (define (m:x-y-direction->region px py direction)
   (if (direction? direction)
       (let ((vertex (make-point px py)))
@@ -419,7 +417,6 @@
 
 (defhandler print m:print-joint m:joint?)
 
-;;; TOOD: Abstract?
 (define (m:identify-out-of-arm-1 joint bar)
   (m:set-endpoint-1 bar joint)
   (m:set-joint-arm-1 joint bar)
@@ -913,8 +910,6 @@
 |#
 
 ;;;;;;;;;;;;;;;;;;; Converstion to Figure Elements ;;;;;;;;;;;;;;;;;;;
-
-;;; TODO: Extract dependencies from TMS? or set names
 
 (define (m:point->figure-point m-point)
   (if (not (m:point-specified? m-point))

@@ -1,7 +1,7 @@
 ;;; investigations.scm -- Some sample investigations and ideas that
 ;;; could be persued
 
-;;; [1] Linear Pair Conjecture
+;;; Linear Pair Conjecture
 ;;; Givens: Angles a-1 and a-2 form a linear pair
 ;;; Goal: m(a-1) + m(a-2) = 180 degrees
 (define (linear-pair)
@@ -12,7 +12,7 @@
              (a-2 (smallest-angle-from r (flip l1))))
     (figure a l1 r a-1 a-2)))
 
-;;; [2] Vertical Angles Conjecture
+;;; Vertical Angles Conjecture
 ;;; Givens: Angles a-1 and a-2 are vertical angles
 ;;; Goal: m(a-1) = m(a-2)
 (define (vertical-angles)
@@ -23,7 +23,7 @@
              (a-2 (smallest-angle-from (flip l1) (flip l2))))
     (figure l1 c l2 a-1 a-2)))
 
-;;; [3a] Corresponding Angles Conjecture
+;;; Corresponding Angles Conjecture
 ;;; Givens: - Lines l1 and l2 are parallel
 ;;;         - Line l3 is a transversal
 ;;;         - a-1 and a-2 are resulting corresponding angles
@@ -38,9 +38,9 @@
              (a-2 (smallest-angle-from l3 l1)))
             (figure l1 l2 a b l3 a-1 a-2)))
 
-;;; [3b, 3c] Interior / alternate interior: ordering of angles and
+;;; Interior / alternate interior: ordering of angles and
 
-;;; [4] Converse of Parallel lines
+;;; Converse of Parallel lines
 ;;; Givens: - m(a-1) = m(a-2)
 ;;;         - a-1, a-2, are either CA, AIA, AEA, etc. of Lines l1, l2
 ;;; Goal: lines l1 and l2 are parallel
@@ -52,7 +52,7 @@
              (l2 (line-from-arm-2 a-2)))
     (figure a-1 a-2 l1 l2 l3)))
 
-;;; [5] Perpendicular bisector conjecture
+;;; Perpendicular bisector conjecture
 ;;; Givens: - p is a point on perpendicular bisector of segment (a, b)
 ;;; Goal: p is equidistant from a and b
 (define (perpendicular-bisector-equidistant)
@@ -61,7 +61,7 @@
              (p (random-point-on-line l1)))
             (figure s l1 p)))
 
-;;; [6] Converse of perpendicular bisector conjecture
+;;; Converse of perpendicular bisector conjecture
 ;;; Given: - a and b are equidistant from point p
 ;;; Goal: p is on the perpendicular bisector of a, b
 (define (perpendicular-bisector-converse)
@@ -72,7 +72,7 @@
              (pb (perpendicular-bisector s)))
             (figure p a b s pb)))
 
-;;; [8] Angle bisector conjecture
+;;; Angle bisector conjecture
 ;;; Given: angle a-1 of rays r-1, r-2, point a on angle-bisector l1
 ;;; Goal: Distnace from a to r-1 = distance a to r-2
 
@@ -85,7 +85,7 @@
      (figure a r-1 r-2 ab p s-1 s-2)))
 ;;; Interesting, dependent on "shortest distance" from prior conjecture
 
-;;; [9] Angle bisector concurrency
+;;; Angle bisector concurrency
 ;;; Given: Triangle abc with angle-bisectors l1, l2, l3
 ;;; Goal: l1, l2, l3 are concurrent
 (define (angle-bisector-concurrency)
@@ -96,7 +96,7 @@
              (l3 (polygon-angle-bisector t1 c)))
     (figure t1 l1 l2 l3)))
 
-;;; [10] Perpendicular Bisector Concurrency
+;;; Perpendicular Bisector Concurrency
 ;;; Given: Triangle ABC with sides s1, s2, s3, perpendicular bisectors
 ;;; l1, l2, l3
 ;;; Goal: l1, l2, l3 are concurrent
@@ -107,7 +107,7 @@
              (l3 (perpendicular-bisector (make-segment c a))))
     (figure t l1 l2 l3)))
 
-;;; [11] Altitude Concurrency
+;;; Altitude Concurrency
 ;;; Given: Triangle ABC with altituds alt-1, alt2, alt-3
 ;;; Goal: alt-1, alt-2, alt-3 are concurrent
 (define (altitude-concurrency)

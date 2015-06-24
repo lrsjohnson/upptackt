@@ -31,7 +31,7 @@
 (define *wiggle-ratio* 0.15)
 
 ;;; Will return floats even if passed integers
-;;; TODO: Rename to animated?
+;;; Rename to animated?
 (define (rand-range min max)
   (let* ((range-size (- max min))
          (wiggle-amount (* range-size *wiggle-ratio*))
@@ -80,7 +80,7 @@
          (make-point x y)
          (vec-from-direction-distance dir *point-wiggle-radius*))))))
 
-;;; TODO: Maybe separate out reflection about line?
+;;; Maybe separate out reflection about line?
 (define (random-point-left-of-line line)
   (let* ((p (random-point))
          (d (signed-distance-to-line p line))
@@ -116,7 +116,6 @@
          (v (sub-points p2 p1)))
     (add-to-point p1 (scale-vec v t))))
 
-;;; TODO: Fix this for new construction
 (define (random-point-on-line l)
   (let* ((p1 (line-p1 l))
          (p2 (line-p2 l))

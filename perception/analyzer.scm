@@ -176,7 +176,7 @@
                         (not (adjacent-in-same-polygon? p1 p2))
                         (make-auxiliary-segment
                          (car point-pair)
-                         (cadr point-pair))))) ; TODO: Name segment
+                         (cadr point-pair)))))
                ppairs)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Dealing with pairs ;;;;;;;;;;;;;;;;;;;;;;;;;

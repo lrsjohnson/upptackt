@@ -90,7 +90,6 @@
      (let* ((p1 (polygon-point-ref polygon i))
             (p2 (polygon-point-ref polygon j))
             (segment (make-segment p1 p2)))
-       ;;: TODO: Handle situations where polygon isn't terminal dependency
        segment)))))
 
 (define (polygon-segments polygon)
