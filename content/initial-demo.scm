@@ -1,3 +1,5 @@
+;;; Initial System Demo, Early Spring 2015
+
 (define (i-t-figure)
   (let-geo* (((t (a b c)) (random-isosceles-triangle)))
     (figure t)))
@@ -25,22 +27,16 @@
              (d (midpoint a b))
              (e (midpoint a c))
              (f (midpoint b c))
-
              (l1 (perpendicular (line-from-points a b) d))
              (l2 (perpendicular (line-from-points a c) e))
              (l3 (perpendicular (line-from-points b c) f))
-
              (i1 (intersect-lines l1 l2))
              (i2 (intersect-lines l1 l3))
-
              (cir (circle-from-points i1 a)))
 
     (figure
-     (make-segment a b)
-     (make-segment b c)
-     (make-segment a c)
-     a b c l1 l2 l3 cir
-     i1 i2)))
+     (make-segment a b) (make-segment b c) (make-segment a c)
+     a b c l1 l2 l3 cir i1 i2)))
 
 (define (circle-line-intersect-test)
   (let-geo* ((cir (random-circle))
@@ -56,9 +52,7 @@
   (let-geo* ((a (random-point))
              (b (random-point))
              (d (distance a b))
-             (r (rand-range
-                 (* d 0.5)
-                 (* d 1)))
+             (r (rand-range (* d 0.5) (* d 1)))
              (c1 (make-circle a r))
              (c2 (make-circle b r))
              (cd (intersect-circles c1 c2))
@@ -97,14 +91,10 @@
              (circum-cir (circle-from-points
                           pb-center
                           a)))
-    (figure t a-1 a-2 a-3
-            pb-center
-            radius-segment
-            incircle
-            circum-cir)))
+    (figure t a-1 a-2 a-3 pb-center radius-segment
+            incircle circum-cir)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Run commands
+;;;;;;;;;;;;;;;;;;;;;;; Original Run commands ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define current-figure demo-figure)
 
@@ -119,7 +109,6 @@
 (define *num-inner-loop* 5)
 (define *num-outer-loop* 5)
 
-
 (define (run-figure current-figure-proc)
   (let ((analysis-data (make-analysis-collector)))
     (run-animation
@@ -133,20 +122,12 @@
 
 (define interesting-figures
   (list
-   debug-figure
-   parallel-lines-converse
-   perpendicular-bisector-equidistant
-   perpendicular-bisector-converse
-   demo-figure
-   linear-pair
-   vertical-angles
-   corresponding-angles
-   cyclic-quadrilateral))
+   debug-figure parallel-lines-converse perpendicular-bisector-equidistant
+   perpendicular-bisector-converse demo-figure linear-pair
+   vertical-angles corresponding-angles cyclic-quadrilateral))
 
-(define (r)
+(define (run-initial-demo)
   (for-each (lambda (figure)
               (run-figure figure))
             interesting-figures)
   'done)
-
-;(r)

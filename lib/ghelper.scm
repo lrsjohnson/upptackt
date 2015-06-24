@@ -293,23 +293,4 @@
    .
    foo-default)
 |#
-
-;;; Compatibility with previous extensible generics
-
-(define make-generic-operation make-generic-operator)
-
-(define (add-to-generic-operation! operator
-				   applicability
-				   handler)
-  ;; An applicability is a list representing a
-  ;; disjunction of lists, each representing a
-  ;; conjunction of predicates.
-
-  (for-each (lambda (conj)
-	      (apply assign-operation
-		     operator
-		     handler
-		     conj))
-	    applicability))
-
 |#

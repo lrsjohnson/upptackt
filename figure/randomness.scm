@@ -254,7 +254,7 @@
                       points)))))))
 
 (define (random-polygon)
-  (random-n-gon (+ 5 (random 5))))
+  (random-n-gon (+ 3 (random 5))))
 
 (define (random-triangle)
   (let* ((p1 (random-point))

@@ -203,7 +203,7 @@ gathers all resulting observations.
 \begin{code-listing}
 [label=analyzer]
 {Analyzer Routine}
-(define (analyze figure)
+(define (analyze-figure figure)
   (let* ((points (figure-points figure))
          (angles (figure-angles figure))
          (linear-elements (figure-linear-elements figure))
@@ -236,8 +236,7 @@ $n$ as lists.
 [label=extract-relationships]
 {Extracting Relationships}
 (define (extract-relationship elements relationship)
-  (map (lambda (tuple)
-         (make-observation relationship tuple))
+  (map (lambda (tuple) (make-observation relationship tuple))
        (report-n-wise
         (relationship-arity relationship)
         (relationship-predicate relationship)
@@ -248,23 +247,37 @@ $n$ as lists.
     (filter (nary-predicate n predicate) tuples)))
 \end{code-listing}
 
+For the full \texttt{all-observations} procedure in Listing
+\ref{all-animations}, the utility procedure
+\texttt{require-majority-animated} is used to generate random frames
+from wiggling the random choices in the provided figure procedure. It
+then only reports observations present in a majority of the
+frames. This corresponds to wiggling choices in a construction and
+observing invariant relationships.
+\enlargethispage*{\baselineskip}
+\begin{code-listing}
+[label=all-animations]
+{All Observations from Wiggling Choices}
+(define (all-observations figure-proc)
+  (require-majority-animated
+   (lambda () (analyze-figure (figure-proc)))
+   observation-equal?))
+\end{code-listing}
+
 \section{Focusing on Interesting Observations}
 
-The final aspect of the perception module involves filtering out
-obvious and previously discovered observations.  Several techniques
-will be discussed but Listing~\ref{interesting-obs-impl} shows the
-module's current state of accomplishing this task via the
-\texttt{interesting-observations} procedure. The procedure first
-extracts all observations from the figure and aggregates a list of
-obvious relations specified during the construction. It then uses the
-learning module to examine all polygons found in the figure and
-determine the most specific definitions each satisfies. The procedure
-obtains all previously-discovered facts about such shapes to remove
-from the final result and adds new polygon observations in their
-place. Example~\ref{ortho-interesting} shows a concrete example of
-this.
-
-\newpage
+The final task of the perception module involves filtering out obvious
+and previously discovered observations.
+Listing~\ref{interesting-obs-impl} shows the module's current state of
+accomplishing this task via the \texttt{interesting-observations}
+procedure. The procedure first extracts all observations from the
+figure and aggregates a list of obvious relations specified during the
+construction. It then uses the learning module to examine all polygons
+found in the figure and determine the most specific definitions each
+satisfies. The procedure obtains all previously-discovered facts about
+such shapes to remove from the final result and adds new polygon
+observations in their place. Example~\ref{ortho-interesting} shows a
+concrete example of this.
 
 \begin{code-listing}
 [label=interesting-obs-impl]
@@ -378,9 +391,8 @@ construction module also maintains a graph-like representation of the
 connectedness and adjacencies in the figure. Such a representation
 could help with extracting angles not explicitly created in a
 figure. However, in addition to the complexity of determining which
-angles to keep, keeping track of obvious relationships between such
-extracted angles due to parallel lines, for instance, is quite a
-challenge.
+angles to keep, keeping track of obvious relationships due to parallel
+lines and overlapping angles is quite a challenge.
 
 \subsection{Merging Related Observations}
 

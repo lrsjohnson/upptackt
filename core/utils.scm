@@ -171,6 +171,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Majorities ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; Runs procedure on random animation frames and checks that results
+;;; appear in a majority of frames.
+
 (define *majority-trials-total* 3)
 (define *majority-trials-required* 2)
 
@@ -179,9 +182,7 @@
                   equality-predicate))
 
 (define (require-enough f total-trials num-required equality-predicate)
-  (let ((all-executions
-         (map (lambda (x) (f)) (iota total-trials))))
-    (pprint all-executions)
+  (let ((all-executions (n-random-frames total-trials f)))
     (check-enough all-executions num-required equality-predicate)))
 
 (define (check-enough execution-results num-required equality-predicate)

@@ -19,6 +19,8 @@
 ;; ~30 Frames per second:
 (define *animation-sleep* 30)
 
+(define *animate-value-only* #f)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;; Internal Constants ;;;;;;;;;;;;;;;;;;;;;;;;;
 (define *is-animating?* #f)
 (define *animation-value* 0)
@@ -47,16 +49,27 @@
 
 ;;; f should be a function of one float argument in [0, 1]
 (define (animate f)
-  (let ((my-index *next-animation-index*))
-    (set! *next-animation-index* (+ *next-animation-index* 1))
-    (f (cond ((< *animating-index* my-index) 0)
-             ((= *animating-index* my-index) *animation-value*)
-             ((> *animating-index* my-index) 1)))))
+  (if *animate-value-only*
+      (f (random 1.0))
+      (let ((my-index *next-animation-index*))
+        (set! *next-animation-index* (+ *next-animation-index* 1))
+        (f (cond ((< *animating-index* my-index) 0)
+                 ((= *animating-index* my-index) *animation-value*)
+                 ((> *animating-index* my-index) 1))))))
 
 (define (animate-range min max)
   (animate (lambda (v)
              (+ min
                 (* v (- max min))))))
+
+;;;;;;;;;;;;;;;;;;;;; Selected Animation Frames ;;;;;;;;;;;;;;;;;;;;;;
+
+(define (n-random-frames n f)
+  (fluid-let ((*animate-value-only* #t)
+              (*is-animating?* #t)
+              (*persistent-values-table* (make-key-weak-eq-hash-table))
+              (*animation-value* 0))
+    (map (lambda (x) (fluid-let ((*next-value-index* 0)) (f))) (iota n))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Persistence ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
