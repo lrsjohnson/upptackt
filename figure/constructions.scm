@@ -21,23 +21,17 @@
                           (point-x p2))
                      (avg (point-y p1)
                           (point-y p2)))))
-    (with-dependency
-     `(midpoint ,(element-dependency p1) ,(element-dependency p2))
-     (with-source (lambda (premise)
-                    (midpoint
-                     ((element-source p1) premise)
-                     ((element-source p1) premise)))
-                  newpoint))))
+    (save-obvious-observation!
+     (make-observation equal-length-relationship
+                       (list
+                        (make-segment p1 newpoint)
+                        (make-segment p2 newpoint))))
+    newpoint))
 
 (define (segment-midpoint s)
   (let ((p1 (segment-endpoint-1 s))
         (p2 (segment-endpoint-2 s)))
-    (with-dependency
-     `(segment-midpoint ,s)
-     (with-source (lambda (premise)
-                    (segment-midpoint
-                     ((element-source s) premise)))
-                  (midpoint p1 p2)))))
+    (midpoint p1 p2)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -72,14 +66,24 @@
 
 (define (perpendicular linear-element point)
   (let* ((direction (->direction linear-element))
-         (rotated-direction (rotate-direction-90 direction)))
-    (make-line point rotated-direction)))
+         (rotated-direction (rotate-direction-90 direction))
+         (new-line (make-line point rotated-direction)))
+    (save-obvious-observation!
+     (make-observation
+      perpendicular-relationship
+      (list linear-element new-line)))
+    new-line))
 
 ;;; endpoint-1 is point, endpoint-2 is on linear-element
 (define (perpendicular-to linear-element point)
   (let ((pl (perpendicular linear-element point)))
     (let ((i (intersect-linear-elements pl (->line linear-element))))
-      (make-segment point i))))
+      (let ((seg (make-segment point i)))
+        (save-obvious-observation!
+         (make-observation
+          perpendicular-relationship
+          (list seg linear-element)))
+        seg))))
 
 (define (perpendicular-line-to linear-element point)
   (let ((pl (perpendicular linear-element point)))
@@ -101,6 +105,11 @@
          (radians (angle-measure a))
          (half-angle (/ radians 2))
          (new-direction (add-to-direction d2 half-angle)))
+    (save-obvious-observation!
+     (make-observation
+      equal-angle-relationship
+      (list (make-angle d2 vertex new-direction)
+            (make-angle new-direction vertex d1))))
     (make-ray vertex new-direction)))
 
 (define (polygon-angle-bisector polygon vertex-angle)
