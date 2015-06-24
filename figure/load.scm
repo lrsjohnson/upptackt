@@ -2,7 +2,7 @@
 (for-each (lambda (f) (load f))
           '("core"
             "metadata"
-            "line"
+            "linear"
             "direction"
             "direction-interval"
             "vec"
