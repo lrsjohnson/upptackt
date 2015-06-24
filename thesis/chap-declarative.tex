@@ -549,13 +549,6 @@ planned extension will attempt to recover from such situations more
 gracefully by trying other values or orderings for specifying
 components.
 
-The system uses \texttt{m:instantiate} to add content to cells. As
-seen in Listing~\ref{specify-something}, \texttt{m:instantiate} wraps
-the value in a truth maintenance system structure provided by Radul's
-propagator system. These structures maintain dependencies for values, can report
-which sets of premises are at odds with one another and allow
-individual choices to be removed and replaced with new values.
-\enlargethispage*{\baselineskip}
 \begin{code-listing}
 [label=specify-something]
 {Specifying and Instantiating Values}
@@ -566,7 +559,19 @@ individual choices to be removed and replaced with new values.
    (m:specify-joint-if m m:joint-anchored-and-arm-lengths-specified?)
    (m:initialize-bar-if m m:bar-length-specified?)
    ...)
+\end{code-listing}
 
+The system uses \texttt{m:instantiate} to add content to cells. As
+seen in Listing~\ref{instantiate}, \texttt{m:instantiate} wraps
+the value in a truth maintenance system structure provided by Radul's
+propagator system. These structures maintain dependencies for values, can report
+which sets of premises are at odds with one another and allow
+individual choices to be removed and replaced with new values.
+\enlargethispage*{\baselineskip}
+
+\begin{code-listing}
+[label=instantiate]
+{Instantiating Values with TMS}
 (define (m:instantiate cell value premise)
   (add-content cell (make-tms (contingent value (list premise)))))
 \end{code-listing}

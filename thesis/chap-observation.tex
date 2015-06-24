@@ -38,15 +38,10 @@ n-tuples found in the figure under analysis.
 [label=relationship-structure]
 {Relationships}
 (define-record-type <relationship>
-  (make-relationship type arity predicate equivalence-predicate)
-  relationship?
-  (type relationship-type)
-  (arity relationship-arity)
-  (predicate relationship-predicate)
-  (equivalence-predicate relationship-equivalence-predicate))
+  (make-relationship type arity predicate equivalence-predicate) ...))
 
 (define equal-length-relationship
-  (%make-relationship 'equal-length 2 segment-equal-length?
+  (make-relationship 'equal-length 2 segment-equal-length?
                       (set-equivalent-procedure segment-equivalent?)))
 
 (define concurrent-relationship
