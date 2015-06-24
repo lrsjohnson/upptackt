@@ -21,7 +21,6 @@
 
 ;;; Given a figure, report what's interesting
 (define (analyze-figure figure)
-  (number-figure-random-dependencies! figure)
   (let* ((points (figure-points figure))
          (angles (figure-angles figure))
          (implied-segments '() ; (point-pairs->segments (all-pairs points))

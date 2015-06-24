@@ -18,12 +18,10 @@
          (s2 (rotate-about (segment-endpoint-1 s1)
                            (/ pi 3)
                            s1)))
-    (with-dependency
-     (make-random-dependency 'random-equilateral-triangle)
-     (polygon-from-points
-      (segment-endpoint-1 s1)
-      (segment-endpoint-2 s1)
-      (segment-endpoint-2 s2)))))
+    (polygon-from-points
+     (segment-endpoint-1 s1)
+     (segment-endpoint-2 s1)
+     (segment-endpoint-2 s2))))
 
 (define (random-right-triangle)
   (let* ((r1 (random-ray))
@@ -32,11 +30,8 @@
                            r1))
          (p1 (random-point-on-ray r1))
          (p2 (random-point-on-ray r2)))
-    (with-dependency
-     (make-random-dependency 'random-right-triangle)
-     (polygon-from-points
-      (ray-endpoint r1)
-      p1 p2))))
+    (polygon-from-points
+     (ray-endpoint r1) p1 p2)))
 
 (define (random-isosceles-triangle)
   (let* ((s1 (random-segment))
@@ -44,24 +39,20 @@
          (s2 (rotate-about (segment-endpoint-1 s1)
                            base-angle
                            s1)))
-    (with-dependency
-     (make-random-dependency 'random-isosceles-triangle)
-     (polygon-from-points
-      (segment-endpoint-1 s1)
-      (segment-endpoint-2 s1)
-      (segment-endpoint-2 s2)))))
+    (polygon-from-points
+     (segment-endpoint-1 s1)
+     (segment-endpoint-2 s1)
+     (segment-endpoint-2 s2))))
 
 (define (random-right-isosceles-triangle)
   (let* ((s1 (random-segment))
          (s2 (rotate-about (segment-endpoint-1 s1)
                            (/ pi 2)
                            s1)))
-    (with-dependency
-     (make-random-dependency 'random-right-isosceles-triangle)
-     (polygon-from-points
-      (segment-endpoint-1 s1)
-      (segment-endpoint-2 s1)
-      (segment-endpoint-2 s2)))))
+    (polygon-from-points
+     (segment-endpoint-1 s1)
+     (segment-endpoint-2 s1)
+     (segment-endpoint-2 s2))))
 ;;;;;;;;;;;;;;;;;;;;;;; Random Quadrilaterals ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (random-square)
@@ -74,9 +65,7 @@
          (p4 (rotate-about p1
                            (/ pi 2)
                            p2)))
-    (with-dependency
-     (make-random-dependency 'random-square)
-     (polygon-from-points p1 p2 p3 p4))))
+    (polygon-from-points p1 p2 p3 p4)))
 
 (define (random-rectangle)
   (let* ((r1 (random-ray))
@@ -89,10 +78,7 @@
          (p3 (add-to-point
               p2
               (sub-points p4 p1))))
-    (with-dependency
-     (make-random-dependency 'random-rectangle)
-     (polygon-from-points
-      p1 p2 p3 p4))))
+    (polygon-from-points p1 p2 p3 p4)))
 
 (define (random-parallelogram)
   (let* ((r1 (random-ray))
@@ -105,9 +91,7 @@
          (p3 (add-to-point
               p2
               (sub-points p4 p1))))
-    (with-dependency
-     (make-random-dependency 'random-parallelogram)
-     (polygon-from-points p1 p2 p3 p4))))
+    (polygon-from-points p1 p2 p3 p4)))
 
 (define (random-kite)
   (let* ((r1 (random-ray))
@@ -120,23 +104,17 @@
          (p3 (reflect-about-line
               (line-from-points p2 p4)
               p1)))
-    (with-dependency
-     (make-random-dependency 'random-parallelogram)
-     (polygon-from-points p1 p2 p3 p4))))
+    (polygon-from-points p1 p2 p3 p4)))
 
 (define (random-rhombus)
   (let* ((s1 (random-segment))
          (p1 (segment-endpoint-1 s1))
          (p2 (segment-endpoint-2 s1))
-         (p4 (rotate-about p1
-                           (rand-angle-measure)
-                           p2))
+         (p4 (rotate-about p1 (rand-angle-measure) p2))
          (p3 (add-to-point
               p2
               (sub-points p4 p1))))
-    (with-dependency
-     (make-random-dependency 'random-rhombus)
-     (polygon-from-points p1 p2 p3 p4))))
+    (polygon-from-points p1 p2 p3 p4)))
 
 (define (random-trapezoid)
   (let* ((r1 (random-ray))
@@ -145,9 +123,7 @@
          (p2 (random-point-on-ray r1))
          (p3 (random-point-on-ray r2))
          (p4 (ray-endpoint r2)))
-    (with-dependency
-     (make-random-dependency 'random-trapezoid)
-     (polygon-from-points p1 p2 p3 p4))))
+    (polygon-from-points p1 p2 p3 p4)))
 
 (define (random-orthodiagonal-quadrilateral)
   (let* ((r1 (random-ray))
@@ -161,9 +137,7 @@
          (b (random-point-on-ray r2))
          (c (random-point-on-ray r3))
          (d (random-point-on-ray r4)))
-    (with-dependency
-     (make-random-dependency 'random-orthodiagonal-quadrilateral)
-     (polygon-from-points a b c d))))
+    (polygon-from-points a b c d)))
 
 (define (random-cyclic-quadrilateral)
   (let ((cir (random-circle)))

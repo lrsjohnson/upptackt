@@ -164,17 +164,13 @@
 
 (define (random-line)
   (let ((p (random-point)))
-    (with-dependency
-     (make-random-dependency 'random-line)
-     (random-line-through-point p))))
+    (random-line-through-point p)))
 
 (define (random-segment)
   (let ((p1 (random-point))
         (p2 (random-point)))
     (let ((seg (make-segment p1 p2)))
-      (with-dependency
-       (make-random-dependency 'random-segment)
-       seg))))
+      seg)))
 
 (define (random-ray)
   (let ((p (random-point)))
@@ -264,13 +260,9 @@
   (let* ((p1 (random-point))
          (p2 (random-point))
          (p3 (random-point-left-of-line (line-from-points p1 p2))))
-    (with-dependency
-     (make-random-dependency 'random-triangle)
-     (polygon-from-points p1 p2 p3))))
+    (polygon-from-points p1 p2 p3)))
 
 (define (random-quadrilateral)
-  (with-dependency
-   (make-random-dependency 'random-quadrilateral)
-   (random-n-gon 4)))
+  (random-n-gon 4))
 
 ;;; More in content/random-polygons.scm

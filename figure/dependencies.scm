@@ -76,40 +76,6 @@
   (or (eq-get element 'dependency)
       element))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Random Dependencies ;;;;;;;;;;;;;;;;;;;;;;;;;
-(define (make-random-dependency tag)
-  (%make-random-dependency tag 0))
-
-(define-record-type <random-dependency>
-  (%make-random-dependency tag num)
-  random-dependency?
-  (tag random-dependency-tag)
-  (num %random-dependency-num set-random-dependency-num!))
-
-(define (random-dependency-num rd)
-  (let ((v (%random-dependency-num rd)))
-    (if (= v 0)
-        0
-        v)))
-
-(define (print-random-dependency rd)
-  (list (random-dependency-tag rd)
-        (random-dependency-num rd)))
-(defhandler print print-random-dependency random-dependency?)
-
-(define (number-figure-random-dependencies! figure)
-  (define *random-dependency-num* 1)
-  (map (lambda (el)
-         (let ((dep (element-dependency el)))
-           (cond ((random-dependency? dep)
-                  (set-random-dependency-num!
-                   dep
-                   *random-dependency-num*)
-                  (set! *random-dependency-num*
-                        (+ *random-dependency-num* 1))))))
-       (figure-elements figure))
-  'done)
-
 (define element-dependencies->list
   (make-generic-operation
    1 'element-dependencies->list
@@ -122,10 +88,6 @@
 (defhandler element-dependencies->list
   element-dependency->list
   dependency-known?)
-
-(defhandler element-dependencies->list
-  print-random-dependency
-  random-dependency?)
 
 (defhandler element-dependencies->list
   (lambda (l)
