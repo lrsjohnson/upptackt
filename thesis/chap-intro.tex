@@ -5,8 +5,8 @@ I developed and analyzed an interactive computer system that emulates
 a student learning geometry concepts through inductive
 investigation. Although geometry knowledge can be conveyed via a
 series of factual definitions, theorems, and proofs, my system focuses
-on a more investigative approach in which an external teacher guides
-the student to ``discover'' new definitions and theorems via
+on a more \emph{investigative} approach in which an external teacher
+guides the student to ``discover'' new definitions and theorems via
 explorations and self-directed inquiry.
 
 My system emulates such a student by beginning with a fairly limited
@@ -16,10 +16,10 @@ geometric concepts and theorems by suggesting investigations the
 system should explore to see if it ``notices anything interesting.''
 
 To enable such learning, my project includes the combination of four
-intertwined modules: an imperative geometry construction interpreter
-to build constructions, a declarative geometry constraint solver to
-solve and test specifications, an observation-based perception module
-to notice interesting properties, and a learning module to analyze
+intertwined modules: an imperative geometry construction language to
+build constructions, an observation-based perception module to notice
+interesting properties, a declarative geometry constraint solver to
+solve and test specifications, and a learning module to analyze
 information from the other modules and integrate it into new
 definition and theorem discoveries.
 
@@ -36,13 +36,13 @@ Following this introduction,
 \begin{description}
 
 \item [Chapter~\ref{chap:motivation} Motivation] discusses motivation
-  of the system and presents some examples of diagram manipulation,
-  emphasizing the technique of visualizing diagrams ``in the mind's
-  eye.''
+  for the system and presents some examples of learning via diagram
+  manipulation, emphasizing the technique of visualizing diagrams ``in
+  the mind's eye.''
 
 \item [Chapter~\ref{chap:demo} Demonstration] provides several sample
-  interactions with the system and introduces the general system
-  components.
+  interactions with the system showing the main results this project
+  has achieved.
 
 \item[Chapter~\ref{chap:sys-overview} System Overview] presents
   several concepts used in the system, introduces the four main
@@ -55,7 +55,7 @@ Following this introduction,
 \begin{description}
 \item[Chapter~\ref{chap:imperative} Imperative Construction]
   describes the construction module that enables the system to
-  represent, perform, and display constructions.
+  represent, perform, and display figure constructions.
 
 \item[Chapter~\ref{chap:observer} Perception] describes the perception
   module that focuses on observing interesting properties in
@@ -70,10 +70,10 @@ Following this introduction,
 \item[Chapter~\ref{chap:learning} Learning Module] describes the
   learning module that integrates results from the other systems to
   create new discoveries. Main features include filtering out obvious
-  or known results from investigations to focus on the most
-  interesting discoveries, representing and storing newly-discovered
-  definitions and theorems, and providing an interface to apply these
-  findings to new situations.
+  and known during investigations, representing and storing
+  newly-discovered definitions and theorems, providing an interface to
+  apply these findings to new situations, and simplifying the
+  resulting definitions.
 
 \end{description}
 \newpage
@@ -83,7 +83,7 @@ Following this introduction,
   well as a comparison with existing dynamic geometry systems.
 
 \item[Chapter~\ref{chap:conclusion} Conclusion] evaluates the strengths and
-  weaknesses of the system and discussed future work and possible extensions.
+  weaknesses of the system and discusses future work and extensions.
 
 \item[Appendix~\ref{chap:code} Code Listings] provides full listings for code
   used in the system and explains an external dependency on a

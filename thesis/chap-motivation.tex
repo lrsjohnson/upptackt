@@ -26,26 +26,27 @@ Such skills and inferred rules are developed through repeated
 observation, followed by the formation and evaluation of conjectures.
 
 Similar to such day-to-day three-dimensional reasoning, visualizing
-and manipulating 2D geometric diagrams ``in the mind's eye'' allows
-one to explore questions such as ``what happens if\ldots''  or ``is it
-always true that\ldots''  to discover new conjectures.  Further
-investigation of examples can increase one's belief in such a
-conjecture, and an accompanying system of deductive reasoning from
-basic axioms could prove that an observation is correct.
+and manipulating two-dimensional geometric diagrams ``in the mind's
+eye'' allows one to explore questions such as ``what happens
+if\ldots'' or ``is it always true that\ldots'' to discover new
+conjectures.  Further investigation of examples can increase one's
+belief in such a conjecture, and an accompanying system of deductive
+reasoning from basic axioms could prove that an observation is
+correct.
 
 As an example, a curious student might notice that in a certain
 drawing of a triangle, the three perpendicular bisectors of the sides
 are concurrent, and that a circle constructed with center at the point
-of concurrence intersects all three vertices of the triangle.  Given
-this ``interesting observation'', the student might explore other
-triangles to see if this behavior is just coincidence, or conjecture
-about whether it applies to certain classes of triangles or all
-triangles in general.  After investigating several other examples, the
-student might have sufficient belief in the conjecture to explore
-using previously-proven theorems (in this case, correspondences in
-congruent triangles) to prove the conjecture.  This project is a
-software system that simulates and automates this inductive thought
-process.
+of concurrence through one triangle vertex intersects the other two
+triangle vertices.  Given this ``interesting observation'', the
+student might explore other triangles to see if this behavior is just
+coincidence, or conjecture about whether it applies to certain classes
+of triangles or all triangles in general.  After investigating several
+other examples, the student might have sufficient belief in the
+conjecture to explore using previously-proven theorems (in this case,
+correspondences in congruent triangles) to prove the conjecture.  This
+project is a software system that simulates and automates this
+inductive thought process.
 
 Automating geometric reasoning is not new, and has been an active
 field in computing and artificial intelligence.  Dynamic geometry
@@ -62,12 +63,12 @@ above, and is capable of exploring geometric concepts through
 inductive investigation.  The system begins with a fairly limited set
 of factual knowledge regarding basic definitions in geometry and
 provides means by which a user interacting with the system can
-``teach'' the system additional geometric concepts and theorems by
-suggesting investigations the system should explore to see if it
-``notices anything interesting.''
+``teach'' it additional geometric concepts and theorems by suggesting
+investigations the system should explore to see if it ``notices
+anything interesting.''
 
 To evaluate its recognition of such concepts, the interactive system
-provide means for a user to extract the observations and apply such
+provide means for a user to extract its observations and apply such
 findings to new scenarios.  In addition to the automated reasoning and
 symbolic artificial intelligence aspects of a system that can learn
 and reason inductively about geometry, the project also has some
@@ -130,7 +131,7 @@ some terminology helpful in discussing the differences between images
 as drawn and the spaces of geometric objects they represent.  For
 clarity, a \emph{figure} will refer to an actual configuration of
 points, lines, and circles drawn on a page.  Constraint annotations
-(congruence or measure) placed on an object form a \emph{diagram},
+(congruence or measure) placed on objects form a \emph{diagram},
 which is the abstract representation of the entire space of figure
 \emph{instances} that satisfy the constraints.
 
@@ -146,7 +147,7 @@ space represented by the third diagram are rectangles.  However, the
 space of quadrilaterals represented by the first two diagrams include
 instances that are not rectangles, as shown above.  At this time, the
 system only works with diagrams whose constraints can be satisfied in
-a given figure.  Detecting and explaining impossible diagrams, purely
+some figure.  Detecting and explaining impossible diagrams, purely
 from their set of constraints would be an interesting extension.
 
 \newpage
@@ -211,7 +212,7 @@ in future situations.
 
 In this and further examples, an important question becomes what
 properties are considered ``interesting'' and worth investigating in
-further instances of the diagram, as discussed in section
+further instances of the diagram, as discussed in Section
 \ref{sec:interest}.  As suggested by the examples in Investigation 3,
 this can include relations between segment and angle lengths,
 concurrent lines, collinear points, or parallel and perpendicular

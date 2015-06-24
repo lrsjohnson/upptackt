@@ -60,12 +60,11 @@ underlying X window system-based graphics interfaces in MIT Scheme,
 labels named points (\texttt{a}, \texttt{b}, \texttt{c}), and
 repositions the coordinate system to display interesting features.
 
-In the first figure, the coordinates of the points were explicitly
+In the first example, the coordinates of the points were explicitly
 specified yielding a deterministic instance of the figure. However, to
 represent entire spaces of diagram instances, the construction
 abstractions support random choices. Example~\ref{random-pb}
-demonstrates the creation of a figure involving an arbitrary
-triangle.
+demonstrates the creation of a figure involving an arbitrary triangle.
 
 The second formulation,
 \texttt{(simple-random-triangle-perp-bisectors)}, is equivalent to the
@@ -168,12 +167,12 @@ these figures.
 
 Example \ref{simple-analysis} demonstrates the interface for obtaining
 observations from a figure. An observation is a structure that
-associates a relationship (concurrent, equal length, parallel) with
-objects in the figure that satisfy the relationship. Relationships are
-represented as predicates over typed n-tuples and are checked against
-all such n-tuples found in the figure under analysis. For example, the
-perpendicular relationship is checked against all pairs of linear elements
-in the figure.
+associates a relationship (such as concurrent, equal length, or
+parallel) with objects in the figure that satisfy the
+relationship. Relationships are represented as predicates over typed
+n-tuples and are checked against all such n-tuples found in the figure
+under analysis. For example, the perpendicular relationship is checked
+against all pairs of linear elements in the figure.
 
 The observation objects returned are compound structures that maintain
 properties of the underlying relationships and references to the
@@ -207,7 +206,7 @@ information about the interesting relationships formed by a
 construction operation such as perpendicular bisector is specified
 alongside instructions for how to perform the operation, but a further
 extension of the learning module could try to infer inductively which
-properties result from various known operations.
+obvious properties result from various known operations.
 
 \begin{repl-example}
 [label=interesting-analysis]
@@ -264,10 +263,9 @@ is a parallelogram and omit observations implied by that fact.
 \label{demo:sec:declarative}
 
 The first two modules focus on performing imperative constructions to
-build diagrams and analyze them to obtain interesting symbolic
+build diagrams and analyzing them to obtain interesting symbolic
 observations and relationships. Alone, these modules could assist a
-mathematician in building, analyzing, and exploring geometry
-concepts.
+mathematician in building, analyzing, and exploring geometry concepts.
 
 However, an important aspect of automating learning theorems and
 definitions involves reversing this process and obtaining instances of
@@ -292,10 +290,10 @@ Example~\ref{simple-mechanism} demonstrates the specification of a
 very simple mechanism. Unlike the sequential, Scheme variable based
 \texttt{let-geo*} specification of constructions in the imperative
 construction system, to specify mechanisms, \texttt{m:mechanism} is
-applied to a list of linkage and constraint declarations containing
-symbolic identifiers.  This example mechanism is composed of two bar
-linkages with one joint linkage between the bars, along with a
-constraint that the joint is a right angle.
+applied to a list of bar, joint, and constraint declarations
+containing symbolic identifiers.  This example mechanism is composed
+of two bars with one joint between them, along with a constraint that
+the joint is a right angle.
 
 \begin{code-example}
 [label=simple-mechanism]
@@ -316,10 +314,10 @@ for the bar and joint properties are then introduced alongside any
 explicitly specified constraints.
 
 Solving a mechanism involves repeatedly selecting position, lengths,
-angles, and directions that are not fully specified and selecting
-values within the domain of that element's current partial
-information. As values are specified, the wiring of the propagator
-model propagates further partial information to other values.
+angles, and directions that are not yet determined and selecting
+values within the domain of that element's current partial information
+content. As values are specified, the wiring of the propagator model
+propagates partial information updates to neighboring cells.
 
 The printed statements in Example \ref{solving-simple-mechanism}
 demonstrate that solving the simple mechanism above involves
@@ -349,15 +347,15 @@ displays it.
 
 \subsection{Geometry Examples}
 
-These bar and linkage mechanisms can be used to represent the
-topologies of several geometry figures. Bars correspond to segments
-and joints correspond to angles. Example \ref{arbitrary-tri}
-demonstrates the set of linkages necessary to specify the topology of
-a triangle. The second formulation,
-\texttt{(simpler-arbitrary-triangle)} is equivalent to the first since
-the utility procedure \texttt{m:establish-polygon-topology} expands to
-create the set of $n$ bars and $n$ joint specifications needed to
-represent a closed polygon for the given $n$ vertex names.
+These bar and joint mechanisms can be used to represent the topologies
+of several geometry figures. Bars correspond to segments and joints
+correspond to angles. Example \ref{arbitrary-tri} demonstrates the set
+of linkages necessary to specify the topology of a triangle. The
+second formulation, \texttt{(simpler-arbitrary-triangle)} is
+equivalent to the first since the utility procedure
+\texttt{m:establish-polygon-topology} expands to create the set of $n$
+bars and $n$ joint specifications needed to represent a closed polygon
+for the given $n$ vertex names.
 
 \begin{code-example}
 [label=arbitrary-tri]
@@ -415,7 +413,7 @@ points and angles can be. A specified angle constrains a point to a
 ray and a specified length constrains a point to be on an arc of a
 circle. As information about a point is merged from several sources,
 intersecting these rays and circles yields unique solutions for where
-the points must exist. Then, as the location of points are determined,
+the points must exist. Then, as the locations of points are determined,
 the bidirectional propagation continues to update the corresponding
 bar lengths and joint angles Although not as dynamic, these
 representations correspond to physically wiggling and extending the
@@ -470,11 +468,11 @@ learning module to produce a simpler definition for a parallelogram.
 To demonstrate the constraint solving working on a more complicated
 example, Example~\ref{is-rect-2} represents the constraints from the
 middle ``Is this a rectangle?'' question from Chapter
-\ref{chap:motivation}. This question asks whether a quadrilateral in
-which a pair of opposite sides are congruent, a pair of opposite
-angles are congruent, and one of the other angles is a right angle is
-always a rectangle. Try working this constraint problem by hand or in
-your mind's eye.
+\ref{chap:motivation} (page \pageref{example-1}). This question asks
+whether a quadrilateral in which a pair of opposite sides are
+congruent, a pair of opposite angles are congruent, and one of the
+other angles is a right angle is always a rectangle. Try working this
+constraint problem by hand or in your mind's eye.
 
 \begin{code-example}
 [label=is-rect-2]
@@ -508,8 +506,8 @@ As a final mechanism example, in addition to solving constraints of
 the angles and sides for a \emph{single} polygon, the mechanism system
 can support the creation of arbitrary topologies of bars and
 joints. In the following examples, by using several calls to the
-\texttt{establish-polygon-topology utility}, I build the topology of a
-quadrilaterals whose diagonals intersect at a point \texttt{e} and
+\texttt{m:establish-polygon-topology}, I build the topology of a
+quadrilateral whose diagonals intersect at a point \texttt{e} and
 explore the effects of various constraints on these diagonal
 segments. \texttt{m:quadrilateral-with-intersecting-diagonals} will
 simplify specification of this topology in the following examples.
@@ -604,7 +602,7 @@ as trapezoids, parallelograms, or isoceles triangles.
 \begin{img-example}
 [label=initial-lattice,
 breakable=false]
-{Initial Lattice}{images/initial-lattice.png}
+{Initial Lattice at Startup}{images/initial-lattice.png}
 => (what-is 'trapezoid)
 unknown
 
@@ -628,12 +626,12 @@ the instances are generalized into new concepts and theorems. To
 evaluate the system's learning, the system provides means for a user
 to query its knowledge or apply it to new situations.
 
-One example of this process involves the ``teacher'' user crafting an
-investigation procedure that creates instances of a new class of
-object. For instance, a user could define \texttt{random-trapezoid} to
-be a procedure that, each time it is called, returns a randomly
-constructed trapezoid. Example~\ref{rand-trp} shows the full range of
-trapezoids created via the \texttt{random-trapezoid} procedure.
+One example of this process involves the ``teacher'' user crafting a
+procedure that creates instances of a new class of object. For
+instance, a user could define \texttt{random-trapezoid} to be a
+procedure that, each time it is called, returns a randomly constructed
+trapezoid. Example~\ref{rand-trp} shows the full range of trapezoids
+created via the \texttt{random-trapezoid} procedure.
 
 \begin{pdf-example}
 [label=rand-trp,
@@ -682,7 +680,7 @@ and discover properties to include in the new definition.
 
 As shown in example \ref{what-is}, after being instructed to learn
 what a parallelogram is from the \texttt{random-parallelogram}
-procedure, when queried for a definition, we're given the term, the
+procedure, when queried for a definition, one is given the term, the
 base classifications of the parallelogram, and all properties known to
 be true for parallelograms.
 
@@ -716,13 +714,13 @@ be true for parallelograms.
 
 
 To use such learned knowledge, we can use \texttt{is-a?} to test
-whether other elements are satisfy the known definition of a term. As
-shown in example \ref{test-def}, results are correctly returned for
-any polygon that satisfies the observed properties. In cases where the
-properties are not satisfied, the system reports the failed
-conjectures or classifications (e.g. an equaliteral triangle is not a
-parallelogram: It failed the necessary classification that it must be
-a quadrilateral because it didn't have 4 sides).
+whether other elements also satisfy the current definition of a
+term. As shown in example \ref{test-def}, results are correctly
+returned for any polygon that satisfies the observed properties. In
+cases where the properties are not satisfied, the system reports the
+failed conjectures or classifications (e.g. an equaliteral triangle is
+not a parallelogram: It failed the necessary classification that it
+must be a quadrilateral because it didn't have 4 sides).
 
 \begin{repl-example}
 [label=test-def]
@@ -825,7 +823,7 @@ more general theorems about its objects, the system allows users to
 specify investigations based on a premise. These investigations
 represent the English instructions of \emph{``Given \texttt{<premise
     objects>}, construct \texttt{<secondary constructions>}. Notice
-  anything interesting?''}. They are use the imperative construction
+  anything interesting?''}. They also use the imperative construction
 \texttt{let-geo*} macros, but have a ``dependency injected'' premise
 argument to enable the learning module to control what is being
 investigated.  By conditioning such constructions and analysis on the
@@ -834,8 +832,8 @@ observations based on previously-learned theorems and store new
 observations as theorems for future use.
 
 The investigation in Example~\ref{diag-investigation} takes a
-quadrilateral as its premise and constructs a figure including the
-quadrilateral's diagonals.
+quadrilateral as its base premise and constructs a figure including
+the quadrilateral's diagonals.
 
 \begin{code-example}
 [label=diag-investigation]
@@ -853,8 +851,8 @@ quadrilateral's diagonals.
 
 Investigations can be run either for a particular premise term or for
 an entire sublattice of descendants. Example~\ref{run-investigation}
-shows the results of diagonals conjecture being run for orthodiagonal
-and equidiagonal terms.
+shows the results of the diagonals investigation being run for
+orthodiagonal and equidiagonal terms.
 
 \begin{pdf-example}
 [label=run-investigation]
@@ -912,9 +910,8 @@ polygon for any equidiagonal quadrilateral is a rhombus, and the inner
 polygon for any orthodiagonal quadrilateral is a rectangle. Then, as
 reinforced by looking back to the full lattice in
 Example~\ref{full-lattice}, it reports that the inner quadrilateral of
-a square (the most general descendent of equidiagonal and
-orthodiagonal) is also a square (the most general descendent of
-rhombus and rectangle).
+a square (a descendent of both equidiagonal and orthodiagonal) is also a
+square (a descendent of both rhombus and rectangle).
 
 %\enlargethispage*{\baselineskip}
 
@@ -932,8 +929,8 @@ As properties accumulate from analysis and investigation, the need to
 satisfy all known properties for a shape overconstraints the resulting
 definitions. For example, satisfying some small subset of the known
 properties of a parallelogram is sufficient to determine whether an
-unknown object is a parallelogram without checking every property
-known about parallelograms.
+unknown object is a parallelogram without checking \emph{every}
+property known about parallelograms.
 
 Accordingly, the final, fun example that integrates all of these
 systems is the process of learning simpler definitions for geometry
@@ -943,8 +940,8 @@ properties for that term, and tests all reasonable subsets of those
 properties as constraints using the constraint solver. For each subset
 of properties, if the constraint solver was able to create a diagram
 satisfying exactly those properties, the resulting diagram is checked
-using with the \texttt{is-a?} procedure to see if all the other known
-properties of the original term still hold.
+using with the \texttt{is-a?} procedure to see if all the \emph{other}
+known properties of the original term still hold.
 
 If so, the subset of properties is reported as a sufficient definition
 of the term, and if the resulting diagram fails some properties, the
@@ -981,11 +978,11 @@ of congruent base angles or a pair of congruent sides.
 
 In the parallelogram Example \ref{pl-definitions}, some subsets are
 marked as unknown because the constraint solver wasn't able to solve a
-diagram given those constraints. However, the results still show some
-the interesting sufficient definitions of a the pair of equal opposite
-angles as explored in Example~\ref{pl-by-angles} or a pair of equal
-length opposite sides and correctly mark several sets of insufficient
-definitions as not being specific enough.
+diagram given those constraints. However, the results still show the
+interesting sufficient definitions of \emph{either} pairs of opposite
+angles being equal as explored in Example~\ref{pl-by-angles} or pairs
+of opposite sides being equal, and correctly mark several sets of
+insufficient definitions as not being specific enough.
 
 \begin{repl-example}
 [label=pl-definitions]
